@@ -15,9 +15,9 @@ import org.powerbot.script.rt6.ClientContext;
 
 @Script.Manifest(
 		name="AFK Wars",
-		description="AFK in Castle Wars.",
+		description="Idles in Castle Wars to get tickets.",
 		properties="author=Mooshe; topic=1296226; client=6;")
-public class MainScript extends PollingScript<ClientContext>
+public class IdleScript extends PollingScript<ClientContext>
 		implements PaintListener {
 
 	public static final int

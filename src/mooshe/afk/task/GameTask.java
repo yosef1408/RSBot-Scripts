@@ -2,7 +2,7 @@ package mooshe.afk.task;
 
 import java.util.concurrent.Callable;
 
-import mooshe.afk.MainScript;
+import mooshe.afk.IdleScript;
 
 import org.powerbot.script.Condition;
 import org.powerbot.script.rt6.ClientContext;
@@ -15,7 +15,7 @@ public class GameTask implements Task {
 	
 	@Override
 	public boolean execute(final ClientContext ctx) {
-		MainScript script = (MainScript) ctx.controller.script();
+		IdleScript script = (IdleScript) ctx.controller.script();
 		switch(ctx.players.local().tile().floor()) {
 			case 1:
 				final GameObject o = ctx.objects.select()

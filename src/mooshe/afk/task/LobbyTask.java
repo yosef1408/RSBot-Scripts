@@ -2,7 +2,7 @@ package mooshe.afk.task;
 
 import java.util.concurrent.Callable;
 
-import mooshe.afk.MainScript;
+import mooshe.afk.IdleScript;
 
 import org.powerbot.script.Condition;
 import org.powerbot.script.rt6.*;
@@ -25,7 +25,7 @@ public class LobbyTask implements Task {
 	
 	@Override
 	public boolean execute(final ClientContext ctx) {
-		MainScript script = (MainScript) ctx.controller.script();
+		IdleScript script = (IdleScript) ctx.controller.script();
 		// Gameover
 		final Widget w = ctx.widgets.widget(WIDGET_GAMEOVER);
 		if(w.valid()) {
@@ -58,7 +58,7 @@ public class LobbyTask implements Task {
 						return !p.valid();
 					}
 				}, 100, 15))
-					portal = MainScript.PORTAL_GUTHIX;
+					portal = IdleScript.PORTAL_GUTHIX;
 			}
 			return true;
 		}
