@@ -47,7 +47,7 @@ public class MainScript extends PollingScript<ClientContext>
 		start = System.currentTimeMillis();
 		log.info("Starting AFK Wars");
 		try {
-			bg = ImageIO.read(getClass().getResourceAsStream("/res/bg.png"));
+			bg = ImageIO.read(getClass().getResourceAsStream("/mooshe/afk/res/bg.png"));
 		} catch(Exception e) {
 			log.warning("Could not load Background Image.");
 		}
