@@ -1,7 +1,7 @@
 This is a public repository for open source scripts. 
 
 ##Setting Up
-1. [Fork](https://github.com/powerbot/powerbot#fork-destination-box) this repository
+1. Fork this repository
 2. Add the remote
     - `git remote add origin https://github.com/[your github name]/powerbot.git`
 3. Fetch the repository
