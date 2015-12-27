@@ -46,11 +46,7 @@ public class MainScript extends PollingScript<ClientContext>
 	public void start() {
 		start = System.currentTimeMillis();
 		log.info("Starting AFK Wars");
-		try {
-			bg = ImageIO.read(getClass().getResourceAsStream("/mooshe/afk/res/bg.png"));
-		} catch(Exception e) {
-			log.warning("Could not load Background Image.");
-		}
+		bg = downloadImage("http://i.imgur.com/qRolF87.png");
 		option = (Option) JOptionPane.showInputDialog(null,
 				"Please select a team to join",
 				"AFK Wars",
