@@ -1,6 +1,9 @@
-This is a public repository for open source scripts. 
+#The Open Script Repository
+The Open Script Repository allows non-ranked script writers to publish their scripts to SDN.
+<p>
+If you have a script that you would like to publish, read on.
 
-##Setting Up
+###Setting Up
 1. Fork this repository
 2. Add the remote
     - `git remote add origin https://github.com/[your github name]/powerbot.git`
@@ -11,7 +14,7 @@ This is a public repository for open source scripts.
 5. Commit and push normally when making any changes
 6. Make a Pull Request on the 'scripts' branch, which will be evaluated before being accepted
 
-##Guidelines for Scripts
+###Guidelines for Scripts
 - Scripts **must** be packaged
 - The parent package **must** be your powerbot username (e.g. coma/scripts/Script.java)
 - Scripts **must** have an `author` tag in the script `Properties` with your powerbot username
