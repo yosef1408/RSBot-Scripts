@@ -7,12 +7,21 @@ If you have a script that you would like to publish, read on.
 1. Fork this repository
 2. Add the remote
     - `git remote add origin https://github.com/[your github name]/powerbot.git`
-3. Fetch the repository
+3. Add the upstream source
+    - `git remote add upstream https://github.com/powerbot/powerbot.git`
+4. Fetch the repository
     - `git fetch origin`
-4. Change your working branch to the 'scripts' branch
+5. Change your working branch to the 'scripts' branch
     - `git checkout scripts`
-5. Commit and push normally when making any changes
-6. Make a Pull Request on the 'scripts' branch, which will be evaluated before being accepted
+    
+###Adding your Scripts
+1. Sync your local copy with the upstream source
+    - `git fetch upstream`
+2. Commit your changes
+    - `git commit -a -m "Your update message"`
+3. Push the changes to your fork
+    - `git push origin scripts`
+4. Make a Pull Request from your forked repository
 
 ###Guidelines for Scripts
 - Scripts **must** be packaged
