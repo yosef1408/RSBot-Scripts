@@ -17,11 +17,13 @@ If you have a script that you would like to publish, read on.
 ###Adding your Scripts
 1. Sync your local copy with the upstream source
     - `git fetch upstream`
-2. Commit your changes
+2. Rebase
+    - `git rebase upstream/scripts`
+3. Commit your changes
     - `git commit -a -m "Your update message"`
-3. Push the changes to your fork
+4. Push the changes to your fork
     - `git push origin scripts`
-4. Make a Pull Request from your forked repository
+5. Make a Pull Request from your forked repository
 
 ###Guidelines for Scripts
 - Scripts **must** be packaged
