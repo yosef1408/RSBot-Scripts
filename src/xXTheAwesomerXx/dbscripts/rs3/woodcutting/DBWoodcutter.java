@@ -75,9 +75,25 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 			new Tile(3086, 3238, 0), new Tile(3086, 3238, 0),
 			new Tile(3084, 3237, 0) };
 
+	private final Tile[] draynorLodestoneToWillows = new Tile[] {
+			new Tile(3106, 3296, 0), new Tile(3106, 3294, 0),
+			new Tile(3107, 3293, 0), new Tile(3109, 3291, 0),
+			new Tile(3109, 3289, 0), new Tile(3109, 3286, 0),
+			new Tile(3108, 3284, 0), new Tile(3107, 3280, 0),
+			new Tile(3106, 3277, 0), new Tile(3104, 3275, 0),
+			new Tile(3104, 3273, 0), new Tile(3104, 3268, 0),
+			new Tile(3105, 3265, 0), new Tile(3105, 3263, 0),
+			new Tile(3105, 3260, 0), new Tile(3105, 3258, 0),
+			new Tile(3105, 3255, 0), new Tile(3105, 3252, 0),
+			new Tile(3104, 3249, 0), new Tile(3100, 3248, 0),
+			new Tile(3096, 3249, 0), new Tile(3093, 3249, 0),
+			new Tile(3089, 3249, 0), new Tile(3086, 3249, 0),
+			new Tile(3085, 3246, 0), new Tile(3085, 3243, 0),
+			new Tile(3085, 3241, 0), new Tile(3085, 3237, 0) };
+
 	private State getState() {
 		if (!hasExtraItems()) {
-			if (ctx.backpack.select().count() < getRandomInventInt()) {
+			if (ctx.backpack.select().count() <= getRandomInventInt()) {
 				if (atTreeArea()) {
 					statusMessage = "Chopping...";
 					return State.CHOP;
@@ -125,7 +141,7 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 		g.setColor(new Color(0, 0, 0, 70));
 		g.fillRect(5, 35, 523, 154);
 		g.setColor(new Color(204, 0, 0));
-		g.drawString("DiscoFisher: " + statusMessage, 10, 50);
+		g.drawString("DBWoodcutter: " + statusMessage, 10, 50);
 		g.drawString("Total Runtime: " + formatTime(totalRuntime)
 				+ " | Task Time: " + formatTime(taskRuntime), 10, 65);
 		g.drawString("Last Chop: " + chopRuntime + "ms", 10, 80);
@@ -236,11 +252,12 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 								setRandomInventInt(Random.nextInt(20, 25));
 							} else {
 								final GameObject obj2 = ctx.objects.select()
-										.name(getAssignmentTreeString()).shuffle().poll();
+										.name(getAssignmentTreeString())
+										.shuffle().poll();
 								if (obj2.valid()) {
 									if (ctx.players.local().animation() != -1) {
 										if (obj2.inViewport()) {
-										obj2.hover();
+											obj2.hover();
 										} else {
 											ctx.camera.turnTo(obj2);
 										}
@@ -249,8 +266,8 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 							}
 						}
 					} else {
-							obj.interact(true, "Chop down",
-									getAssignmentTreeString());
+						obj.interact(true, "Chop down",
+								getAssignmentTreeString());
 					}
 				} else {
 					ctx.camera.turnTo(obj);
@@ -332,7 +349,7 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 			ctx.camera.angle('n');
 			if (ctx.backpack.select().count() <= getRandomInventInt()) {
 				if (!atTreeArea()) {
-					final Tile pathToTreeArea;
+					Tile pathToTreeArea = null;
 					if (!getAssignmentString().equalsIgnoreCase("Willow")) {
 						pathToTreeArea = ctx.movement.findPath(
 								getAssignmentArea().getCentralTile()).next();
@@ -344,6 +361,13 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 							if (!inOverallPortSarimArea()) {
 								pathToTreeArea = ctx.movement.findPath(
 										new Tile(3083, 3236)).next();
+								if (!Double.isInfinite(pathToTreeArea
+										.distanceTo(ctx.players.local()))) {
+									// TODO: Figure out what to do here
+								} else {
+									pathToTreeArea = ctx.movement.newTilePath(
+											draynorLodestoneToWillows).next();
+								}
 							} else {
 								pathToTreeArea = ctx.movement.newTilePath(
 										sarimToDraynorPath).next();
@@ -746,6 +770,11 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 
 	private boolean inOverallDraynorArea() {
 		return new Area(new Tile(3070, 3321), new Tile(3102, 3224))
+				.contains(ctx.players.local());
+	}
+
+	private boolean comingFromDraynorLodestone() {
+		return new Area(new Tile(3100, 3299), new Tile(3110, 3233))
 				.contains(ctx.players.local());
 	}
 
