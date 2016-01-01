@@ -37,13 +37,6 @@ public class Elder extends PollingScript<ClientContext> implements PaintListener
     public void start() {
         status = "Configuring...";
 
-        //Check for starting materials (Hatchet) - EDIT: OBSOLETE WITH TOOLBELT, ALWAYS HAVE A HATCHET
-        /*if(ctx.backpack.select().id(hatchetIDs).isEmpty()){
-            if(ctx.equipment.select().id(hatchetIDs).isEmpty()) {
-                status = "ERROR: No Hatchet Found";
-            }
-        }*/
-
         //Check for empty inventory
         if(shouldBank()){
             //Inventory full - go deposit everything
