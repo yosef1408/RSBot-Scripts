@@ -4,7 +4,10 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.util.concurrent.Callable;
+
 import org.powerbot.script.Area;
+import org.powerbot.script.Condition;
 import org.powerbot.script.MessageEvent;
 import org.powerbot.script.MessageListener;
 import org.powerbot.script.PaintListener;
@@ -15,23 +18,31 @@ import org.powerbot.script.Tile;
 import org.powerbot.script.rt6.Action;
 import org.powerbot.script.rt6.Bank.Amount;
 import org.powerbot.script.rt6.ClientContext;
+import org.powerbot.script.rt6.Component;
 import org.powerbot.script.rt6.Constants;
 import org.powerbot.script.rt6.GameObject;
 import org.powerbot.script.rt6.Item;
+import org.powerbot.script.rt6.Widget;
+
+import xXTheAwesomerXx.dbscripts.rs3.misc.Trade;
 
 @Script.Manifest(name = "DBWoodcutter", description = "Progressive Woodcutter made by xXTheAwesomerXx", properties = "author=xXTheAwesomerXx; topic=1296051;")
 public class DBWoodcutter extends PollingScript<ClientContext> implements
 		MessageListener, PaintListener {
 
 	private enum State {
-		RUN, CHOP, BANK, DROP
+		RUN, CHOP, BANK, DROP, DO_TRADE, SETUP
 	};
 
-	private boolean bankRegular = false, bankOak = false, bankWillow = true,
-			bankYews = true, draynorWillows = true, varrockYews = true;
+	public static boolean bankRegular = false, bankOak = false,
+			bankWillow = true, bankYews = true, draynorWillows = true,
+			varrockYews = true, scriptSetup = false;
 	private int randomInventInt = 25;
 
-	private String statusMessage = "Starting...";
+	public static boolean getNotes = false, doTrade = false,
+			allowTrade = false, guiShowing = false;
+
+	public static String statusMessage = "Starting...", muleName = "";
 	private long START_TIME = System.currentTimeMillis(), CHOP_TIME = System
 			.currentTimeMillis(), TASK_TIME = System.currentTimeMillis();
 	private long totalRuntime, chopRuntime, taskRuntime;
@@ -198,32 +209,51 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 			new Tile(3178, 3476, 0) };
 
 	private State getState() {
-		if (!hasExtraItems()) {
-			if (ctx.backpack.select().count() <= getRandomInventInt()) {
-				if (atTreeArea()) {
-					statusMessage = "Chopping...";
-					return State.CHOP;
-				} else {
-					statusMessage = "Running to Resources";
-					return State.RUN;
-				}
-			} else {
-				if (bankLogs()) {
-					if (atBankArea()) {
-						statusMessage = "Banking...";
-						return State.BANK;
+		if (scriptSetup) {
+			if (!doTrade) {
+				if (!getNotes) {
+					if (!hasExtraItems()) {
+						if (ctx.backpack.select().count() <= getRandomInventInt()) {
+							if (atTreeArea()) {
+								statusMessage = "Chopping...";
+								return State.CHOP;
+							} else {
+								statusMessage = "Running to Resources";
+								return State.RUN;
+							}
+						} else {
+							if (bankLogs()) {
+								if (atBankArea()) {
+									statusMessage = "Banking...";
+									return State.BANK;
+								} else {
+									statusMessage = "Running to Bank";
+									return State.RUN;
+								}
+							} else {
+								statusMessage = "Dropping";
+								return State.DROP;
+							}
+						}
 					} else {
-						statusMessage = "Running to Bank";
-						return State.RUN;
+						statusMessage = "Dropping Extras";
+						return State.DROP;
 					}
 				} else {
-					statusMessage = "Dropping";
-					return State.DROP;
+					if (atBankArea()) {
+						statusMessage = "Banking for notes";
+						return State.BANK;
+					} else {
+						statusMessage = "Running for notes";
+						return State.RUN;
+					}
 				}
+			} else {
+				statusMessage = "Trading...";
+				return State.DO_TRADE;
 			}
 		} else {
-			statusMessage = "Dropping Extras";
-			return State.DROP;
+			return State.SETUP;
 		}
 	}
 
@@ -263,7 +293,9 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 		g.drawString("Exp/Hr: " + expHr + " | Exp/Hr(Task): " + taskExpHr, 10,
 				140);
 		g.drawString("Exp to Lvl " + (currentWoodcuttingLevel + 1) + ": "
-				+ expToLvl, 10, 155);
+				+ expToLvl + " | Logs to Lvl " + (currentWoodcuttingLevel + 1)
+				+ ": " + Math.round((expToLvl / getExperiencePerLog()) * 100.0)
+				/ 100.0, 10, 155);
 		g.drawString("Total Logs: " + logsChopped + ", " + taskChopped + " "
 				+ getAssignmentString(), 10, 170);
 		g.drawString("Logs/Hr(Total): " + (logsChopped * 3600000)
@@ -296,10 +328,31 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 				CHOP_TIME = System.currentTimeMillis();
 			} else if ((m.text().contains("15") || m.text().contains("30") || m
 					.text().contains("60")) && m.text().contains("advanced")) {
-				this.taskChopped = 0;
+				taskChopped = 0;
 				TASK_TIME = System.currentTimeMillis();
 				TASK_START_EXPERIENCE = ctx.skills
 						.experience(Constants.SKILLS_WOODCUTTING);
+			} else if (m.text().contains("Accepted")) {
+				doTrade = false;
+			}
+		}
+		if (m.source().equalsIgnoreCase(muleName)) {
+			if (m.text().equalsIgnoreCase("What's your woodcutting level?")) {
+				ctx.input.sendln("");
+				ctx.input.sendln(Integer.toString(ctx.skills
+						.level(Constants.SKILLS_FISHING)));
+			} else if (m.text().equalsIgnoreCase(
+					"How many logs do you guys have?")) {
+				ctx.input.sendln("");
+				ctx.input.sendln(Integer.toString(ctx.backpack.select()
+						.id(getAssignmentItemId()).count()
+						+ ctx.backpack.select().id(getAssignmentItemId() + 1)
+								.count(true))
+						+ " " + getAssignmentString());
+			} else if (m.text().equalsIgnoreCase("Trade me")) {
+				doTrade = true;
+			} else if (m.text().equalsIgnoreCase("Get notes")) {
+				getNotes = true;
 			}
 		}
 	}
@@ -307,6 +360,67 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 	@Override
 	public void poll() {
 		switch (getState()) {
+		case SETUP:
+			if (guiShowing == false) {
+				DBWoodcutterGUI gui = new DBWoodcutterGUI();
+				gui.setVisible(true);
+			}
+			break;
+		case DO_TRADE:
+			if (!allowTrade) {
+				doTrade = false;
+			} else {
+				final Trade trade = new Trade(ctx);
+				if (trade.select().trading()) {
+					if (trade.getTradePartner().equalsIgnoreCase(muleName)) {
+						if (trade.offering()) {
+							if (ctx.backpack.select()
+									.id(getAssignmentItemId() + 1).count() == 0) {
+								if (trade.partnerAcceptedOffer()) {
+									trade.acceptOffer();
+								} else if (!trade.acceptedOffer()) {
+									trade.acceptOffer();
+								}
+							} else {
+								int assignmentItemIndex = ctx.backpack.select()
+										.id(getAssignmentItemId() + 1).poll()
+										.component().index();
+								final Widget widget = ctx.widgets.widget(336);
+								if (widget.valid()) {
+									final Component component = widget
+											.component(0).component(
+													assignmentItemIndex);
+									if (component.itemId() == (getAssignmentItemId() + 1)) {
+										component.interact("Offer-All");
+									}
+								}
+							}
+						} else if (trade.reviewing()) {
+							if (trade.partnerAcceptedReview()) {
+								trade.acceptReview();
+							} else if (!trade.acceptedReview()) {
+								trade.acceptReview();
+							}
+						}
+					} else {
+						if (trade.offering()) {
+							trade.declineOffer();
+						} else {
+							trade.declineReview();
+						}
+					}
+				} else {
+					ctx.players.select().name(muleName).poll()
+							.interact("Trade");
+					Condition.wait(new Callable<Boolean>() {
+						@Override
+						public Boolean call() throws Exception {
+							return trade.trading();
+						}
+					}, 2000, 5);
+				}
+			}
+			break;
 		case CHOP:
 			if (ctx.bank.opened()) {
 				ctx.bank.close();
@@ -446,17 +560,35 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 					ctx.camera.turnTo(ctx.bank.nearest());
 				}
 			} else {
-				while (ctx.backpack.select().id(getAssignmentItemId()).count() > 0) {
+				if (!getNotes) {
+					while (ctx.backpack.select().id(getAssignmentItemId())
+							.count() > 0) {
 
-					ctx.bank.deposit(getAssignmentItemId(), Amount.ALL);
-				}
+						ctx.bank.deposit(getAssignmentItemId(), Amount.ALL);
+					}
 
-				withdrawBestUsableAxe();
-				while (hasUnusableAxe()) {
-					depositUnusableAxe();
-				}
-				while (hasExtraAxeInInventory()) {
-					depositExtraAxeInInventory();
+					withdrawBestUsableAxe();
+					while (hasUnusableAxe()) {
+						depositUnusableAxe();
+					}
+					while (hasExtraAxeInInventory()) {
+						depositExtraAxeInInventory();
+					}
+				} else {
+					if (ctx.backpack.select().count() < 28) {
+						if (ctx.bank.select().id(getAssignmentItemId()).count() > 0) {
+							if (!ctx.bank.withdrawMode()) {
+								ctx.bank.withdrawMode(true);
+							} else {
+								ctx.bank.withdraw(getAssignmentItemId(),
+										Amount.ALL);
+							}
+						} else {
+							getNotes = false;
+						}
+					} else {
+						ctx.bank.deposit(getAssignmentItemId(), Amount.ALL);
+					}
 				}
 			}
 			break;
@@ -466,43 +598,8 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 			}
 			equipBetterAxe();
 			ctx.camera.angle('n');
-			if (ctx.backpack.select().count() <= getRandomInventInt()) {
-				Tile pathToTreeArea = null;
-				if (getAssignmentString().equalsIgnoreCase("Willow")) {
-					if (!draynorWillows) {
-						pathToTreeArea = ctx.movement.findPath(
-								new Tile(2985, 3190)).next();
-					} else {
-						if (!inOverallPortSarimArea()) {
-							pathToTreeArea = ctx.movement.findPath(
-									new Tile(3083, 3236)).next();
-							if (!Double.isInfinite(pathToTreeArea
-									.distanceTo(ctx.players.local()))) {
-								// TODO: Figure out what to do here
-								// Maybe stop?
-							} else {
-								pathToTreeArea = ctx.movement.newTilePath(
-										draynorLodestoneToWillows).next();
-							}
-						} else {
-							pathToTreeArea = ctx.movement.newTilePath(
-									sarimToDraynorPath).next();
-						}
-					}
-				} else if (getAssignmentString().equalsIgnoreCase("Yew")) {
-					pathToTreeArea = ctx.movement
-							.newTilePath(overallPathToVarrockYews)
-							.randomize(1, 4).next();
-				} else {
-					pathToTreeArea = ctx.movement.findPath(
-							getAssignmentArea().getCentralTile()).next();
-				}
-				if (pathToTreeArea != null && pathToTreeArea.x() != -1) {
-					ctx.movement.step(pathToTreeArea);
-				} else {
-					teleportToKnownLocation();
-				}
-			} else {
+			if ((getAssignmentString().equalsIgnoreCase("Willow") || getAssignmentString()
+					.equalsIgnoreCase("Yew")) && getNotes) {
 				Tile pathToBank = ctx.movement.findPath(
 						getAssignmentBankArea().getCentralTile()).next();
 				if (pathToBank != null && pathToBank.x() != -1) {
@@ -511,7 +608,8 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 					if (getAssignmentString().equalsIgnoreCase("Yew")) {
 						if (varrockYews) {
 							if (!inVarrockYewArea()) {
-								teleportToKnownLocation();// if in varrock area
+								teleportToKnownLocation();// if in varrock
+															// area
 							} else {
 								pathToBank = ctx.movement.newTilePath(
 										pathToVarrockYewBank).next();
@@ -519,6 +617,68 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 							}
 						} else {
 							statusMessage = "Not doing varrock yews, but need to run to yew bank";
+						}
+					}
+				}
+			} else {
+				if (ctx.backpack.select().count() <= getRandomInventInt()) {
+					Tile pathToTreeArea = null;
+					if (getAssignmentString().equalsIgnoreCase("Willow")) {
+						if (!draynorWillows) {
+							pathToTreeArea = ctx.movement.findPath(
+									new Tile(2985, 3190)).next();
+						} else {
+							if (!inOverallPortSarimArea()) {
+								pathToTreeArea = ctx.movement.findPath(
+										new Tile(3083, 3236)).next();
+								if (!Double.isInfinite(pathToTreeArea
+										.distanceTo(ctx.players.local()))) {
+									// TODO: Figure out what to do here
+									// Maybe stop?
+								} else {
+									if (comingFromDraynorLodestone())
+										pathToTreeArea = ctx.movement
+												.newTilePath(
+														draynorLodestoneToWillows)
+												.next();
+								}
+							} else {
+								pathToTreeArea = ctx.movement.newTilePath(
+										sarimToDraynorPath).next();
+							}
+						}
+					} else if (getAssignmentString().equalsIgnoreCase("Yew")) {
+						pathToTreeArea = ctx.movement
+								.newTilePath(overallPathToVarrockYews)
+								.randomize(1, 4).next();
+					} else {
+						pathToTreeArea = ctx.movement.findPath(
+								getAssignmentArea().getCentralTile()).next();
+					}
+					if (pathToTreeArea != null && pathToTreeArea.x() != -1) {
+						ctx.movement.step(pathToTreeArea);
+					} else {
+						teleportToKnownLocation();
+					}
+				} else {
+					Tile pathToBank = ctx.movement.findPath(
+							getAssignmentBankArea().getCentralTile()).next();
+					if (pathToBank != null && pathToBank.x() != -1) {
+						ctx.movement.step(pathToBank);
+					} else {
+						if (getAssignmentString().equalsIgnoreCase("Yew")) {
+							if (varrockYews) {
+								if (!inVarrockYewArea()) {
+									teleportToKnownLocation();// if in varrock
+																// area
+								} else {
+									pathToBank = ctx.movement.newTilePath(
+											pathToVarrockYewBank).next();
+									ctx.movement.step(pathToBank);
+								}
+							} else {
+								statusMessage = "Not doing varrock yews, but need to run to yew bank";
+							}
 						}
 					}
 				}
@@ -763,6 +923,19 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 			return 1521; // NOTE: Oak Id
 		} else {
 			return 1511; // NOTE: Regular Id
+		}
+	}
+
+	private double getExperiencePerLog() {
+		int woodcuttingLevel = currentWoodcuttingLevel;
+		if (woodcuttingLevel >= 60) {
+			return 175;
+		} else if (woodcuttingLevel >= 30) {
+			return 67.5;
+		} else if (woodcuttingLevel >= 15) {
+			return 37.5;
+		} else {
+			return 25;
 		}
 	}
 
