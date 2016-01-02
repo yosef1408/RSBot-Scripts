@@ -8,10 +8,14 @@ import org.powerbot.script.rt6.*;
 import org.powerbot.script.rt6.ClientContext;
 import org.powerbot.script.rt6.Component;
 import java.awt.*;
+import java.net.URL;
+
 import org.powerbot.script.Random;
 
+import javax.imageio.ImageIO;
+
 @Script.Manifest(name="Elder Log Collector", properties = "author=Helicopter12; topic=1296549; client=6;", description="An autonomous Elder tree chopping and banking system used for money making")
-public class Elder extends PollingScript<ClientContext> implements PaintListener, MessageListener {
+public class Elder extends PollingScript<ClientContext> implements PaintListener, MessageListener{
     private String status = "Starting...";
     private final int elderID = 87508;
     private final int  deadElderID = 87509, elderLogID = 29556;
@@ -22,6 +26,7 @@ public class Elder extends PollingScript<ClientContext> implements PaintListener
     private final Tile lodeStoneBankTile = new Tile(2899,3544,0);
     private final Tile bankTile = new Tile(2887,3536,0);
     private final String locationNames[] = { "Varrock:", "Seer's:", "E-Ville:", "E-Peak:", "Draynor1:", "Draynor2:" };
+    private final int shiftValues[] = { 11, 9, 5, 16, 4, 4 };
     private final Tile elderLocation[] = { new Tile(3260,3367,0), new Tile(2737,3407,0), new Tile(3094,3457,0), new Tile(2324,3598,0), new Tile(3059,3319,0), new Tile(3098,3218,0) };
     private final Tile lodeStoneTile[] = { new Tile(3214,3376,0), new Tile(2689,3482,0), new Tile(3067,3505,0), new Tile(2366,3479,0), new Tile(3105,3298,0), new Tile(3105,3298,0) };
     private final int lodeStoneComponentID[] = { 21, 19, 15, 24, 14, 14 };
@@ -31,11 +36,21 @@ public class Elder extends PollingScript<ClientContext> implements PaintListener
     private boolean depositAll = false;
     private int randomizedLocations[] = new int[4];
     private int step = 0;
+    private Image Cursor;
+    private String examineNames = "";
     int i = 0;
 
     @Override
     public void start() {
         status = "Configuring...";
+
+        //Load Cursor
+        try {
+            final URL cursorURL = new URL("http://elder.comlu.com/cursor.png");
+            Cursor = ImageIO.read(cursorURL);
+        }catch(Exception ex){
+            log.info("Error: Couldn't load cursor");
+        }
 
         //Check for empty inventory
         if(shouldBank()){
@@ -51,13 +66,16 @@ public class Elder extends PollingScript<ClientContext> implements PaintListener
         int rnd3 = Random.nextInt(0,6);
         int rnd4 = Random.nextInt(0,6);
 
-        while(rnd2 == rnd1 || rnd2 == rnd3 || rnd2 == rnd4){
+        while(!lodestoneUnlocked(rnd1)){
+            rnd1 = Random.nextInt(0,6);
+        }
+        while(rnd2 == rnd1 || rnd2 == rnd3 || rnd2 == rnd4 || !lodestoneUnlocked(rnd2)){
             rnd2 = Random.nextInt(0,6);
         }
-        while(rnd3 == rnd1 || rnd3 == rnd2 || rnd3 == rnd4){
+        while(rnd3 == rnd1 || rnd3 == rnd2 || rnd3 == rnd4 || !lodestoneUnlocked(rnd3)){
             rnd3 = Random.nextInt(0,6);
         }
-        while(rnd4 == rnd1 || rnd4 == rnd3 || rnd4 == rnd2) {
+        while(rnd4 == rnd1 || rnd4 == rnd3 || rnd4 == rnd2 || !lodestoneUnlocked(rnd4)) {
             rnd4 = Random.nextInt(0,6);
         }
         randomizedLocations[0] = rnd1;
@@ -72,6 +90,15 @@ public class Elder extends PollingScript<ClientContext> implements PaintListener
         if(status.equals("Configuring...") && ctx.game.loggedIn()) {
             step = 1;
         }
+    }
+
+    @Override
+    public void stop()
+    {
+        log.info("Stopped - Uploading data");
+        String url = "http://elder.comlu.com/records.php?time=" + (getTotalRuntime()/1000) +"&collected=" + logsCollected + "&profit=" + ((logsCollected * elderPrice)/1000) + "K" ;
+        downloadString(url);
+        log.info("Stopped - Data sent");
     }
 
     @Override
@@ -115,31 +142,29 @@ public class Elder extends PollingScript<ClientContext> implements PaintListener
                 break;
             case 4:
                 //If we are not at the desired tile then walk to it
-                if(elderLocation[randomizedLocations[i]].distanceTo(ctx.players.local().tile()) > 7){
+                if(elderLocation[randomizedLocations[i]].distanceTo(ctx.players.local().tile()) < 10) {
+                    step++;
+                }else{
                     status = "Walking to Elder";
                     ctx.movement.step(elderLocation[randomizedLocations[i]]);
-                    Condition.sleep(Random.nextInt(700,1200));
-                }else{
-                    step++;
+                    Condition.sleep(Random.nextInt(700,1000));
                 }
                 break;
             case 5:
                 //Handle the chopping now
-                if(ctx.objects.select().id(deadElderID).within(6).nearest().isEmpty()) {
-                    final GameObject elder = ctx.objects.select().id(elderID).nearest().poll();
-                    if(elder.valid()) {
-                        status = "Chopping";
-                        if (!elder.inViewport()) {
-                            ctx.camera.turnTo(elder.tile());
-                        }
-                        if (ctx.players.local().animation() == -1) {
-                            Condition.sleep(1000);
-                            if(ctx.players.local().animation() == -1) {
-                                elder.interact("Chop down", elder.name());
-                            }
-                        }
-                        antiBan();
+                final GameObject elder = ctx.objects.select().id(elderID).nearest().poll();
+                if(elder.valid()) {
+                    status = "Chopping";
+                    if (!elder.inViewport()) {
+                        ctx.camera.turnTo(elder.tile());
                     }
+                    if (ctx.players.local().animation() == -1) {
+                        Condition.sleep(1000);
+                        if(ctx.players.local().animation() == -1) {
+                            elder.interact("Chop down", elder.name());
+                        }
+                    }
+                    antiBan();
                 }else{
                     status = "Elder Dead";
                     //Tree is dead so start the timer and decide to bank or move the to next location
@@ -183,7 +208,9 @@ public class Elder extends PollingScript<ClientContext> implements PaintListener
                 break;
             case 9:
                 //If we are not at the bank tile then walk to it
-                if (bankTile.distanceTo(ctx.players.local().tile()) > 4) {
+                if(ctx.bank.inViewport()){
+                    step++;
+                }else if (bankTile.distanceTo(ctx.players.local().tile()) > 4) {
                     status = "Walking to Bank";
                     ctx.movement.step(bankTile);
                     Condition.sleep(Random.nextInt(700, 1200));
@@ -256,7 +283,7 @@ public class Elder extends PollingScript<ClientContext> implements PaintListener
         g.drawString("Elder", 72, 29);
         g.setFont(font2);
         g.setColor(color5);
-        g.drawString("v1.38", 129, 27);
+        g.drawString("v2.00", 129, 27);
         g.setFont(font3);
         g.drawString("Status:", 16, 54);
         g.drawString("Logs Collected:", 17, 72);
@@ -278,6 +305,8 @@ public class Elder extends PollingScript<ClientContext> implements PaintListener
         final long min = getTotalRuntime()/60000;
         final long sec = getTotalRuntime()/1000;
         g.drawString(hr + ":" + (min - (hr*60)) + ":" + (sec - (60 *min)), 76, 188);
+        Point p = ctx.input.getLocation();
+        g.drawImage(Cursor,p.x -4,p.y-2,null);
     }
 
     @Override
@@ -375,9 +404,13 @@ public class Elder extends PollingScript<ClientContext> implements PaintListener
             final int rnd2 = Random.nextInt(0,2);
             log.info("Random int: " + rnd2);
             if(rnd2 == 0) {
-                randomizedLocations[i] = missing1;
+                if(lodestoneUnlocked(missing1)) {
+                    randomizedLocations[i] = missing1;
+                }
             }else{
-                randomizedLocations[i] = missing2;
+                if(lodestoneUnlocked(missing2)) {
+                    randomizedLocations[i] = missing2;
+                }
             }
 
             switch(i) {
@@ -415,28 +448,49 @@ public class Elder extends PollingScript<ClientContext> implements PaintListener
                 break;
             case 20:
                 status = "Anti-ban(2)";
-                final GameObject obj = ctx.objects.select().within(7).poll();
+                final GameObject obj = ctx.objects.select().within(10).shuffle().poll();
                 if(obj.valid() && obj.inViewport()){
-                    obj.interact("Examine", obj.name());
+                    if(!examineNames.contains(obj.name())) {
+                        obj.interact("Examine", obj.name());
+                        examineNames += " " + obj.name();
+                    }
+                }else{
+                    ctx.input.move(ctx.input.getLocation().x + Random.nextInt(-200,200), ctx.input.getLocation().y +Random.nextInt(-300,250));
                 }
                 break;
             case 30:
                 status = "Anti-ban(3)";
-                final Npc npc =  ctx.npcs.select().within(7).poll();
+                final Npc npc =  ctx.npcs.select().within(10).shuffle().poll();
                 if(npc.valid() && npc.inViewport()){
-                    npc.interact("Examine", npc.name());
+                    if(!examineNames.contains(npc.name())) {
+                        npc.interact("Examine", npc.name());
+                        examineNames += " " + npc.name();
+                    }
+                }else{
+                    ctx.input.move(ctx.input.getLocation().x + Random.nextInt(-200,200), ctx.input.getLocation().y +Random.nextInt(-300,250));
                 }
                 break;
             case 40:
                 status = "Anti-ban(4)";
-                final Player plyr= ctx.players.select().within(7).poll();
+                final Player plyr = ctx.players.select().within(10).shuffle().poll();
+                final int rndTab = Random.nextInt(0,4);
                 if(plyr.valid() && plyr.inViewport() && !ctx.players.local().name().equals(plyr.name())){
                     plyr.interact("Examine", plyr.name());
+                    Condition.sleep(Random.nextInt(100,1500));
+                    if (rndTab != 0) {
+                        final Component cmp = ctx.widgets.component(1560, rndTab);
+                        if (cmp.valid() && cmp.visible()) {
+                            cmp.click();
+                        }
+                    }
                     Condition.sleep(Random.nextInt(1000,10000));
+
                     final Component widg = ctx.widgets.component(1560,22);
                     if(widg.valid() && widg.visible()){
                         widg.click();
                     }
+                }else{
+                    ctx.input.move(ctx.input.getLocation().x + Random.nextInt(-200,200), ctx.input.getLocation().y +Random.nextInt(-300,250));
                 }
                 break;
         }
@@ -458,5 +512,13 @@ public class Elder extends PollingScript<ClientContext> implements PaintListener
                 dRespawn = getTotalRuntime() + 600000;
         }
     }
-}
 
+    //Credit to LodeStone class
+    private boolean lodestoneUnlocked(int check){
+        boolean ret = true;
+        if(ctx.varpbits.varpbit(3, shiftValues[check], 1) != 1){
+            ret = false;
+        }
+        return ret;
+    }
+}
