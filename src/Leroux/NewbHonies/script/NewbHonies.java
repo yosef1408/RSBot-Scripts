@@ -88,7 +88,7 @@ public class NewbHonies extends PollingScript<ClientContext> implements PaintLis
 		g.setColor(textColor);
 		g.setFont(font);
 		
-		g.drawString("Newb Honies v1.0", 180, 364);            
+		g.drawString("Newb Honies v1.01", 180, 364);
 		g.drawString("Grabbed: " + honiesGrabbed + "(" + (int)honiesPerHour + "/hour)", 22, 385);             
 		g.drawString("Profit: " + profit + "(" + (int)profitPerHour + "/hour)", 22, 400);           
 		g.drawString("Time Running: " + hours +":" + minutes + ":" + seconds, 22, 415);           
