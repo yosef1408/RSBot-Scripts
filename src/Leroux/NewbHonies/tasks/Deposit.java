@@ -33,41 +33,40 @@ public class Deposit extends Task {
 
 	@Override
 	public void execute() {
-
 		GameObject bank = ctx.objects.nearest().poll();
 		Item honeyComb = ctx.backpack.select().id(items.getHoneyComb().id()).poll();
-		
+
 		if(!bank.inViewport()) {
 			ctx.movement.step(bank);
 			ctx.camera.turnTo(bank);
 		}
-		
-		if(!ctx.backpack.itemSelected() && !ctx.widgets.widget(1188).component(0).visible()) {
-			
+
+		if(!ctx.backpack.itemSelected() && !ctx.widgets.widget(1188).component(20).visible()) {
+
 			if(honeyComb.interact("Use")) {
-				
+
 				bank.interact("Use");
-				
+
 				Condition.wait(new Callable<Boolean>() {
 					@Override
 					public Boolean call() throws Exception {
-						return ctx.widgets.widget(1188).component(0).visible();
+						return ctx.widgets.widget(1188).component(20).visible();
 					}
-				});	
-					
-				}
-				
+				});
+
 			}
-		
-	
-		if(ctx.widgets.widget(1188).component(6).visible()) {
-		
-			ctx.widgets.widget(1188).component(6).interact("Continue");
-		
+
 		}
-		
-		
-		
+
+
+		if(ctx.widgets.widget(1188).component(20).visible()) {
+
+			ctx.widgets.widget(1188).component(20).interact("Continue");
+
+		}
+
+
+
 	}
 
 }
