@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-@Script.Manifest(name = "Newb Honies", description = "Collects HoneyComb in Seers Village.", properties = "client=6;topic=1297151;author=Leroux;")
+@Script.Manifest(name = "Newb Honies", description = "Collects HoneyComb in Seers Village.", properties = "client=6;topic=1265445;author=Leroux;")
 
 public class NewbHonies extends PollingScript<ClientContext> implements PaintListener, MessageListener {
 	

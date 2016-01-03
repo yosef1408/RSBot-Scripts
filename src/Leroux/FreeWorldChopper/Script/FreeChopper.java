@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.concurrent.Callable;
 
 
-@Script.Manifest(name = "FreeWorld Chopper", description = "Chops things in various F2P locations.",properties = "client=6;topic=0;author=Leroux;")
+@Script.Manifest(name = "FreeWorld Chopper", description = "Chops things in various F2P locations.",properties = "client=6;topic=1297151;author=Leroux;")
 public class FreeChopper extends PollingScript<ClientContext> implements PaintListener, MessageListener{
 
     public static ArrayList<Task> taskList = new ArrayList<Task>();
