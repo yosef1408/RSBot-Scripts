@@ -29,7 +29,7 @@ public class Deposit extends Task<ClientContext> {
         GameObject booth = ctx.objects.nearest().poll();
 
         if(!ctx.bank.opened()) {
-            if (WoodCutting.getTreeName() != "Willow") {
+            if (WoodCutting.getTreeName() != "Willow" && WoodCutting.getTreeName() != "Yew") {
                 booth.interact("Bank", "Bank booth");
             } else {
                 booth.interact("Bank", "Counter");
