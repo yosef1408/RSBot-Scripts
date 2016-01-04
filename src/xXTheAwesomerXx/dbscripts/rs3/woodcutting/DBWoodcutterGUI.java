@@ -11,6 +11,7 @@ import javax.swing.event.ChangeListener;
 
 public class DBWoodcutterGUI extends JFrame {
 	private static final long serialVersionUID = -809713843260453622L;
+
 	public DBWoodcutterGUI() {
 		initComponents();
 	}
@@ -435,6 +436,9 @@ public class DBWoodcutterGUI extends JFrame {
 										(Integer) oakLevel.getValue() + 1,
 										(Integer) oakLevel.getValue() + 1, 99,
 										1));
+							} else {
+								willowLevel.setModel(new SpinnerNumberModel(30,
+										30, 99, 1));
 							}
 							if ((Integer) willowLevel.getValue() > 59) {
 								yewLevel.setModel(new SpinnerNumberModel(
