@@ -29,20 +29,25 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 		MessageListener, PaintListener {
 
 	private enum State {
-		RUN, CHOP, BANK, DROP, DO_TRADE, SETUP
+		RUN, CHOP, BANK, DROP, DO_TRADE
 	};
 
+	private final Trade trade = new Trade(ctx);
 	public static boolean bankRegular = false, bankOak = false,
-			bankWillow = true, bankYews = true, draynorWillows = true,
-			varrockYews = true, scriptSetup = false;
+			bankWillow = true, bankYews = true, chopOaks = false,
+			chopWillows = false, chopYews = false;
+	public static int oakLevel = 15, willowLevel = 30, yewLevel = 60;
 	private int randomInventInt = 25;
 
 	public static boolean getNotes = false, doTrade = false,
-			allowTrade = false, guiShowing = false;
+			allowTrade = false, guiShowing = false, addToToolbelt = true;
 
-	public static String statusMessage = "Starting...", muleName = "";
-	private long START_TIME = System.currentTimeMillis(), CHOP_TIME = System
-			.currentTimeMillis(), TASK_TIME = System.currentTimeMillis();
+	public static String statusMessage = "Starting...", muleName = "",
+			oakLocation = "Port Sarim", willowLocation = "Draynor",
+			yewLocation = "Varrock";
+	public static long START_TIME = System.currentTimeMillis(),
+			CHOP_TIME = System.currentTimeMillis(), TASK_TIME = System
+					.currentTimeMillis();
 	private long totalRuntime, chopRuntime, taskRuntime;
 
 	private final long START_EXPERIENCE = ctx.skills
@@ -56,202 +61,48 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 			currentWoodcuttingLevel = ctx.skills
 					.level(Constants.SKILLS_WOODCUTTING);
 
-	private final Tile[] sarimToDraynorPath = new Tile[] {
-			new Tile(2987, 3202, 0), new Tile(2989, 3206, 0),
-			new Tile(2992, 3210, 0), new Tile(2995, 3213, 0),
-			new Tile(2997, 3216, 0), new Tile(2998, 3218, 0),
-			new Tile(2999, 3221, 0), new Tile(3001, 3224, 0),
-			new Tile(3003, 3227, 0), new Tile(3005, 3231, 0),
-			new Tile(3006, 3235, 0), new Tile(3007, 3239, 0),
-			new Tile(3008, 3242, 0), new Tile(3008, 3246, 0),
-			new Tile(3009, 3249, 0), new Tile(3012, 3252, 0),
-			new Tile(3017, 3253, 0), new Tile(3019, 3254, 0),
-			new Tile(3019, 3258, 0), new Tile(3020, 3261, 0),
-			new Tile(3021, 3264, 0), new Tile(3024, 3267, 0),
-			new Tile(3029, 3270, 0), new Tile(3033, 3273, 0),
-			new Tile(3037, 3273, 0), new Tile(3043, 3273, 0),
-			new Tile(3046, 3274, 0), new Tile(3051, 3275, 0),
-			new Tile(3055, 3276, 0), new Tile(3058, 3276, 0),
-			new Tile(3062, 3275, 0), new Tile(3065, 3275, 0),
-			new Tile(3070, 3275, 0), new Tile(3072, 3276, 0),
-			new Tile(3076, 3272, 0), new Tile(3076, 3271, 0),
-			new Tile(3075, 3268, 0), new Tile(3075, 3268, 0),
-			new Tile(3076, 3266, 0), new Tile(3076, 3266, 0),
-			new Tile(3077, 3263, 0), new Tile(3079, 3259, 0),
-			new Tile(3079, 3254, 0), new Tile(3081, 3254, 0),
-			new Tile(3081, 3250, 0), new Tile(3082, 3246, 0),
-			new Tile(3085, 3245, 0), new Tile(3084, 3241, 0),
-			new Tile(3086, 3238, 0), new Tile(3086, 3238, 0),
-			new Tile(3084, 3237, 0) };
-
-	private final Tile[] draynorLodestoneToWillows = new Tile[] {
-			new Tile(3106, 3296, 0), new Tile(3106, 3294, 0),
-			new Tile(3107, 3293, 0), new Tile(3109, 3291, 0),
-			new Tile(3109, 3289, 0), new Tile(3109, 3286, 0),
-			new Tile(3108, 3284, 0), new Tile(3107, 3280, 0),
-			new Tile(3106, 3277, 0), new Tile(3104, 3275, 0),
-			new Tile(3104, 3273, 0), new Tile(3104, 3268, 0),
-			new Tile(3105, 3265, 0), new Tile(3105, 3263, 0),
-			new Tile(3105, 3260, 0), new Tile(3105, 3258, 0),
-			new Tile(3105, 3255, 0), new Tile(3105, 3252, 0),
-			new Tile(3104, 3249, 0), new Tile(3100, 3248, 0),
-			new Tile(3096, 3249, 0), new Tile(3093, 3249, 0),
-			new Tile(3089, 3249, 0), new Tile(3086, 3249, 0),
-			new Tile(3085, 3246, 0), new Tile(3085, 3243, 0),
-			new Tile(3085, 3241, 0), new Tile(3085, 3237, 0) };
-
-	private final Tile[] overallPathToVarrockYews = new Tile[] {
-			new Tile(2934, 3233, 0), new Tile(2939, 3229, 0),
-			new Tile(2944, 3231, 0), new Tile(2950, 3229, 0),
-			new Tile(2954, 3228, 0), new Tile(2960, 3227, 0),
-			new Tile(2963, 3226, 0), new Tile(2967, 3224, 0),
-			new Tile(2971, 3224, 0), new Tile(2975, 3224, 0),
-			new Tile(2975, 3224, 0), new Tile(2980, 3222, 0),
-			new Tile(2983, 3220, 0), new Tile(2990, 3218, 0),
-			new Tile(2993, 3216, 0), new Tile(2998, 3216, 0),
-			new Tile(3001, 3215, 0), new Tile(3007, 3215, 0),
-			new Tile(3011, 3215, 0), new Tile(3015, 3216, 0),
-			new Tile(3018, 3217, 0), new Tile(3019, 3220, 0),
-			new Tile(3020, 3224, 0), new Tile(3020, 3228, 0),
-			new Tile(3019, 3233, 0), new Tile(3020, 3237, 0),
-			new Tile(3020, 3242, 0), new Tile(3020, 3245, 0),
-			new Tile(3020, 3249, 0), new Tile(3019, 3252, 0),
-			new Tile(3019, 3255, 0), new Tile(3019, 3259, 0),
-			new Tile(3020, 3263, 0), new Tile(3021, 3265, 0),
-			new Tile(3024, 3268, 0), new Tile(3028, 3269, 0),
-			new Tile(3031, 3270, 0), new Tile(3035, 3273, 0),
-			new Tile(3038, 3274, 0), new Tile(3041, 3275, 0),
-			new Tile(3043, 3275, 0), new Tile(3046, 3275, 0),
-			new Tile(3050, 3274, 0), new Tile(3053, 3274, 0),
-			new Tile(3057, 3275, 0), new Tile(3060, 3275, 0),
-			new Tile(3063, 3275, 0), new Tile(3065, 3275, 0),
-			new Tile(3068, 3276, 0), new Tile(3071, 3276, 0),
-			new Tile(3073, 3272, 0), new Tile(3073, 3269, 0),
-			new Tile(3073, 3265, 0), new Tile(3073, 3262, 0),
-			new Tile(3072, 3255, 0), new Tile(3072, 3249, 0),
-			new Tile(3075, 3246, 0), new Tile(3078, 3242, 0),
-			new Tile(3082, 3240, 0), new Tile(3085, 3238, 0),
-			new Tile(3086, 3235, 0), new Tile(3088, 3238, 0),
-			new Tile(3085, 3239, 0), new Tile(3085, 3239, 0),
-			new Tile(3085, 3242, 0), new Tile(3085, 3246, 0),
-			new Tile(3086, 3248, 0), new Tile(3085, 3250, 0),
-			new Tile(3084, 3253, 0), new Tile(3085, 3255, 0),
-			new Tile(3090, 3258, 0), new Tile(3090, 3262, 0),
-			new Tile(3085, 3264, 0), new Tile(3085, 3266, 0),
-			new Tile(3085, 3268, 0), new Tile(3085, 3269, 0),
-			new Tile(3085, 3271, 0), new Tile(3085, 3274, 0),
-			new Tile(3084, 3276, 0), new Tile(3084, 3281, 0),
-			new Tile(3086, 3283, 0), new Tile(3087, 3286, 0),
-			new Tile(3088, 3288, 0), new Tile(3088, 3288, 0),
-			new Tile(3085, 3291, 0), new Tile(3085, 3294, 0),
-			new Tile(3084, 3297, 0), new Tile(3083, 3303, 0),
-			new Tile(3082, 3308, 0), new Tile(3081, 3311, 0),
-			new Tile(3079, 3315, 0), new Tile(3078, 3318, 0),
-			new Tile(3078, 3320, 0), new Tile(3076, 3325, 0),
-			new Tile(3076, 3327, 0), new Tile(3077, 3330, 0),
-			new Tile(3077, 3332, 0), new Tile(3077, 3336, 0),
-			new Tile(3075, 3339, 0), new Tile(3076, 3344, 0),
-			new Tile(3076, 3347, 0), new Tile(3076, 3352, 0),
-			new Tile(3076, 3355, 0), new Tile(3076, 3358, 0),
-			new Tile(3076, 3362, 0), new Tile(3077, 3365, 0),
-			new Tile(3076, 3371, 0), new Tile(3071, 3374, 0),
-			new Tile(3071, 3375, 0), new Tile(3071, 3379, 0),
-			new Tile(3072, 3381, 0), new Tile(3073, 3382, 0),
-			new Tile(3074, 3387, 0), new Tile(3075, 3389, 0),
-			new Tile(3076, 3396, 0), new Tile(3078, 3397, 0),
-			new Tile(3082, 3400, 0), new Tile(3084, 3402, 0),
-			new Tile(3087, 3403, 0), new Tile(3091, 3404, 0),
-			new Tile(3092, 3405, 0), new Tile(3093, 3407, 0),
-			new Tile(3094, 3408, 0), new Tile(3095, 3413, 0),
-			new Tile(3095, 3415, 0), new Tile(3096, 3418, 0),
-			new Tile(3097, 3420, 0), new Tile(3101, 3421, 0),
-			new Tile(3106, 3421, 0), new Tile(3111, 3421, 0),
-			new Tile(3116, 3421, 0), new Tile(3118, 3418, 0),
-			new Tile(3122, 3420, 0), new Tile(3123, 3422, 0),
-			new Tile(3124, 3426, 0), new Tile(3126, 3430, 0),
-			new Tile(3128, 3432, 0), new Tile(3133, 3434, 0),
-			new Tile(3136, 3435, 0), new Tile(3138, 3436, 0),
-			new Tile(3140, 3436, 0), new Tile(3143, 3437, 0),
-			new Tile(3145, 3439, 0), new Tile(3146, 3441, 0),
-			new Tile(3148, 3442, 0), new Tile(3150, 3443, 0),
-			new Tile(3153, 3446, 0), new Tile(3154, 3448, 0),
-			new Tile(3156, 3451, 0), new Tile(3158, 3453, 0),
-			new Tile(3162, 3455, 0), new Tile(3164, 3456, 0),
-			new Tile(3166, 3458, 0), new Tile(3167, 3459, 0),
-			new Tile(3166, 3461, 0), new Tile(3167, 3464, 0),
-			new Tile(3167, 3467, 0), new Tile(3169, 3469, 0),
-			new Tile(3172, 3470, 0), new Tile(3176, 3472, 0),
-			new Tile(3180, 3474, 0), new Tile(3182, 3475, 0),
-			new Tile(3184, 3477, 0), new Tile(3185, 3479, 0),
-			new Tile(3185, 3484, 0), new Tile(3185, 3486, 0),
-			new Tile(3187, 3488, 0), new Tile(3188, 3490, 0),
-			new Tile(3191, 3491, 0), new Tile(3193, 3492, 0),
-			new Tile(3195, 3493, 0), new Tile(3198, 3493, 0),
-			new Tile(3198, 3495, 0), new Tile(3198, 3498, 0),
-			new Tile(3200, 3500, 0), new Tile(3203, 3502, 0),
-			new Tile(3214, 3503) };
-
-	private final Tile[] pathToVarrockYewBank = new Tile[] {
-			new Tile(3223, 3502, 0), new Tile(3221, 3502, 0),
-			new Tile(3220, 3502, 0), new Tile(3218, 3502, 0),
-			new Tile(3215, 3502, 0), new Tile(3209, 3502, 0),
-			new Tile(3207, 3502, 0), new Tile(3205, 3502, 0),
-			new Tile(3202, 3502, 0), new Tile(3201, 3502, 0),
-			new Tile(3199, 3500, 0), new Tile(3198, 3498, 0),
-			new Tile(3197, 3493, 0), new Tile(3193, 3491, 0),
-			new Tile(3191, 3491, 0), new Tile(3189, 3492, 0),
-			new Tile(3185, 3490, 0), new Tile(3184, 3488, 0),
-			new Tile(3182, 3485, 0), new Tile(3182, 3483, 0),
-			new Tile(3181, 3480, 0), new Tile(3183, 3478, 0),
-			new Tile(3181, 3477, 0), new Tile(3179, 3474, 0),
-			new Tile(3178, 3476, 0) };
-
 	private State getState() {
-		if (scriptSetup) {
-			if (!doTrade) {
-				if (!getNotes) {
-					if (!hasExtraItems()) {
-						if (ctx.backpack.select().count() <= getRandomInventInt()) {
-							if (atTreeArea()) {
-								statusMessage = "Chopping...";
-								return State.CHOP;
+		if (!doTrade) {
+			if (!getNotes) {
+				if (!hasExtraItems()) {
+					if (ctx.backpack.select().count() <= getRandomInventInt()) {
+						if (atTreeArea()) {
+							statusMessage = "Chopping...";
+							return State.CHOP;
+						} else {
+							statusMessage = "Running to Resources";
+							return State.RUN;
+						}
+					} else {
+						if (bankLogs()) {
+							if (atBankArea()) {
+								statusMessage = "Banking...";
+								return State.BANK;
 							} else {
-								statusMessage = "Running to Resources";
+								statusMessage = "Running to Bank";
 								return State.RUN;
 							}
 						} else {
-							if (bankLogs()) {
-								if (atBankArea()) {
-									statusMessage = "Banking...";
-									return State.BANK;
-								} else {
-									statusMessage = "Running to Bank";
-									return State.RUN;
-								}
-							} else {
-								statusMessage = "Dropping";
-								return State.DROP;
-							}
+							statusMessage = "Dropping";
+							return State.DROP;
 						}
-					} else {
-						statusMessage = "Dropping Extras";
-						return State.DROP;
 					}
 				} else {
-					if (atBankArea()) {
-						statusMessage = "Banking for notes";
-						return State.BANK;
-					} else {
-						statusMessage = "Running for notes";
-						return State.RUN;
-					}
+					statusMessage = "Dropping Extras";
+					return State.DROP;
 				}
 			} else {
-				statusMessage = "Trading...";
-				return State.DO_TRADE;
+				if (atBankArea()) {
+					statusMessage = "Banking for notes";
+					return State.BANK;
+				} else {
+					statusMessage = "Running for notes";
+					return State.RUN;
+				}
 			}
 		} else {
-			return State.SETUP;
+			statusMessage = "Trading...";
+			return State.DO_TRADE;
 		}
 	}
 
@@ -330,7 +181,8 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 				TASK_TIME = System.currentTimeMillis();
 				TASK_START_EXPERIENCE = ctx.skills
 						.experience(Constants.SKILLS_WOODCUTTING);
-			} else if (m.text().contains("Accepted")) {
+			} else if (m.text().contains("Accepted")
+					|| m.text().contains("You can only give away")) {
 				doTrade = false;
 			}
 		}
@@ -347,10 +199,23 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 						+ ctx.backpack.select().id(getAssignmentItemId() + 1)
 								.count(true))
 						+ " " + getAssignmentString());
-			} else if (m.text().equalsIgnoreCase("Trade me")) {
+			} else if (m.text().equalsIgnoreCase("Trade me") && allowTrade) {
 				doTrade = true;
-			} else if (m.text().equalsIgnoreCase("Get notes")) {
+			} else if (m.text().equalsIgnoreCase("Get notes") && allowTrade) {
 				getNotes = true;
+			}
+		}
+	}
+
+	@Override
+	public void start() {
+		DBWoodcutterGUI gui = new DBWoodcutterGUI();
+		gui.setVisible(true);
+		while (gui.isVisible()) {
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
 			}
 		}
 	}
@@ -358,17 +223,10 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 	@Override
 	public void poll() {
 		switch (getState()) {
-		case SETUP:
-			if (guiShowing == false) {
-				DBWoodcutterGUI gui = new DBWoodcutterGUI();
-				gui.setVisible(true);
-			}
-			break;
 		case DO_TRADE:
 			if (!allowTrade) {
 				doTrade = false;
 			} else {
-				final Trade trade = new Trade(ctx);
 				if (trade.select().trading()) {
 					if (trade.getTradePartner().equalsIgnoreCase(muleName)) {
 						if (trade.offering()) {
@@ -424,7 +282,7 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 				ctx.bank.close();
 			}
 			if (getAssignmentString().equalsIgnoreCase("Willow")
-					&& draynorWillows) {
+					&& willowLocation.equalsIgnoreCase("Draynor Village")) {
 				if (ctx.widgets.widget(1184).component(11).text()
 						.equalsIgnoreCase("Guard in tree")) {
 					ctx.movement.step(ctx.players.local().tile().derive(2, 2));
@@ -434,7 +292,11 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 			if (ctx.camera.pitch() > 55 || ctx.camera.pitch() < 15) {
 				ctx.camera.pitch(Random.nextInt(15, 55));
 			}
-			equipBetterAxe();
+			if (addToToolbelt) {
+				addBetterAxeToToolbelt();
+			} else {
+				equipBetterAxe();
+			}
 			final GameObject obj = ctx.objects.select()
 					.id(getAssignmentTreeIds()).nearest().poll();
 			if (obj.valid()) {
@@ -551,41 +413,70 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 			}
 			break;
 		case BANK:
-			if (!ctx.bank.opened()) {
-				if (ctx.bank.inViewport()) {
-					ctx.bank.open();
+			if (getAssignmentString().equalsIgnoreCase("Regular")
+					|| getAssignmentString().equalsIgnoreCase("Oak")
+					|| (getAssignmentString().equalsIgnoreCase("Willow") && willowLocation
+							.equalsIgnoreCase("Port Sarim"))) {
+				final Widget bankWidget = ctx.widgets.widget(11);
+				if (bankWidget.valid()) {
+					if (ctx.backpack.select().id(getAssignmentItemId()).count() > 0) {
+						int assignmentItemIndex = ctx.backpack.poll()
+								.component().index();
+						final Component component = bankWidget.component(1)
+								.component(assignmentItemIndex);
+						if (component.itemId() == (getAssignmentItemId())) {
+							component.interact("Deposit-All");
+						}
+					}
 				} else {
-					ctx.camera.turnTo(ctx.bank.nearest());
+					final GameObject depositBox = ctx.objects.select()
+							.id(36788).nearest().poll();
+					if (depositBox.valid()) {
+						if (depositBox.inViewport()) {
+							depositBox.interact("Deposit");
+						} else {
+							ctx.camera.turnTo(depositBox);
+						}
+					}
 				}
 			} else {
-				if (!getNotes) {
-					while (ctx.backpack.select().id(getAssignmentItemId())
-							.count() > 0) {
-
-						ctx.bank.deposit(getAssignmentItemId(), Amount.ALL);
-					}
-
-					withdrawBestUsableAxe();
-					while (hasUnusableAxe()) {
-						depositUnusableAxe();
-					}
-					while (hasExtraAxeInInventory()) {
-						depositExtraAxeInInventory();
+				if (!ctx.bank.opened()) {
+					if (ctx.bank.inViewport()) {
+						ctx.bank.open();
+					} else {
+						ctx.camera.turnTo(ctx.bank.nearest());
 					}
 				} else {
-					if (ctx.backpack.select().count() < 28) {
-						if (ctx.bank.select().id(getAssignmentItemId()).count() > 0) {
-							if (!ctx.bank.withdrawMode()) {
-								ctx.bank.withdrawMode(true);
-							} else {
-								ctx.bank.withdraw(getAssignmentItemId(),
-										Amount.ALL);
-							}
-						} else {
-							getNotes = false;
+					if (!getNotes) {
+						while (ctx.backpack.select().id(getAssignmentItemId())
+								.count() > 0) {
+
+							ctx.bank.deposit(getAssignmentItemId(), Amount.ALL);
+						}
+
+						withdrawBestUsableAxe();
+						while (hasUnusableAxe()) {
+							depositUnusableAxe();
+						}
+						while (hasExtraAxeInInventory()) {
+							depositExtraAxeInInventory();
 						}
 					} else {
-						ctx.bank.deposit(getAssignmentItemId(), Amount.ALL);
+						if (ctx.backpack.select().count() < 28) {
+							if (ctx.bank.select().id(getAssignmentItemId())
+									.count() > 0) {
+								if (!ctx.bank.withdrawMode()) {
+									ctx.bank.withdrawMode(true);
+								} else {
+									ctx.bank.withdraw(getAssignmentItemId(),
+											Amount.ALL);
+								}
+							} else {
+								getNotes = false;
+							}
+						} else {
+							ctx.bank.deposit(getAssignmentItemId(), Amount.ALL);
+						}
 					}
 				}
 			}
@@ -593,6 +484,13 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 		case RUN:
 			if (ctx.bank.opened()) {
 				ctx.bank.close();
+			}
+			if (!doTrade && trade.trading()) {
+				if (trade.offering()) {
+					trade.declineOffer();
+				} else if (trade.reviewing()) {
+					trade.declineReview();
+				}
 			}
 			equipBetterAxe();
 			ctx.camera.angle('n');
@@ -604,13 +502,12 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 					ctx.movement.step(pathToBank);
 				} else {
 					if (getAssignmentString().equalsIgnoreCase("Yew")) {
-						if (varrockYews) {
+						if (yewLocation.equalsIgnoreCase("Varrock")) {
 							if (!inVarrockYewArea()) {
-								teleportToKnownLocation();// if in varrock
-															// area
+								teleportToKnownLocation();
 							} else {
 								pathToBank = ctx.movement.newTilePath(
-										pathToVarrockYewBank).next();
+										Paths.pathToVarrockYewBank).next();
 								ctx.movement.step(pathToBank);
 							}
 						} else {
@@ -622,9 +519,9 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 				if (ctx.backpack.select().count() <= getRandomInventInt()) {
 					Tile pathToTreeArea = null;
 					if (getAssignmentString().equalsIgnoreCase("Willow")) {
-						if (!draynorWillows) {
+						if (!willowLocation.equalsIgnoreCase("Draynor Village")) {
 							pathToTreeArea = ctx.movement.findPath(
-									new Tile(2985, 3190)).next();
+									new Tile(2986, 3189)).next();
 						} else {
 							if (!inOverallPortSarimArea()) {
 								pathToTreeArea = ctx.movement.findPath(
@@ -637,18 +534,25 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 									if (comingFromDraynorLodestone())
 										pathToTreeArea = ctx.movement
 												.newTilePath(
-														draynorLodestoneToWillows)
+														Paths.draynorLodestoneToWillows)
 												.next();
 								}
 							} else {
 								pathToTreeArea = ctx.movement.newTilePath(
-										sarimToDraynorPath).next();
+										Paths.sarimToDraynorPath).next();
 							}
 						}
 					} else if (getAssignmentString().equalsIgnoreCase("Yew")) {
 						pathToTreeArea = ctx.movement
-								.newTilePath(overallPathToVarrockYews)
+								.newTilePath(Paths.overallPathToVarrockYews)
 								.randomize(1, 4).next();
+					} else if (getAssignmentString()
+							.equalsIgnoreCase("Regular")
+							|| getAssignmentString().equalsIgnoreCase("Oak")) {
+						pathToTreeArea = ctx.movement.newTilePath(
+								ctx.movement
+										.newTilePath(Paths.pathToPortSarimBank)
+										.reverse().array()).next();
 					} else {
 						pathToTreeArea = ctx.movement.findPath(
 								getAssignmentArea().getCentralTile()).next();
@@ -665,17 +569,27 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 						ctx.movement.step(pathToBank);
 					} else {
 						if (getAssignmentString().equalsIgnoreCase("Yew")) {
-							if (varrockYews) {
+							if (yewLocation.equalsIgnoreCase("Varrock")) {
 								if (!inVarrockYewArea()) {
-									teleportToKnownLocation();// if in varrock
-																// area
+									teleportToKnownLocation();
 								} else {
 									pathToBank = ctx.movement.newTilePath(
-											pathToVarrockYewBank).next();
+											Paths.pathToVarrockYewBank).next();
 									ctx.movement.step(pathToBank);
 								}
 							} else {
 								statusMessage = "Not doing varrock yews, but need to run to yew bank";
+							}
+						} else if (getAssignmentString().equalsIgnoreCase(
+								"Willow")
+								&& willowLocation
+										.equalsIgnoreCase("Port Sarim")) {
+							if (!inOverallPortSarimArea()) {
+								teleportToKnownLocation();
+							} else {
+								pathToBank = ctx.movement.newTilePath(
+										Paths.pathToPortSarimBank).next();
+								ctx.movement.step(pathToBank);
 							}
 						}
 					}
@@ -690,7 +604,7 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 	private void teleportToKnownLocation() {
 		if (ctx.players.local().idle()) {
 			if (getAssignmentString().equalsIgnoreCase("Willow")
-					&& draynorWillows) {
+					&& willowLocation.equalsIgnoreCase("Draynor Village")) {
 				if (!inOverallDraynorArea()) {
 					if (Lodestone.DRAYNOR.canUse(ctx)) {
 						Lodestone.DRAYNOR.teleport(ctx);
@@ -704,7 +618,7 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 				}
 			} else {
 				if (getAssignmentString().equalsIgnoreCase("Yew")) {
-					if (varrockYews) {
+					if (yewLocation.equalsIgnoreCase("Varrock")) {
 						if (Lodestone.VARROCK.canUse(ctx)) {
 							Lodestone.VARROCK.teleport(ctx);
 						} else {
@@ -783,30 +697,72 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 		if (ctx.bank.opened()) {
 			if (currentWoodcuttingLevel >= 41) {
 				if (ctx.bank.select().id(1359).count() > 0) {
-					if (ctx.equipment.select().id(1359).count() == 0) {
-						if (ctx.backpack.select().id(1359).count() == 0) {
-							ctx.bank.withdraw(1359, Amount.ONE);
+					if (returnToolbeltToItemId() != 1359) {
+						if (ctx.equipment.select().id(1359).count() == 0) {
+							if (ctx.backpack.select().id(1359).count() == 0) {
+								ctx.bank.withdraw(1359, Amount.ONE);
+							}
+						}
+					}
+				} else if (ctx.bank.select().id(1357).count() > 0) {
+					if (returnToolbeltToItemId() < 1357) {
+						if (ctx.equipment.select().id(1357).count() == 0) {
+							if (ctx.backpack.select().id(1357).count() == 0) {
+								ctx.bank.withdraw(1357, Amount.ONE);
+							}
+						}
+					}
+				} else if (ctx.bank.select().id(1355).count() > 0) {
+					if (returnToolbeltToItemId() < 1355) {
+						if (ctx.equipment.select().id(1355).count() == 0) {
+							if (ctx.backpack.select().id(1355).count() == 0) {
+								ctx.bank.withdraw(1355, Amount.ONE);
+							}
 						}
 					}
 				}
 			} else if (currentWoodcuttingLevel >= 31) {
 				if (ctx.bank.select().id(1357).count() > 0) {
-					if (ctx.equipment.select().id(1357).count() == 0) {
-						if (ctx.backpack.select().id(1357).count() == 0) {
-							ctx.bank.withdraw(1357, Amount.ONE);
+					if (returnToolbeltToItemId() < 1357) {
+						if (ctx.equipment.select().id(1357).count() == 0) {
+							if (ctx.backpack.select().id(1357).count() == 0) {
+								ctx.bank.withdraw(1357, Amount.ONE);
+							}
+						}
+					}
+				} else if (ctx.bank.select().id(1355).count() > 0) {
+					if (returnToolbeltToItemId() < 1355) {
+						if (ctx.equipment.select().id(1355).count() == 0) {
+							if (ctx.backpack.select().id(1355).count() == 0) {
+								ctx.bank.withdraw(1355, Amount.ONE);
+							}
 						}
 					}
 				}
 			} else if (currentWoodcuttingLevel >= 21) {
 				if (ctx.bank.select().id(1355).count() > 0) {
-					if (ctx.equipment.select().id(1355).count() == 0) {
-						if (ctx.backpack.select().id(1355).count() == 0) {
-							ctx.bank.withdraw(1355, Amount.ONE);
+					if (returnToolbeltToItemId() < 1355) {
+						if (ctx.equipment.select().id(1355).count() == 0) {
+							if (ctx.backpack.select().id(1355).count() == 0) {
+								ctx.bank.withdraw(1355, Amount.ONE);
+							}
 						}
 					}
 				}
 			}
 		}
+	}
+
+	private int returnToolbeltToItemId() {
+		int toolbeltAxe = ctx.varpbits.varpbit(1102);
+		int itemId = 0;
+		if (toolbeltAxe == 84934639)
+			itemId = 1359;
+		if (toolbeltAxe == 68157423)
+			itemId = 1357;
+		if (toolbeltAxe == 51380207)
+			itemId = 1355;
+		return itemId;
 	}
 
 	private void depositExtraAxeInInventory() {
@@ -836,7 +792,8 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 			}
 			if (bestAxeId != 0) {
 				for (Item item : ctx.backpack.select().id(1355, 1357, 1359)) {
-					if (item.id() != bestAxeId) {
+					if (item.id() < bestAxeId
+							|| (!ctx.backpack.select().id(item.id()).isEmpty() && returnToolbeltToItemId() == bestAxeId)) {
 						ctx.bank.deposit(item.id(), Amount.ALL);
 					} else {
 						if (ctx.backpack.select().id(item.id()).count() > 1) {
@@ -884,7 +841,8 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 			}
 		}
 		if (bestAxeId != 0) {
-			if (ctx.backpack.select().id(bestAxeId).count() > 1) {
+			if (ctx.backpack.select().id(bestAxeId).count() > 1
+					|| (!ctx.backpack.select().id(bestAxeId).isEmpty() && returnToolbeltToItemId() == bestAxeId)) {
 				hasExtraAxe = true;
 			}
 		}
@@ -895,10 +853,19 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 		if (!ctx.backpack.select().id(getBetterAxeId()).isEmpty()) {
 			if (ctx.equipment.select().id(getBetterAxeId()).isEmpty()) {
 				if (hasRequiredAttackLevel()) {
-					for (Item i : ctx.backpack.id(getBetterAxeId()).shuffle()) {
+					for (Item i : ctx.backpack.shuffle()) {
 						i.interact("Wield");
 					}
 				}
+			}
+		}
+	}
+
+	private void addBetterAxeToToolbelt() {
+		if (ctx.backpack.select().id(getBetterAxeId()).count() > 0) {
+			if (returnToolbeltToItemId() != getBetterAxeId()) {
+				ctx.backpack.select().id(getBetterAxeId()).poll()
+						.interact("Add to tool belt");
 			}
 		}
 	}
@@ -913,24 +880,24 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 
 	private int getAssignmentItemId() {
 		int woodcuttingLevel = currentWoodcuttingLevel;
-		if (woodcuttingLevel >= 60) {
-			return 1515; // NOTE: Yew Id //TODO
-		} else if (woodcuttingLevel >= 30) {
-			return 1519; // NOTE: Willow Id
-		} else if (woodcuttingLevel >= 15) {
-			return 1521; // NOTE: Oak Id
+		if (woodcuttingLevel >= yewLevel && chopYews) {
+			return 1515;
+		} else if (woodcuttingLevel >= willowLevel && chopWillows) {
+			return 1519;
+		} else if (woodcuttingLevel >= oakLevel && chopOaks) {
+			return 1521;
 		} else {
-			return 1511; // NOTE: Regular Id
+			return 1511;
 		}
 	}
 
 	private double getExperiencePerLog() {
 		int woodcuttingLevel = currentWoodcuttingLevel;
-		if (woodcuttingLevel >= 60) {
+		if (woodcuttingLevel >= yewLevel && chopYews) {
 			return 175;
-		} else if (woodcuttingLevel >= 30) {
+		} else if (woodcuttingLevel >= willowLevel && chopWillows) {
 			return 67.5;
-		} else if (woodcuttingLevel >= 15) {
+		} else if (woodcuttingLevel >= oakLevel && chopOaks) {
 			return 37.5;
 		} else {
 			return 25;
@@ -940,7 +907,7 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 	private int getBetterAxeId() {
 		int woodcuttingLevel = currentWoodcuttingLevel;
 		if (woodcuttingLevel >= 61) {
-			return 2; // TODO
+			return 1359;
 		} else if (woodcuttingLevel >= 41) {
 			return 1359;
 		} else if (woodcuttingLevel >= 31) {
@@ -955,38 +922,37 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 
 	private int[] extraItemIds() {
 		int woodcuttingLevel = currentWoodcuttingLevel;
-		if (woodcuttingLevel >= 60) {
+		if (woodcuttingLevel >= yewLevel && chopYews) {
 			return new int[] { 1519, 1511, 1521 };
-		} else if (woodcuttingLevel >= 30) {
-			return new int[] { 1511, 1521 }; // NOTE:Willow Extra
-		} else if (woodcuttingLevel >= 15) {
-			return new int[] { 1511 }; // NOTE:Oak Extra
+		} else if (woodcuttingLevel >= willowLevel && chopWillows) {
+			return new int[] { 1511, 1521 };
+		} else if (woodcuttingLevel >= oakLevel && chopOaks) {
+			return new int[] { 1511 };
 		} else {
-			return new int[] { 1519, 1521 }; // NOTE:Regular Extra
+			return new int[] { 1519, 1521 };
 		}
 	}
 
 	private int[] getAssignmentTreeIds() {
 		int woodcuttingLevel = ctx.skills.level(Constants.SKILLS_WOODCUTTING);
-		if (woodcuttingLevel >= 60) {
-			return new int[] { 38755 }; // TODO
-		} else if (woodcuttingLevel >= 30) {
-			return new int[] { 38616, 38627, }; // NOTE:Willow Id
-		} else if (woodcuttingLevel >= 15) {
-			return new int[] { 38731, 38732 }; // NOTE:Oak Id
+		if (woodcuttingLevel >= yewLevel && chopYews) {
+			return new int[] { 38755 };
+		} else if (woodcuttingLevel >= willowLevel && chopWillows) {
+			return new int[] { 38616, 38627, };
+		} else if (woodcuttingLevel >= oakLevel && chopOaks) {
+			return new int[] { 38731, 38732 };
 		} else {
-			return new int[] { 38760, 38762, 38782, 38783, 38784, 38786, 38788 }; // NOTE:Regular
-																					// Id
+			return new int[] { 38760, 38762, 38782, 38783, 38784, 38786, 38788 };
 		}
 	}
 
 	private String getAssignmentString() {
 		int woodcuttingLevel = currentWoodcuttingLevel;
-		if (woodcuttingLevel >= 60) {
+		if (woodcuttingLevel >= yewLevel && chopYews) {
 			return "Yew";
-		} else if (woodcuttingLevel >= 30) {
+		} else if (woodcuttingLevel >= willowLevel && chopWillows) {
 			return "Willow";
-		} else if (woodcuttingLevel >= 15) {
+		} else if (woodcuttingLevel >= oakLevel && chopOaks) {
 			return "Oak";
 		} else {
 			return "Regular";
@@ -995,11 +961,11 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 
 	private String getAssignmentTreeString() {
 		int woodcuttingLevel = currentWoodcuttingLevel;
-		if (woodcuttingLevel >= 60) {
+		if (woodcuttingLevel >= yewLevel && chopYews) {
 			return "Yew";
-		} else if (woodcuttingLevel >= 30) {
+		} else if (woodcuttingLevel >= willowLevel && chopWillows) {
 			return "Willow";
-		} else if (woodcuttingLevel >= 15) {
+		} else if (woodcuttingLevel >= oakLevel && chopOaks) {
 			return "Oak";
 		} else {
 			return "Tree";
@@ -1008,68 +974,50 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 
 	private Area getAssignmentArea() {
 		int woodcuttingLevel = currentWoodcuttingLevel;
-		if (woodcuttingLevel >= 60) {
-			if (!varrockYews) {
-				return new Area(new Tile(5, 6), new Tile(7, 8));// TODO: port
-																// sarim yews?
+		if (woodcuttingLevel >= yewLevel && chopYews) {
+			if (!yewLocation.equalsIgnoreCase("Varrock")) {
+				return new Area(new Tile(5, 6), new Tile(7, 8));
 			} else {
 				return new Area(new Tile(3201, 3505), new Tile(3225, 3498));
 			}
-		} else if (woodcuttingLevel >= 30) {
-			if (!draynorWillows) {
-				return new Area(new Tile(2984, 3226), new Tile(2991, 3208)); // NOTE:Port
-																				// Sarim
-																				// Willow
-																				// Area
+		} else if (woodcuttingLevel >= willowLevel && chopWillows) {
+			if (!willowLocation.equalsIgnoreCase("Draynor Village")) {
+				return new Area(new Tile(2970, 3200), new Tile(2997, 3180));
 			} else {
-				return new Area(new Tile(3080, 3239), new Tile(3092, 3226)); // NOTE:Draynor
-																				// Willow
-																				// Area
+				return new Area(new Tile(3080, 3239), new Tile(3092, 3226));
 			}
-		} else if (woodcuttingLevel >= 15) {
-			return new Area(new Tile(2975, 3220), new Tile(2995, 3200)); // NOTE:Oak
-																			// Area
+		} else if (woodcuttingLevel >= oakLevel && chopOaks) {
+			return new Area(new Tile(2975, 3220), new Tile(2995, 3200));
 		} else {
-			return new Area(new Tile(2975, 3233), new Tile(3009, 3191)); // NOTE:Regular
-																			// Area
+			return new Area(new Tile(2975, 3233), new Tile(3009, 3191));
 		}
 	}
 
 	private Area getAssignmentBankArea() {
 		int woodcuttingLevel = currentWoodcuttingLevel;
-		if (woodcuttingLevel >= 60) {
-			if (varrockYews) {
-				return new Area(new Tile(3176, 3482), new Tile(3184, 3475));// TODO
-																			// varrock
-				// bank
+		if (woodcuttingLevel >= yewLevel && chopYews) {
+			if (yewLocation.equalsIgnoreCase("Varrock")) {
+				return new Area(new Tile(3176, 3482), new Tile(3184, 3475));
 			} else {
-				return new Area(new Tile(5, 6), new Tile(7, 8));// TODO port
-																// sarim bank?
+				return new Area(new Tile(5, 6), new Tile(7, 8));
 			}
-		} else if (woodcuttingLevel >= 30) {
-			if (draynorWillows) {
-				return new Area(new Tile(3088, 3246), new Tile(3097, 3240)); // NOTE:Willow
-																				// Bank
-				// Area
+		} else if (woodcuttingLevel >= willowLevel && chopWillows) {
+			if (willowLocation.equalsIgnoreCase("Draynor Village")) {
+				return new Area(new Tile(3088, 3246), new Tile(3097, 3240));
 			} else {
-				return new Area(new Tile(1, 2), new Tile(3, 4));
+				return new Area(new Tile(3043, 3237), new Tile(3050, 3234));
 			}
-		} else if (woodcuttingLevel >= 15) {
-			return new Area(new Tile(1, 2), new Tile(3, 4)); // NOTE:Oak Bank
-																// Area
+		} else if (woodcuttingLevel >= oakLevel && chopOaks) {
+			return new Area(new Tile(3043, 3237), new Tile(3050, 3234));
 		} else {
-			return new Area(new Tile(1, 2), new Tile(3, 4)); // NOTE:Regular
-																// Bank Area
+			return new Area(new Tile(3043, 3237), new Tile(3050, 3234));
 		}
 	}
 
 	private boolean hasRequiredAttackLevel() {
 		int woodcuttingLevel = currentWoodcuttingLevel;
 		int strLevel = ctx.skills.level(Constants.SKILLS_STRENGTH);
-		if (woodcuttingLevel >= 61) {
-			if (strLevel >= 60)
-				return true;
-		} else if (woodcuttingLevel >= 41) {
+		if (woodcuttingLevel >= 41) {
 			if (strLevel >= 50)
 				return true;
 		} else if (woodcuttingLevel >= 31) {
@@ -1095,18 +1043,18 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 
 	private boolean bankLogs() {
 		int woodcuttingLevel = currentWoodcuttingLevel;
-		if (woodcuttingLevel >= 60) {
+		if (woodcuttingLevel >= yewLevel && chopYews) {
 			if (bankYews)
-				return true; // NOTE: Yew Bank Area
-		} else if (woodcuttingLevel >= 30) {
+				return true;
+		} else if (woodcuttingLevel >= willowLevel && chopWillows) {
 			if (bankWillow)
-				return true; // NOTE: Willow Bank Area
-		} else if (woodcuttingLevel >= 15) {
+				return true;
+		} else if (woodcuttingLevel >= oakLevel && chopOaks) {
 			if (bankOak)
-				return true; // NOTE: Oak Bank Area
+				return true;
 		} else {
 			if (bankRegular)
-				return true; // NOTE: Regular Bank Area
+				return true;
 		}
 		return false;
 	}
