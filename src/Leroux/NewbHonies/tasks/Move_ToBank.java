@@ -3,6 +3,7 @@ package Leroux.NewbHonies.tasks;
 import Leroux.NewbHonies.constants.Areas;
 import Leroux.NewbHonies.constants.Paths;
 import Leroux.NewbHonies.methods.Walker;
+import Leroux.NewbHonies.script.NewbHonies;
 import Leroux.NewbHonies.script.Task;
 import org.powerbot.script.rt6.ClientContext;
 
@@ -26,6 +27,7 @@ public class Move_ToBank extends Task {
 
 	@Override
 	public void execute() {
+		NewbHonies.scriptStatus = "Walking to Bank";
 		
 		walk.followPath(path.getToBank(), -2, 2, area.getBankTile());
 
