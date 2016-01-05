@@ -1,6 +1,7 @@
 package Leroux.NewbHonies.tasks;
 
 import Leroux.NewbHonies.constants.Areas;
+import Leroux.NewbHonies.script.NewbHonies;
 import Leroux.NewbHonies.script.Task;
 import org.powerbot.script.rt6.ClientContext;
 import org.powerbot.script.rt6.GameObject;
@@ -25,6 +26,7 @@ public class GrabHonies extends Task {
 
 	@Override
 	public void execute() {
+		NewbHonies.scriptStatus = "Grabbing Honies";
 		
 		GameObject hive = ctx.objects.nearest().poll();
 		

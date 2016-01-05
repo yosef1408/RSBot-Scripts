@@ -18,7 +18,6 @@ public class Deposit extends Task<ClientContext> {
     private Backpack myBackpack = ctx.backpack;
 
     public boolean activate() {
-
         return WoodCutting.getBankArea().contains(myPlayer)
                 && myBackpack.select().count() == 28
                 && !ctx.objects.select().id(WoodCutting.getBoothIDs()).each(Interactive.doSetBounds(WoodCutting.getBankBounds())).isEmpty();
