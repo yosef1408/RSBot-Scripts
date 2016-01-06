@@ -8,7 +8,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.concurrent.Callable;
 
-@Script.Manifest(name = "FreeWorld Cooker", description = "Cooks things in Al Kharid.", properties = "client=6,topic=0,author=Leroux")
+@Script.Manifest(name = "FreeWorld Cooker", description = "Cooks things in Al Kharid.", properties = "client=6,topic=1297540,author=Leroux")
 public class FreeWorldCooker extends PollingScript<ClientContext> implements PaintListener, MessageListener {
     public static ArrayList<Task> taskList = new ArrayList<Task>();
     private GUI gui = new GUI(ctx);
