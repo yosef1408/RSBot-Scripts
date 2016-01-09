@@ -43,6 +43,7 @@ public class Elder extends PollingScript<ClientContext> implements PaintListener
     private Image cursor;
     private String examineNames = "";
     private int currentElderLocation = 0;
+    private String selectedLocations = "";
 
     static enum ScriptState {
         START, BEGIN_CHOP_SEQUENCE, CHOP_LODESTONE_TELEPORT, CHOP_LODESTONE_WAIT, WALK_TO_TREE, CHOP_TREE, BEGIN_BANK_SEQUENCE, BANK_LODESTONE_TELEPORT, BANK_LODESTONE_WAIT, WALK_TO_BANK, PERFORM_BANK,
@@ -68,8 +69,31 @@ public class Elder extends PollingScript<ClientContext> implements PaintListener
             status = "Inventory Full";
         }
 
+        //Randomize the locations and patterns (TEMPORARY - OLD METHOD)
+        int rnd1 = Random.nextInt(0,6);
+        int rnd2 = Random.nextInt(0,6);
+        int rnd3 = Random.nextInt(0,6);
+        int rnd4 = Random.nextInt(0,6);
+
+        while(!lodestoneUnlocked(rnd1)){
+            rnd1 = Random.nextInt(0,6);
+        }
+        while(rnd2 == rnd1 || rnd2 == rnd3 || rnd2 == rnd4 || !lodestoneUnlocked(rnd2)){
+            rnd2 = Random.nextInt(0,6);
+        }
+        while(rnd3 == rnd1 || rnd3 == rnd2 || rnd3 == rnd4 || !lodestoneUnlocked(rnd3)){
+            rnd3 = Random.nextInt(0,6);
+        }
+        while(rnd4 == rnd1 || rnd4 == rnd3 || rnd4 == rnd2 || !lodestoneUnlocked(rnd4)) {
+            rnd4 = Random.nextInt(0,6);
+        }
+        randomizedLocations[0] = rnd1;
+        randomizedLocations[1] = rnd2;
+        randomizedLocations[2] = rnd3;
+        randomizedLocations[3] = rnd4;
+
         // Shuffle locations
-        int[] locations = new int[6];
+        /*int[] locations = new int[6];
         for (int i = 0; i < 6; ++i) {
             locations[i] = i;
         }
@@ -88,7 +112,7 @@ public class Elder extends PollingScript<ClientContext> implements PaintListener
                     break;
                 }
             }
-        }
+        }*/
 
         // Grab the price of elder logs
         elderPrice = getPrice();
@@ -117,9 +141,10 @@ public class Elder extends PollingScript<ClientContext> implements PaintListener
                 final Component homeButton = ctx.widgets.component(homeWidgetID, homeComponentID);
                 if (homeButton.valid() && homeButton.visible()) {
                     status = "Opening map";
-                    homeButton.click();
-                    Condition.sleep(Random.nextInt(700, 1200));
-                    step = ScriptState.CHOP_LODESTONE_TELEPORT;
+                    if (homeButton.click()) {
+                        Condition.sleep(Random.nextInt(700, 1000));
+                        step = ScriptState.CHOP_LODESTONE_TELEPORT;
+                    }
                 }
                 break;
             case CHOP_LODESTONE_TELEPORT:
@@ -128,9 +153,10 @@ public class Elder extends PollingScript<ClientContext> implements PaintListener
                         lodeStoneComponentID[randomizedLocations[currentElderLocation]]);
                 if (lodestoneInt.valid() && lodestoneInt.visible()) {
                     status = "Teleporting...";
-                    lodestoneInt.click();
-                    Condition.sleep(Random.nextInt(700, 1200));
-                    step = ScriptState.CHOP_LODESTONE_WAIT;
+                    if (lodestoneInt.click()) {
+                        Condition.sleep(Random.nextInt(700, 1000));
+                        step = ScriptState.CHOP_LODESTONE_WAIT;
+                    }
                 }
                 break;
             case CHOP_LODESTONE_WAIT:
@@ -192,9 +218,10 @@ public class Elder extends PollingScript<ClientContext> implements PaintListener
                 final Component homeButton2 = ctx.widgets.component(homeWidgetID, homeComponentID);
                 if (homeButton2.valid() && homeButton2.visible()) {
                     status = "Opening map";
-                    homeButton2.click();
-                    Condition.sleep(Random.nextInt(700, 1200));
-                    step = ScriptState.BANK_LODESTONE_TELEPORT;
+                   if (homeButton2.click()) {
+                       Condition.sleep(Random.nextInt(700, 1000));
+                       step = ScriptState.BANK_LODESTONE_TELEPORT;
+                   }
                 }
                 break;
             case BANK_LODESTONE_TELEPORT:
@@ -202,9 +229,10 @@ public class Elder extends PollingScript<ClientContext> implements PaintListener
                 final Component lodestoneInterface = ctx.widgets.component(lodeStoneWidgetID, bankComponentID);
                 if (lodestoneInterface.valid() && lodestoneInterface.visible()) {
                     status = "Teleporting(Bank)";
-                    lodestoneInterface.click();
-                    Condition.sleep(Random.nextInt(700, 1200));
-                    step = ScriptState.BANK_LODESTONE_WAIT;
+                    if (lodestoneInterface.click()) {
+                        Condition.sleep(Random.nextInt(700, 1000));
+                        step = ScriptState.BANK_LODESTONE_WAIT;
+                    }
                 }
                 break;
             case BANK_LODESTONE_WAIT:
@@ -218,6 +246,7 @@ public class Elder extends PollingScript<ClientContext> implements PaintListener
             case WALK_TO_BANK:
                 // If we are not at the bank tile then walk to it
                 if (ctx.bank.inViewport()) {
+                    ctx.camera.pitch(Random.nextInt(35,65));
                     step = ScriptState.PERFORM_BANK;
                 } else if (bankTile.distanceTo(ctx.players.local().tile()) > 4) {
                     status = "Walking to Bank";
@@ -289,7 +318,7 @@ public class Elder extends PollingScript<ClientContext> implements PaintListener
         g.drawString("Elder", 72, 29);
         g.setFont(font2);
         g.setColor(color5);
-        g.drawString("v2.00", 129, 27);
+        g.drawString("v2.02", 129, 27);
         g.setFont(font3);
         g.drawString("Status:", 16, 54);
         g.drawString("Logs Collected:", 17, 72);
@@ -365,15 +394,15 @@ public class Elder extends PollingScript<ClientContext> implements PaintListener
 
     private int nextLocation(int c) {
         antiPattern();
-        
+
         int next;
-        
+
         for (next = c + 1; next != c; next = (next+1) % locationCount) {
             if (spawnTime[next] <= 1) {
                 break;
             }
         }
-        
+
         if (spawnTime[next] > 1) {
             for (int i = 0; i < locationCount; ++i) {
                 if (spawnTime[i] < spawnTime[next]) {
@@ -381,7 +410,7 @@ public class Elder extends PollingScript<ClientContext> implements PaintListener
                 }
             }
         }
-        
+
         return next;
     }
 
