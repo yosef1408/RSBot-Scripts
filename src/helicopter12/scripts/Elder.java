@@ -3,6 +3,7 @@
 //Author: Ryan(Helicopter12)
 package helicopter12.scripts;
 
+import com.sun.corba.se.impl.orbutil.closure.Constant;
 import org.powerbot.script.*;
 import org.powerbot.script.rt6.*;
 import org.powerbot.script.rt6.ClientContext;
@@ -18,7 +19,7 @@ import javax.imageio.ImageIO;
 @Script.Manifest(name = "Elder Log Collector", properties = "author=Helicopter12; topic=1296549; client=6;", description = "An autonomous Elder tree chopping and banking system used for money making")
 public class Elder extends PollingScript<ClientContext> implements PaintListener, MessageListener {
     private String status = "Starting...";
-    private final int elderID = 87508;
+    private final int elderID = 87508, jujuPotionID = 32759;
     private final int deadElderID = 87509, elderLogID = 29556;
     private int logsCollected = 0;
     private int elderPrice;
@@ -43,6 +44,7 @@ public class Elder extends PollingScript<ClientContext> implements PaintListener
     private Image cursor;
     private String examineNames = "";
     private int currentElderLocation = 0;
+    private int startingXP, currentXP;
 
     static enum ScriptState {
         START, BEGIN_CHOP_SEQUENCE, CHOP_LODESTONE_TELEPORT, CHOP_LODESTONE_WAIT, WALK_TO_TREE, CHOP_TREE, BEGIN_BANK_SEQUENCE, BANK_LODESTONE_TELEPORT, BANK_LODESTONE_WAIT, WALK_TO_BANK, PERFORM_BANK,
@@ -92,6 +94,9 @@ public class Elder extends PollingScript<ClientContext> implements PaintListener
 
         // Grab the price of elder logs
         elderPrice = getPrice();
+
+        //Get the starting XP
+        startingXP = ctx.skills.experience(Constants.SKILLS_WOODCUTTING);
 
         // Flag ready state
         if (status.equals("Configuring...") && ctx.game.loggedIn()) {
@@ -277,15 +282,21 @@ public class Elder extends PollingScript<ClientContext> implements PaintListener
     @Override
     public void repaint(Graphics graphics) {
         final Graphics2D g = (Graphics2D) graphics;
+
+        currentXP = ctx.skills.experience(Constants.SKILLS_WOODCUTTING);
+        final int xpGained = (currentXP - startingXP);
+        final int xphr = (int)(xpGained / ( getTotalRuntime() / 3600000.0));
+        final int profit = (logsCollected * elderPrice);
+
         for (int i = 0; i < 6; ++i) {
             long spawn = (respawn[i] - getTotalRuntime()) / 1000;
             spawnTime[i] = Math.max(spawn, 0);
         }
         g.setColor(color1);
-        g.fillRoundRect(7, 6, 185, 188, 16, 16);
+        g.fillRoundRect(7, 6, 185, 208, 16, 16);
         g.setColor(color2);
         g.setStroke(stroke1);
-        g.drawRoundRect(7, 6, 185, 188, 16, 16);
+        g.drawRoundRect(7, 6, 185, 208, 16, 16);
         g.setColor(color3);
         g.setStroke(stroke2);
         g.drawLine(13, 33, 181, 33);
@@ -294,12 +305,14 @@ public class Elder extends PollingScript<ClientContext> implements PaintListener
         g.drawString("Elder", 72, 29);
         g.setFont(font2);
         g.setColor(color5);
-        g.drawString("v2.02", 129, 27);
+        g.drawString("v2.03", 129, 27);
         g.setFont(font3);
         g.drawString("Status:", 16, 54);
-        g.drawString("Logs Collected:", 17, 72);
+        g.drawString("Logs Collected:", 16, 72);
         g.drawString("Profit:", 16, 93);
-        int spawnBaseCoord = 112;
+        g.drawString("Exp: ", 16, 113);
+
+        int spawnBaseCoord = 132;
         int spawnIncrement = 20;
         for (int i = 0; i < locationCount; ++i) {
             int coord = spawnBaseCoord + spawnIncrement * i;
@@ -311,18 +324,21 @@ public class Elder extends PollingScript<ClientContext> implements PaintListener
             g.setFont(font4);
             g.drawString(minutes + ":" + seconds, 90, coord);
         }
+
         g.setFont(font4);
         g.drawString(status, 69, 54);
         g.drawString("" + logsCollected, 132, 72);
-        g.drawString(
-                (logsCollected * elderPrice) / 1000 + "K ("
-                        + ((int) (((logsCollected * elderPrice) / 1000) * 3600000D) / getTotalRuntime()) + "k/hr)",
+        g.drawString((profit < 1000 ? profit : profit/1000 + "K") + " ("
+                        + ((int) (((logsCollected * elderPrice) / 1000) * 3600000.0) / getTotalRuntime()) + "k/hr)",
                 66, 93);
+        g.drawString((xpGained > 1000 ? xpGained/1000 + "k" : xpGained) + " (" + xphr/1000 + "k/hr)", 66, 113);
+
+
         g.setFont(font5);
         final long hr = getTotalRuntime() / 3600000;
         final long min = getTotalRuntime() / 60000;
         final long sec = getTotalRuntime() / 1000;
-        g.drawString(hr + ":" + (min - (hr * 60)) + ":" + (sec - (60 * min)), 76, 188);
+        g.drawString(hr + ":" + (min - (hr * 60)) + ":" + (sec - (60 * min)), 82, 208);
         Point p = ctx.input.getLocation();
         if (cursor != null) {
             g.drawImage(cursor, p.x - 4, p.y - 2, null);
@@ -374,6 +390,9 @@ public class Elder extends PollingScript<ClientContext> implements PaintListener
         int next;
 
         for (next = c + 1; next != c; next = (next + 1) % locationCount) {
+            if (next == 4) {
+                next = 0;
+            }
             if (spawnTime[randomizedLocations[next]] <= 1) {
                 break;
             }
