@@ -15,15 +15,15 @@ import org.powerbot.script.Random;
 
 import javax.imageio.ImageIO;
 
-@Script.Manifest(name= "Elder Log Collector", properties = "author=Helicopter12; topic=1296549; client=6;", description = "An autonomous Elder tree chopping and banking system used for money making")
+@Script.Manifest(name = "Elder Log Collector", properties = "author=Helicopter12; topic=1296549; client=6;", description = "An autonomous Elder tree chopping and banking system used for money making")
 public class Elder extends PollingScript<ClientContext> implements PaintListener, MessageListener {
     private String status = "Starting...";
     private final int elderID = 87508;
     private final int deadElderID = 87509, elderLogID = 29556;
     private int logsCollected = 0;
     private int elderPrice;
-    private long[] respawn = new long[4];
-    private long[] spawnTime = new long[4];
+    private long[] respawn = new long[6];
+    private long[] spawnTime = new long[6];
     private final Tile lodeStoneBankTile = new Tile(2899, 3544, 0);
     private final Tile bankTile = new Tile(2887, 3536, 0);
     private final String locationNames[] = { "Varrock:", "Seer's:", "E-Ville:", "E-Peak:", "Draynor1:", "Draynor2:" };
@@ -277,7 +277,7 @@ public class Elder extends PollingScript<ClientContext> implements PaintListener
     @Override
     public void repaint(Graphics graphics) {
         final Graphics2D g = (Graphics2D) graphics;
-        for (int i = 0; i < locationCount; ++i) {
+        for (int i = 0; i < 6; ++i) {
             long spawn = (respawn[i] - getTotalRuntime()) / 1000;
             spawnTime[i] = Math.max(spawn, 0);
         }
@@ -303,7 +303,13 @@ public class Elder extends PollingScript<ClientContext> implements PaintListener
         int spawnIncrement = 20;
         for (int i = 0; i < locationCount; ++i) {
             int coord = spawnBaseCoord + spawnIncrement * i;
-            g.drawString(locationNames[randomizedLocations[i]], 16, coord);
+            int tree = randomizedLocations[i];
+            g.setFont(font3);
+            g.drawString(locationNames[tree], 16, coord);
+            long minutes = spawnTime[tree] / 60;
+            long seconds = spawnTime[tree] % 60;
+            g.setFont(font4);
+            g.drawString(minutes + ":" + seconds, 90, coord);
         }
         g.setFont(font4);
         g.drawString(status, 69, 54);
@@ -312,12 +318,6 @@ public class Elder extends PollingScript<ClientContext> implements PaintListener
                 (logsCollected * elderPrice) / 1000 + "K ("
                         + ((int) (((logsCollected * elderPrice) / 1000) * 3600000D) / getTotalRuntime()) + "k/hr)",
                 66, 93);
-        for (int i = 0; i < 4; ++i) {
-            long minutes = spawnTime[i] / 60;
-            long seconds = spawnTime[i] % 60;
-            int coord = spawnBaseCoord + spawnIncrement * i;
-            g.drawString(minutes + ":" + seconds, 90, coord);
-        }
         g.setFont(font5);
         final long hr = getTotalRuntime() / 3600000;
         final long min = getTotalRuntime() / 60000;
@@ -373,15 +373,15 @@ public class Elder extends PollingScript<ClientContext> implements PaintListener
 
         int next;
 
-        for (next = c + 1; next != c; next = (next+1) % locationCount) {
-            if (spawnTime[next] <= 1) {
+        for (next = c + 1; next != c; next = (next + 1) % locationCount) {
+            if (spawnTime[randomizedLocations[next]] <= 1) {
                 break;
             }
         }
 
-        if (spawnTime[next] > 1) {
+        if (spawnTime[randomizedLocations[next]] > 1) {
             for (int i = 0; i < locationCount; ++i) {
-                if (spawnTime[i] < spawnTime[next]) {
+                if (spawnTime[randomizedLocations[i]] < spawnTime[randomizedLocations[next]]) {
                     next = i;
                 }
             }
@@ -415,8 +415,6 @@ public class Elder extends PollingScript<ClientContext> implements PaintListener
                 int chosen = nums[Random.nextInt(start, 6)];
                 log.info("Replacing tree " + randomizedLocations[currentElderLocation] + " with " + chosen);
                 randomizedLocations[currentElderLocation] = chosen;
-
-                respawn[currentElderLocation] = 0;
             }
         }
     }
@@ -490,7 +488,7 @@ public class Elder extends PollingScript<ClientContext> implements PaintListener
     }
 
     private void triggerTimer() {
-        respawn[currentElderLocation] = getTotalRuntime() + 600000;
+        respawn[randomizedLocations[currentElderLocation]] = getTotalRuntime() + 600000;
     }
 
     // Credit to LodeStone class
