@@ -3,7 +3,6 @@
 //Author: Ryan(Helicopter12)
 package helicopter12.scripts;
 
-import com.sun.corba.se.impl.orbutil.closure.Constant;
 import org.powerbot.script.*;
 import org.powerbot.script.rt6.*;
 import org.powerbot.script.rt6.ClientContext;
@@ -439,7 +438,7 @@ public class Elder extends PollingScript<ClientContext> implements PaintListener
     }
 
     private void antiBan() {
-        int rnd = Random.nextInt(0, 176);
+        int rnd = Random.nextInt(0, 200);
         switch (rnd) {
             case 0:
                 status = "Anti-ban(1)";
