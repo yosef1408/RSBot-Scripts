@@ -358,9 +358,8 @@ public class Elder extends PollingScript<ClientContext> implements PaintListener
 
     private int getPrice() {
         final String content = downloadString("http://itemdb-rs.runescape.com/viewitem.ws?obj=29556");
-        int ret = 0;
         if (content == null) {
-            ret = -1;
+            return 0;
         }
 
         final String[] lines = content.split("\n");
@@ -369,10 +368,10 @@ public class Elder extends PollingScript<ClientContext> implements PaintListener
                 String rString = lines[i].replace("<h3>Current Guide Price <span title='", "");
                 rString = rString.substring(rString.indexOf("'>") + 2, 20);
                 rString = rString.replace(",", "");
-                ret = Integer.parseInt(rString.trim());
+                return Integer.parseInt(rString.trim());
             }
         }
-        return ret;
+        return 0;
     }
 
     private boolean shouldBank() {
@@ -388,10 +387,7 @@ public class Elder extends PollingScript<ClientContext> implements PaintListener
 
         int next;
 
-        for (next = c + 1; next != c; next = (next + 1) % locationCount) {
-            if (next == 4) {
-                next = 0;
-            }
+        for (next = (c + 1) % locationCount; next != c; next = (next + 1) % locationCount) {
             if (spawnTime[randomizedLocations[next]] <= 1) {
                 break;
             }
@@ -506,7 +502,13 @@ public class Elder extends PollingScript<ClientContext> implements PaintListener
     }
 
     private void triggerTimer() {
-        respawn[randomizedLocations[currentElderLocation]] = getTotalRuntime() + 600000;
+        int tree = randomizedLocations[currentElderLocation];
+        long currentTime = getTotalRuntime();
+        if (respawn[tree] < currentTime) {
+            respawn[tree] = currentTime + 600000;
+        } else {
+            // Seeing tree we already knew was dead
+        }
     }
 
     // Credit to LodeStone class
