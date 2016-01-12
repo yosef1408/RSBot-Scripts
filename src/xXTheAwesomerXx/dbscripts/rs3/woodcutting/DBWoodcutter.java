@@ -4,10 +4,12 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.Polygon;
 import java.util.concurrent.Callable;
 
 import org.powerbot.script.Area;
 import org.powerbot.script.Condition;
+import org.powerbot.script.Locatable;
 import org.powerbot.script.MessageEvent;
 import org.powerbot.script.MessageListener;
 import org.powerbot.script.PaintListener;
@@ -17,11 +19,15 @@ import org.powerbot.script.Script;
 import org.powerbot.script.Tile;
 import org.powerbot.script.rt6.Action;
 import org.powerbot.script.rt6.Bank.Amount;
+import org.powerbot.script.rt6.Camera;
 import org.powerbot.script.rt6.ClientContext;
 import org.powerbot.script.rt6.Component;
 import org.powerbot.script.rt6.Constants;
 import org.powerbot.script.rt6.GameObject;
+import org.powerbot.script.rt6.Interactive;
 import org.powerbot.script.rt6.Item;
+import org.powerbot.script.rt6.Npc;
+import org.powerbot.script.rt6.Player;
 import org.powerbot.script.rt6.Widget;
 
 @Script.Manifest(name = "DBWoodcutter", description = "Progressive Woodcutter made by xXTheAwesomerXx", properties = "author=xXTheAwesomerXx; topic=1296051;")
@@ -29,24 +35,30 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 		MessageListener, PaintListener {
 
 	private enum State {
-		RUN, CHOP, BANK, DROP, DO_TRADE, RUN_AWAY
+		RUN, CHOP, BANK, DROP, DO_TRADE, RUN_AWAY, FACE_DEST
 	};
 
 	private final Trade trade = new Trade(ctx);
 	public static boolean bankRegular = false, bankOak = false,
-			bankWillow = true, bankYews = true, chopOaks = false,
-			chopWillows = false, chopYews = false, chopIvy = true,
-			dropRocks = false, dropNests = false;
-	public static int oakLevel = 15, willowLevel = 30, yewLevel = 60,
-			ivyLevel = 68;
-	private int randomInventInt = 25;
+			bankWillow = true, bankMaples = true, bankYews = true,
+			chopOaks = false, chopWillows = false, chopMaples = true,
+			chopYews = false, chopIvy = true, dropRocks = false,
+			dropNests = false;
+	public static int oakLevel = 15, willowLevel = 30, mapleLevel = 45,
+			yewLevel = 60, ivyLevel = 68;
+	private int randomInventInt = 22;
 
 	public static boolean getNotes = false, doTrade = false,
 			allowTrade = false, guiShowing = false, addToToolbelt = true;
+	private static boolean moveAway = false;
 
-	public static String revisionString = "7", statusMessage = "Starting...",
-			muleName = "", oakLocation = "Port Sarim",
-			willowLocation = "Draynor", yewLocation = "Varrock",
+	public static String revisionString = "8", statusMessage = "Starting...",
+			muleName = "", getLevelMessage = "", getNotesMessage = "",
+			tradePlayerMessage = "", regDropAction = "Drop",
+			oakDropAction = "Drop", willowDropAction = "Drop",
+			mapleDropAction = "Drop", yewDropAction = "Drop",
+			oakLocation = "Port Sarim", willowLocation = "Draynor",
+			mapleLocation = "Seers' Village (Bank)", yewLocation = "Varrock",
 			ivyLocation = "Varrock (N)";
 	public static long START_TIME = System.currentTimeMillis(),
 			CHOP_TIME = System.currentTimeMillis(), TASK_TIME = System
@@ -54,27 +66,30 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 	private long totalRuntime, chopRuntime, taskRuntime;
 
 	private final long START_EXPERIENCE = ctx.skills
-			.experience(Constants.SKILLS_WOODCUTTING);
+			.experience(Constants.SKILLS_WOODCUTTING), START_FM_EXP = ctx.skills.experience(Constants.SKILLS_FIREMAKING);
 	private long TASK_START_EXPERIENCE = ctx.skills
-			.experience(Constants.SKILLS_WOODCUTTING);
-	private long expGained, taskExpGained;
+			.experience(Constants.SKILLS_WOODCUTTING), TASK_START_FM_EXP = ctx.skills.experience(Constants.SKILLS_FIREMAKING);
+	private long expGained, taskExpGained, expFMGained, taskExpFMGained;
 	private long expHr, taskExpHr;
 	private long expToLvl;
 	private int taskChopped = 0, logsChopped = 0,
 			currentWoodcuttingLevel = ctx.skills
 					.level(Constants.SKILLS_WOODCUTTING);
+	public static boolean zoomLevelSet = false, dropping = false;
 
 	private State getState() {
 		if (!inCombat()) {
 			if (!doTrade) {
 				if (!getNotes) {
 					if (!hasExtraItems()) {
-						if (ctx.backpack.select().count() <= getRandomInventInt()) {
+						if (ctx.backpack.select().id(getAssignmentItemId())
+								.count() <= getRandomInventInt()
+								&& !dropping) {
 							if (atTreeArea()) {
 								statusMessage = "Chopping...";
 								return State.CHOP;
 							} else {
-								statusMessage = "Running to Resources";
+								statusMessage = "Running to Task Location";
 								return State.RUN;
 							}
 						} else {
@@ -88,6 +103,7 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 								}
 							} else {
 								statusMessage = "Dropping";
+								dropping = true;
 								return State.DROP;
 							}
 						}
@@ -124,6 +140,14 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 		g.drawLine(ctx.input.getLocation().x - 5,
 				ctx.input.getLocation().y + 5, ctx.input.getLocation().x + 5,
 				ctx.input.getLocation().y - 5);
+		g.drawLine(0, ctx.input.getLocation().y, ctx.input.getLocation().x,
+				ctx.input.getLocation().y);
+		g.drawLine(ctx.input.getLocation().x, ctx.input.getLocation().y, 2500,
+				ctx.input.getLocation().y);
+		g.drawLine(ctx.input.getLocation().x, 0, ctx.input.getLocation().x,
+				ctx.input.getLocation().y);
+		g.drawLine(ctx.input.getLocation().x, ctx.input.getLocation().y,
+				ctx.input.getLocation().x, 2500);
 		totalRuntime = System.currentTimeMillis() - START_TIME;
 		chopRuntime = System.currentTimeMillis() - CHOP_TIME;
 		taskRuntime = System.currentTimeMillis() - TASK_TIME;
@@ -138,7 +162,7 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 				- ctx.skills.experience(Constants.SKILLS_WOODCUTTING);
 		currentWoodcuttingLevel = ctx.skills
 				.level(Constants.SKILLS_WOODCUTTING);
-		g.setColor(new Color(0, 0, 0, 70));
+		g.setColor(new Color(0, 0, 0, 95));
 		g.fillRect(5, 35, 523, 154);
 		g.setColor(new Color(204, 0, 0));
 		g.drawString("DBWoodcutter Revision" + revisionString + " : "
@@ -168,6 +192,13 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 		g.drawString("Logs/Hr(Total): " + (logsChopped * 3600000)
 				/ totalRuntime + " | Logs/Hr(" + getAssignmentString() + "): "
 				+ (taskChopped * 3600000) / taskRuntime, 10, 185);
+		if (getState().equals(State.DROP)) {
+			final Tile tile = ctx.players.local().tile();
+			g.setColor(new Color(25, 10, 0, 95));
+			for (Polygon poly : tile.matrix(ctx).triangles()) {
+				g.drawPolygon(poly);
+			}
+		}
 	}
 
 	// ---- End Paint Listener ----
@@ -191,18 +222,42 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 		if (m.source().isEmpty()) {
 			if (m.text().contains("You get some")
 					|| m.text().contains("You successfully chop away some")) {
-				logsChopped++;
-				taskChopped++;
-				CHOP_TIME = System.currentTimeMillis();
-			} else if ((m.text().contains("15") || m.text().contains("30") || m
-					.text().contains("60")) && m.text().contains("advanced")) {
+				System.out.println("Got a message");
+				if (getAssignmentString().equalsIgnoreCase("Regular")) {
+					System.out.println("Assigned is regular");
+					if (m.text().equalsIgnoreCase("You get some logs.")) {
+						System.out.println("Got the sysmessage for regular");
+						logsChopped++;
+						taskChopped++;
+						CHOP_TIME = System.currentTimeMillis();
+					}
+				} else {
+					System.out.println("Assigned not regular");
+					if (m.text().contains(getAssignmentString().toLowerCase())) {
+						System.out.println("Contains 'assignment string'");
+						logsChopped++;
+						taskChopped++;
+						CHOP_TIME = System.currentTimeMillis();
+					} else {
+						System.out.println("No good string: " + m.text());
+					}
+				}
+			} else if (((m.text().contains(Integer.toString(oakLevel)) && chopOaks)
+					|| (m.text().contains(Integer.toString(willowLevel)) && chopWillows)
+					|| (m.text().contains(Integer.toString(mapleLevel)) && chopMaples)
+					|| (m.text().contains(Integer.toString(yewLevel)) && chopYews) || (m
+					.text().contains(Integer.toString(ivyLevel)) && chopIvy))
+					&& m.text().contains("advanced")) {
 				taskChopped = 0;
 				TASK_TIME = System.currentTimeMillis();
 				TASK_START_EXPERIENCE = ctx.skills
 						.experience(Constants.SKILLS_WOODCUTTING);
+				zoomLevelSet = false;
 			} else if (m.text().contains("Accepted")
 					|| m.text().contains("You can only give away")) {
 				doTrade = false;
+			} else if (m.text().contains("can't light a fire")) {
+				moveAway = true;
 			}
 		}
 		if (m.source().equalsIgnoreCase(muleName)) {
@@ -240,13 +295,37 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 	}
 
 	@Override
+	public void stop() {
+		this.ctx.dispatcher.remove(this);
+	}
+
+	@Override
 	public void poll() {
+		// while (1 == 1) {
 		switch (getState()) {
+		case FACE_DEST:
+			if (!turnTo(ctx.movement.destination())) {
+				ctx.camera.turnTo(ctx.movement.destination());
+				Condition.wait(new Callable<Boolean>() {
+					@Override
+					public Boolean call() {
+						return facingTile(ctx.movement.destination());
+					}
+				}, 1000, 10);
+			}
+			break;
 		case RUN_AWAY:
-			while (inCombat()) {
-				final Tile npcInCombatWith = ctx.players.local().interacting()
-						.tile();
-				ctx.movement.step(npcInCombatWith.derive(10, 15));
+			if (!moveAway) {
+				if (inCombat()) {
+					final Tile npcInCombatWith = ctx.players.local()
+							.interacting().tile();
+					ctx.movement.step(npcInCombatWith.derive(5, 5));
+				}
+			} else {
+				Tile moveAwayTile = new Tile(ctx.players.local().tile().x()
+						+ Random.nextInt(2, 4), ctx.players.local().tile().y()
+						+ Random.nextInt(2, 4));
+				ctx.movement.step(moveAwayTile);
 			}
 			break;
 		case DO_TRADE:
@@ -265,8 +344,8 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 								}
 							} else {
 								int assignmentItemIndex = ctx.backpack.select()
-										.id(getAssignmentItemId() + 1).poll()
-										.component().index();
+										.id(getAssignmentItemId() + 1)
+										.shuffle().poll().component().index();
 								final Widget widget = ctx.widgets.widget(336);
 								if (widget.valid()) {
 									final Component component = widget
@@ -304,8 +383,29 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 			}
 			break;
 		case CHOP:
+			if (ctx.backpack.collapsed()) {
+				System.out.println("Backpack collapsed: " + ctx.backpack.collapsed());
+				ctx.widgets.widget(Constants.BACKPACK_WIDGET).component(0).click();
+			}
+			final Widget bankWidgetC = ctx.widgets.widget(11);
+			if (bankWidgetC.valid()) {
+				ctx.input.click(bankWidgetC.component(41).component(1)
+						.nextPoint(), true);
+				Condition.wait(new Callable<Boolean>() {
+					@Override
+					public Boolean call() {
+						return !bankWidgetC.valid();
+					}
+				}, 1000, 20);
+			}
 			if (ctx.bank.opened()) {
 				ctx.bank.close();
+				Condition.wait(new Callable<Boolean>() {
+					@Override
+					public Boolean call() {
+						return !ctx.bank.opened();
+					}
+				}, 1000, 20);
 			}
 			if (getAssignmentString().equalsIgnoreCase("Willow")
 					&& willowLocation.equalsIgnoreCase("Draynor Village")) {
@@ -317,147 +417,281 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 			}
 			if (getAssignmentString().equalsIgnoreCase("Ivy")) {
 				if (ivyLocation.equalsIgnoreCase("Varrock (N)")) {
-					ctx.camera.angle('s');
+					if (ctx.camera.yaw() < 134 || ctx.camera.yaw() > 236) {
+						combineCamera(Random.nextInt(140, 230),
+								Random.nextInt(9, 30));
+						// ctx.camera.angle('s');
+						Condition.wait(new Callable<Boolean>() {
+							@Override
+							public Boolean call() {
+								final Camera c = ctx.camera;
+								return c.yaw() >= 134
+										|| ctx.camera.yaw() <= 236;
+							}
+						}, 1000, 20);
+					}
 				} else {
 					if (ivyLocation.equalsIgnoreCase("Falador (SE)")) {
-						ctx.camera.angle('n');
+						if (ctx.camera.yaw() < 10 || ctx.camera.yaw() > 80) {
+							combineCamera(Random.nextInt(14, 75),
+									Random.nextInt(9, 30));
+							// ctx.camera.angle('s');
+							Condition.wait(new Callable<Boolean>() {
+								@Override
+								public Boolean call() {
+									final Camera c = ctx.camera;
+									return c.yaw() >= 10
+											|| ctx.camera.yaw() <= 80;
+								}
+							}, 1000, 20);
+						}
 					}
 				}
 			}
 			if (!getAssignmentString().equalsIgnoreCase("Ivy")) {
-				if (ctx.camera.pitch() > 55 || ctx.camera.pitch() < 15) {
-					ctx.camera.pitch(Random.nextInt(15, 55));
+				if (ctx.camera.pitch() < 15 || ctx.camera.pitch() > 55) {
+					combineCamera(
+							Random.nextInt(ctx.camera.yaw() - 5,
+									ctx.camera.yaw() + 5),
+							Random.nextInt(20, 50));
+					Condition.wait(new Callable<Boolean>() {
+						@Override
+						public Boolean call() {
+							final Camera c = ctx.camera;
+							return c.pitch() >= 15 || ctx.camera.pitch() <= 55;
+						}
+					}, 1000, 20);
 				}
 			} else {
-				if (ctx.camera.pitch() > 22 || ctx.camera.pitch() < 11) {
-					ctx.camera.pitch(Random.nextInt(11, 22));
+				if (ctx.camera.pitch() < 2 || ctx.camera.pitch() > 18) {
+					combineCamera(
+							Random.nextInt(ctx.camera.yaw() - 5,
+									ctx.camera.yaw() + 5),
+							Random.nextInt(4, 15));
+					Condition.wait(new Callable<Boolean>() {
+						@Override
+						public Boolean call() {
+							final Camera c = ctx.camera;
+							return c.pitch() >= 2 || ctx.camera.pitch() <= 18;
+						}
+					}, 1000, 20);
 				}
+			}
+			//TODO ADD
+			if (zoomLevelSet == false) {
+				setZoomLevel(Random.nextInt(getZoomLevel() - 1,
+						getZoomLevel() + 1));
 			}
 			if (addToToolbelt) {
 				addBetterAxeToToolbelt();
 			} else {
 				equipBetterAxe();
 			}
-			final GameObject obj = ctx.objects.select()
-					.id(getAssignmentTreeIds()).nearest().poll();
-			if (obj.valid()) {
-				if (obj.inViewport()) {
-					if (ctx.players.local().animation() != -1) {
-						if (bankLogs() == false) {
-							final int randomInt = Random.nextInt(5, 15);
-							if (ctx.backpack.select().count() > (getRandomInventInt() - randomInt)) {
-								while (ctx.players.local().animation() == 21191) {
-									Point pointOfRandomWillow = ctx.backpack
+			// END TODO ADD
+			GameObject objFinder = null;
+			final int[] ivyBounds = { -128, 128, -664, -256, -64, 86 };
+			if (!getAssignmentString().equalsIgnoreCase("Ivy")) {
+				objFinder = ctx.objects.select(25).id(getAssignmentTreeIds())
+						.within(getAssignmentArea()).nearest().limit(3).poll();
+			} else {
+				objFinder = ctx.objects.select(10).id(getAssignmentTreeIds())
+						.each(Interactive.doSetBounds(ivyBounds))
+						.within(getAssignmentArea()).nearest().limit(3).poll();
+			}
+			GameObject obj = objFinder;
+			if (obj.inViewport()) {
+				if (ctx.players.local().animation() != -1) {
+					if (bankLogs() == false) {
+						final int randomInt = Random.nextInt(5, 15);
+						final int animationId = ctx.players.local().animation();
+						if (animationId == 21191 || animationId == 872) {
+							if (ctx.backpack.select().count() > (getRandomInventInt() - randomInt)
+									&& !getAssignmentString().equalsIgnoreCase(
+											"Ivy")) {
+								final Point pointOfRandomLog = ctx.backpack
+										.id(getAssignmentItemId()).first()
+										.poll().nextPoint();
+								if (ctx.chat.queryContinue()) {
+									ctx.chat.clickContinue(true);
+								} else {
+									if (!ctx.combatBar.select()
 											.id(getAssignmentItemId())
-											.shuffle().poll().nextPoint();
-									if (ctx.chat.queryContinue()) {
-										ctx.chat.clickContinue(true);
-									} else {
-										if (!ctx.combatBar.select()
+											.isEmpty()) {
+										Action dropLogs = ctx.combatBar.first()
+												.poll();
+										final int oldIndex = ctx.backpack
+												.select()
 												.id(getAssignmentItemId())
-												.isEmpty()) {
-											Action dropLogs = ctx.combatBar
-													.first().poll();
-											ctx.combatBar
-													.actionAt(dropLogs.slot())
-													.component()
-													.interact("Drop");
-										} else {
-											ctx.input.move(pointOfRandomWillow);
+												.count();
+										ctx.combatBar
+												.actionAt(dropLogs.slot())
+												.component()
+												.interact(
+														getAssignmentDropAction());
+										Condition.wait(new Callable<Boolean>() {
+											@Override
+											public Boolean call() {
+												return ctx.backpack.select()
+														.count() <= oldIndex
+														&& ctx.players.local()
+																.animation() == -1;
+											}
+										}, 750, 10);
+									} else {
+										try {
+											ctx.input.move(pointOfRandomLog);
 											ctx.input.drag(ctx.combatBar
 													.first().poll().component()
-													.nextPoint(), true);
-										}
-									}
-								}
-								setRandomInventInt(Random.nextInt(20, 25));
-							} else {
-								final GameObject obj2 = ctx.objects.select()
-										.id(getAssignmentTreeIds()).shuffle()
-										.poll();
-								if (obj2.valid()) {
-									if (ctx.players.local().animation() != -1) {
-										if (obj2.inViewport()) {
-											obj2.hover();
-										} else {
-											ctx.camera.turnTo(obj2);
+													.centerPoint(), true);
+											Condition.wait(
+													new Callable<Boolean>() {
+														@Override
+														public Boolean call() {
+															return !(ctx.combatBar
+																	.select()
+																	.id(getAssignmentItemId())
+																	.isEmpty());
+														}
+													}, 2500, 20);
+										} catch (Exception e) {
+											e.printStackTrace();
 										}
 									}
 								}
 							}
 						} else {
-							final GameObject obj2 = ctx.objects.select()
-									.id(getAssignmentTreeIds()).shuffle()
-									.poll();
-							if (obj2.valid()) {
-								if (ctx.players.local().animation() != -1) {
-									if (obj2.inViewport()) {
-										obj2.hover();
-									} else {
-										ctx.camera.turnTo(obj2);
-									}
-								}
-							}
-						}
-					} else {
-						if (!getAssignmentString().equalsIgnoreCase("Ivy")) {
-							obj.interact(true, "Chop down",
-									getAssignmentTreeString());
-						} else {
-							obj.interact(true, "Chop",
-									getAssignmentTreeString());
+							setRandomInventInt(Random.nextInt(18, 23));
 						}
 					}
 				} else {
-					ctx.camera.turnTo(obj);
-					obj.hover();
-				}
-			} else {
-				final GameObject obj2 = ctx.objects.select()
-						.name(getAssignmentTreeString()).nearest().poll();
-				if (obj2.valid()) {
-					if (ctx.players.local().animation() == -1) {
-						if (!getAssignmentString().equalsIgnoreCase("Ivy")) {
-							obj2.interact(true, "Chop down",
+					ctx.input.speed(Random.nextInt(3, 7));
+					if (!getAssignmentString().equalsIgnoreCase("Ivy")) {
+						if (ctx.players.local().animation() == -1) {
+							obj.interact(true, "Chop down",
 									getAssignmentTreeString());
+							Condition.wait(new Callable<Boolean>() {
+								@Override
+								public Boolean call() {
+									final Player p = ctx.players.local();
+									return p.animation() == -1 && !p.inMotion()
+											&& p.idle();
+								}
+							}, 1200, 10);
 						} else {
-							obj2.interact(true, "Chop",
+							Condition.wait(new Callable<Boolean>() {
+								@Override
+								public Boolean call() {
+									final Player p = ctx.players.local();
+									return p.animation() == -1 && !p.inMotion()
+											&& p.idle();
+								}
+							}, 1200, 10);
+						}
+					} else {
+						if (ctx.players.local().animation() == -1) {
+							obj.interact(true, "Chop",
 									getAssignmentTreeString());
+							Condition.wait(new Callable<Boolean>() {
+								@Override
+								public Boolean call() {
+									final Player p = ctx.players.local();
+									return p.animation() == -1 && !p.inMotion()
+											&& p.idle();
+								}
+							}, 2200, 15);
 						}
 					}
+				}
+			} else {
+				if (!getAssignmentString().equalsIgnoreCase("Ivy")) {
+					ctx.camera.turnTo(obj.tile().derive(Random.nextInt(-6, 6),
+							Random.nextInt(-6, 6)));
+				} else {
+					ctx.movement.step(ctx.movement.newTilePath(obj.tile())
+							.next());
 				}
 			}
 			break;
 		case DROP:
 			if (!hasExtraItems()) {
-				setRandomInventInt(Random.nextInt(20, 25));
-				while (ctx.backpack.select().id(getAssignmentItemId()).count() > 0) {
-					Point pointOfRandomWillow = ctx.backpack
-							.id(getAssignmentItemId()).shuffle().poll()
-							.nextPoint();
-					if (ctx.chat.queryContinue()) {
-						ctx.chat.clickContinue(true);
-					} else {
-						if (!ctx.combatBar.select().id(getAssignmentItemId())
-								.isEmpty()) {
-							Action dropLogs = ctx.combatBar.first().poll();
-							ctx.combatBar.actionAt(dropLogs.slot()).component()
-									.interact("Drop");
+				if (ctx.backpack.select().id(getAssignmentItemId()).count() >= (28 - getRandomInventInt())) {
+					if (!tileHasFire()) {
+						final Point pointOfRandomLog = ctx.backpack
+								.id(getAssignmentItemId()).first().poll()
+								.nextPoint();
+						if (ctx.chat.queryContinue()) {
+							ctx.chat.clickContinue(true);
 						} else {
-							ctx.input.move(pointOfRandomWillow);
-							ctx.input.drag(ctx.combatBar.first().poll()
-									.component().centerPoint(), true);
+							if (!ctx.combatBar.select()
+									.id(getAssignmentItemId()).isEmpty()) {
+								Action dropLogs = ctx.combatBar.first().poll();
+								final int oldIndex = ctx.backpack.select()
+										.id(getAssignmentItemId()).count();
+								ctx.combatBar.actionAt(dropLogs.slot())
+										.component()
+										.interact(getAssignmentDropAction());
+								Condition.wait(new Callable<Boolean>() {
+									@Override
+									public Boolean call() {
+										return ctx.backpack.select().count() <= oldIndex
+												&& ctx.players.local()
+														.animation() == -1;
+									}
+								}, 1000, 2);
+							} else {
+								try {
+									ctx.input.move(pointOfRandomLog);
+									ctx.input.drag(ctx.combatBar.first().poll()
+											.component().centerPoint(), true);
+									Condition.wait(new Callable<Boolean>() {
+										@Override
+										public Boolean call() {
+											return !(ctx.combatBar.select().id(
+													getAssignmentItemId())
+													.isEmpty());
+										}
+									}, 2000, 5);
+								} catch (Exception e) {
+									e.printStackTrace();
+								}
+							}
+						}
+					} else {
+						final Tile moveAwayTile = new Tile(ctx.players.local()
+								.tile().x()
+								+ Random.nextInt(2, 4), ctx.players.local()
+								.tile().y()
+								+ Random.nextInt(2, 4));
+						if (ctx.movement.step(moveAwayTile)) {
+							Condition.wait(new Callable<Boolean>() {
+								@Override
+								public Boolean call() {
+									return !ctx.players.local().inMotion();
+								}
+							}, 1000, 5);
+							moveAway = false;
 						}
 					}
+				} else {
+					dropping = false;
 				}
 			} else {
 				statusMessage = "Has extra logs, dropping...";
-				while (hasExtraItems()) {
+				if (hasExtraItems()) {
 					for (Item i : ctx.backpack.select().id(extraItemIds())) {
 						if (ctx.chat.queryContinue()) {
 							ctx.chat.clickContinue(true);
 						} else {
+							final int oldIndex = ctx.backpack.select()
+									.id(getAssignmentItemId()).count();
 							i.interact("Drop");
+							Condition.wait(new Callable<Boolean>() {
+								@Override
+								public Boolean call() {
+									return ctx.backpack.select().count() < oldIndex
+											|| ctx.players.local().animation() == -1;
+								}
+							}, 1200, 10);
 						}
 					}
 				}
@@ -465,18 +699,46 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 			break;
 		case BANK:
 			if (getAssignmentString().equalsIgnoreCase("Regular")
-					|| getAssignmentString().equalsIgnoreCase("Oak")
+					|| (getAssignmentString().equalsIgnoreCase("Oak") && oakLocation
+							.equalsIgnoreCase("Port Sarim"))
 					|| (getAssignmentString().equalsIgnoreCase("Willow") && willowLocation
 							.equalsIgnoreCase("Port Sarim"))) {
 				final Widget bankWidget = ctx.widgets.widget(11);
 				if (bankWidget.valid()) {
-					if (ctx.backpack.select().id(getAssignmentItemId()).count() > 0) {
-						int assignmentItemIndex = ctx.backpack.poll()
-								.component().index();
-						final Component component = bankWidget.component(1)
-								.component(assignmentItemIndex);
-						if (component.itemId() == (getAssignmentItemId())) {
-							component.interact("Deposit-All");
+					if (!hasLogsToBank()) {
+						if (ctx.backpack.select().id(getAssignmentItemId())
+								.count() > 0) {
+							int assignmentItemIndex = ctx.backpack.shuffle()
+									.peek().component().index();
+							final Component component = bankWidget.component(1)
+									.component(assignmentItemIndex);
+							if (component.itemId() == (getAssignmentItemId())) {
+								component.interact("Deposit-All");
+							}
+						}
+					} else {
+						if (hasLogsToBank()) {
+							for (int i = 0; i < otherLogIds().length; i++) {
+								if (ctx.backpack.select().id(otherLogIds()[i])
+										.count() > 0) {
+									final int hasLogId = otherLogIds()[i];
+									int assignmentItemIndex = ctx.backpack
+											.shuffle().poll().component()
+											.index();
+									final Component component = bankWidget
+											.component(1).component(
+													assignmentItemIndex);
+									component.interact("Deposit-All");
+									Condition.wait(new Callable<Boolean>() {
+										@Override
+										public Boolean call() {
+											return ctx.backpack.select()
+													.id(hasLogId).count() == 0;
+										}
+									}, 1000, 20);
+
+								}
+							}
 						}
 					}
 				} else {
@@ -484,43 +746,97 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 							.id(36788).nearest().poll();
 					if (depositBox.valid()) {
 						if (depositBox.inViewport()) {
-							depositBox.interact("Deposit");
+							depositBox.interact(true, "Deposit");
+							Condition.wait(new Callable<Boolean>() {
+								@Override
+								public Boolean call() {
+									return bankWidget.valid();
+								}
+							}, 1000, 20);
 						} else {
 							ctx.camera.turnTo(depositBox);
+							Condition.wait(new Callable<Boolean>() {
+								@Override
+								public Boolean call() {
+									return depositBox.inViewport();
+								}
+							}, 1000, 20);
 						}
 					}
 				}
 			} else {
 				if (!ctx.bank.opened()) {
-					if (ctx.bank.inViewport()) {
-						ctx.bank.open();
+					final Npc bankers = ctx.npcs.select()
+							.id(getAssignmentBankerNpcIds()).nearest()
+							.shuffle().poll();
+					if (!bankers.valid()) {
+						if (ctx.bank.inViewport()) {
+							ctx.bank.open();
+							Condition.wait(new Callable<Boolean>() {
+								@Override
+								public Boolean call() {
+									return ctx.bank.opened();
+								}
+							}, 2000, 5);
+						} else {
+							ctx.camera.turnTo(ctx.bank.nearest());
+							Condition.wait(new Callable<Boolean>() {
+								@Override
+								public Boolean call() {
+									return ctx.bank.inViewport();
+								}
+							}, 1000, 5);
+						}
 					} else {
-						ctx.camera.turnTo(ctx.bank.nearest());
+						bankers.interact("Bank");
+						Condition.wait(new Callable<Boolean>() {
+							@Override
+							public Boolean call() {
+								return ctx.bank.opened()
+										|| ctx.players.local().inMotion();
+							}
+						}, 2000, 5);
 					}
 				} else {
 					if (!getNotes) {
-						while (ctx.backpack.select().id(getAssignmentItemId())
-								.count() > 0) {
+						if (!hasLogsToBank()) {
+							if (ctx.backpack.select().id(getAssignmentItemId())
+									.count() > 0) {
+								ctx.bank.deposit(getAssignmentItemId(),
+										Amount.ALL);
+							}
 
-							ctx.bank.deposit(getAssignmentItemId(), Amount.ALL);
-						}
-
-						withdrawBestUsableAxe();
-						while (hasUnusableAxe()) {
-							depositUnusableAxe();
-						}
-						while (hasExtraAxeInInventory()) {
-							depositExtraAxeInInventory();
+							withdrawBestUsableAxe();
+							if (hasUnusableAxe()) {
+								depositUnusableAxe();
+							}
+							if (hasExtraAxeInInventory()) {
+								depositExtraAxeInInventory();
+							}
+						} else {
+							if (hasLogsToBank()) {
+								for (int i = 0; i < otherLogIds().length; i++) {
+									if (ctx.backpack.select()
+											.id(otherLogIds()[i]).count() > 0) {
+										ctx.bank.deposit(otherLogIds()[i],
+												Amount.ALL);
+									}
+								}
+							}
 						}
 					} else {
 						if (ctx.backpack.select().count() < 28) {
-							if (ctx.bank.select().id(getAssignmentItemId())
-									.count() > 0) {
+							if (ctx.bank.select().id(allLogIds()).count() > 0) {
 								if (!ctx.bank.withdrawMode()) {
 									ctx.bank.withdrawMode(true);
 								} else {
-									ctx.bank.withdraw(getAssignmentItemId(),
-											Amount.ALL);
+									for (int i = 0; i < allLogIds().length; i++) {
+										if (ctx.bank.select()
+												.id(allLogIds()[i]).count() > 0) {
+											ctx.bank.withdraw(allLogIds()[i],
+													Amount.ALL);
+										}
+									}
 								}
 							} else {
 								getNotes = false;
@@ -544,7 +860,12 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 				}
 			}
 			equipBetterAxe();
-			ctx.camera.angle('n');
+			if (hasDestination()) {
+				if (!facingDestination()) {
+					ctx.camera.turnTo(ctx.movement.destination());
+				}
+			}
+			ctx.camera.turnTo(ctx.movement.destination());
 			if ((getAssignmentString().equalsIgnoreCase("Willow") || getAssignmentString()
 					.equalsIgnoreCase("Yew")) && getNotes) {
 				Tile pathToBank = ctx.movement.findPath(
@@ -560,8 +881,9 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 							if (!inVarrockYewArea()) {
 								teleportToKnownLocation();
 							} else {
-								pathToBank = ctx.movement.newTilePath(
-										Paths.pathToVarrockYewBank).next();
+								pathToBank = ctx.movement
+										.newTilePath(Paths.pathToVarrockYewBank)
+										.randomize(1, 4).next();
 								ctx.movement.step(pathToBank);
 							}
 						} else {
@@ -588,8 +910,15 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 					Tile pathToTreeArea = null;
 					if (getAssignmentString().equalsIgnoreCase("Willow")) {
 						if (!willowLocation.equalsIgnoreCase("Draynor Village")) {
-							pathToTreeArea = ctx.movement.findPath(
-									new Tile(3057, 3250)).next();
+							if (!inOverallPortSarimArea()) {
+								pathToTreeArea = ctx.movement.findPath(
+										new Tile(3057, 3250)).next();
+							} else {
+								pathToTreeArea = ctx.movement
+										.newTilePath(
+												Paths.portSarimLodestoneToPortSarimWillows)
+										.next();
+							}
 						} else {
 							if (!inOverallPortSarimArea()) {
 								pathToTreeArea = ctx.movement.findPath(
@@ -611,47 +940,132 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 					} else if (getAssignmentString().equalsIgnoreCase("Yew")
 							|| (getAssignmentString().equalsIgnoreCase("Ivy") && ivyLocation
 									.equalsIgnoreCase("Varrock (N)"))) {
-						pathToTreeArea = ctx.movement
-								.newTilePath(Paths.overallPathToVarrockYews)
-								.randomize(1, 4).next();
+						if (ctx.players.local().tile().x() > 3164) {
+							pathToTreeArea = ctx.movement.newTilePath(
+									Paths.varrockLodestoneToYews).next();
+						} else {
+							if (Lodestone.VARROCK.canUse(ctx)) {
+								teleportToKnownLocation();
+							} else {
+								pathToTreeArea = ctx.movement.newTilePath(
+										Paths.overallPathToVarrockOaks).next();
+							}
+						}
 					} else if (getAssignmentString().equalsIgnoreCase("Ivy")
 							&& ivyLocation.equalsIgnoreCase("Falador (SE)")) {
-						if (ctx.players.local().tile().y() > 3325) {
-							if (ctx.players.local().tile().x() > 3059) {
-								pathToTreeArea = ctx.movement
-										.newTilePath(Paths.varrockToFallyIvy)
-										.randomize(1, 4).next();
+						if (inOverallFaladorArea()) {
+							pathToTreeArea = ctx.movement.newTilePath(
+									Paths.faladorLodestoneToIvy).next();
+						} else {
+							if (!Lodestone.FALADOR.canUse(ctx)) {
+								if (ctx.players.local().tile().y() > 3325) {
+									if (ctx.players.local().tile().x() > 3059) {
+										pathToTreeArea = ctx.movement
+												.newTilePath(
+														Paths.varrockToFallyIvy)
+												.randomize(1, 4).next();
+									} else {
+										pathToTreeArea = ctx.movement
+												.newTilePath(
+														ctx.movement
+																.newTilePath(
+																		Paths.ivyToFallyBank)
+																.reverse()
+																.array())
+												.randomize(1, 4).next();
+									}
+								} else {
+									pathToTreeArea = ctx.movement
+											.newTilePath(
+													Paths.portSarimDraynorToFallyIvy)
+											.randomize(1, 4).next();
+								}
 							} else {
-								pathToTreeArea = ctx.movement
-										.newTilePath(
-												ctx.movement
-														.newTilePath(
-																Paths.ivyToFallyBank)
-														.reverse().array())
-										.randomize(1, 4).next();
+								teleportToKnownLocation();
+							}
+						}
+					} else if (getAssignmentString().equalsIgnoreCase("Maple")) {
+						if (inOverallSeersVillage()) {
+							if (mapleLocation
+									.equalsIgnoreCase("Seers' Village (Bank)")) {
+								if (ctx.players.local().tile().x() > 2683
+										&& ctx.players.local().tile().x() < 2738
+										&& ctx.players.local().tile().y() > 3464) {
+									System.out
+											.println("Using LS to seers maple");
+									pathToTreeArea = ctx.movement.newTilePath(
+											Paths.lodestoneToSeersBankMaple)
+											.next();
+								} else {
+									System.out
+											.println("Using LS to seers bank");
+									pathToTreeArea = ctx.movement.newTilePath(
+											Paths.lodestoneMaplesToSeersBank)
+											.next();
+								}
+							} else {
+								if (mapleLocation
+										.equalsIgnoreCase("Seers' Village (NLS)")) {
+									if (ctx.players.local().tile().x() < 2695) {
+										pathToTreeArea = ctx.movement
+												.newTilePath(
+														Paths.lodestoneToLodestoneMaples)
+												.randomize(1, 4).next();
+									} else {
+										pathToTreeArea = ctx.movement
+												.newTilePath(
+														ctx.movement
+																.newTilePath(
+																		Paths.lodestoneMaplesToSeersBank)
+																.reverse()
+																.array())
+												.randomize(1, 4).next();
+									}
+								}
 							}
 						} else {
-							pathToTreeArea = ctx.movement
-									.newTilePath(
-											Paths.portSarimDraynorToFallyIvy)
-									.randomize(1, 4).next();
+							teleportToKnownLocation();
 						}
 					} else if (getAssignmentString().equalsIgnoreCase("Oak")) {
-						System.out.println("Run using path to oak/trees");
-						pathToTreeArea = ctx.movement.newTilePath(
-								Paths.portSarimLodeStoneToTrees).next();
+						if (oakLocation.equalsIgnoreCase("Port Sarim")) {
+							pathToTreeArea = ctx.movement.newTilePath(
+									Paths.portSarimLodeStoneToTrees).next();
+						} else if (oakLocation.equalsIgnoreCase("Varrock (W)")) {
+							if (ctx.players.local().tile().x() > 3164) {
+								pathToTreeArea = ctx.movement.newTilePath(
+										Paths.varrockLodestoneToOaks).next();
+							} else {
+								if (Lodestone.VARROCK.canUse(ctx)) {
+									teleportToKnownLocation();
+								} else {
+									pathToTreeArea = ctx.movement.newTilePath(
+											Paths.overallPathToVarrockOaks)
+											.next();
+								}
+							}
+						}
 					} else {
 						pathToTreeArea = ctx.movement.findPath(
-								getAssignmentArea().getCentralTile()).next();
+								getAssignmentArea().getRandomTile()).next();
 					}
 					if (pathToTreeArea != null && pathToTreeArea.x() != -1) {
-						ctx.movement.step(pathToTreeArea);
+						ctx.movement.step(pathToTreeArea);// TODO
+						final Tile pathStep = pathToTreeArea;
+						System.out.println("Stepped");
+						Condition.wait(new Callable<Boolean>() {
+							@Override
+							public Boolean call() {
+								System.out.println("TR:" + ctx.movement.distance(pathStep));
+								return ctx.movement.distance(pathStep) < Random.nextInt(45, 60);
+							}
+						}, 1000, 10);
+						System.out.println("Broke");
 					} else {
 						teleportToKnownLocation();
 					}
 				} else {
 					Tile pathToBank = ctx.movement.findPath(
-							getAssignmentBankArea().getCentralTile()).next();
+							getAssignmentBankArea().getRandomTile()).next();
 					if (pathToBank != null && pathToBank.x() != -1) {
 						ctx.movement.step(pathToBank);
 					} else {
@@ -678,14 +1092,29 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 										Paths.pathToPortSarimBank).next();
 								ctx.movement.step(pathToBank);
 							}
+						} else if (getAssignmentString()
+								.equalsIgnoreCase("Oak")
+								&& willowLocation
+										.equalsIgnoreCase("Varrock (W)")) {
+							pathToBank = ctx.movement
+									.newTilePath(
+											ctx.movement
+													.newTilePath(
+															Paths.varrockWestBankToOaks)
+													.reverse().array()).next();
 						}
 					}
 				}
 			}
 			break;
 		default:
+			Tile moveAwayTile = new Tile(ctx.players.local().tile().x()
+					+ Random.nextInt(2, 4), ctx.players.local().tile().y()
+					+ Random.nextInt(2, 4));
+			ctx.movement.step(moveAwayTile);
 			break;
 		}
+		// }
 	}
 
 	private void teleportToKnownLocation() {
@@ -727,6 +1156,52 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 								Lodestone.PORT_SARIM.teleport(ctx);
 							} else {
 								stop();
+							}
+						}
+					}
+				} else if (getAssignmentString().equalsIgnoreCase("Maple")) {
+					if (Lodestone.SEERS_VILLAGE.canUse(ctx)) {
+						Lodestone.SEERS_VILLAGE.teleport(ctx);
+					} else {
+						stop();
+					}
+				} else if (getAssignmentString().equalsIgnoreCase("Ivy")) {
+					if (ivyLocation.equalsIgnoreCase("Varrock (N)")) {
+						if (Lodestone.VARROCK.canUse(ctx)) {
+							Lodestone.VARROCK.teleport(ctx);
+						} else {
+							if (Lodestone.DRAYNOR.canUse(ctx)) {
+								Lodestone.DRAYNOR.teleport(ctx);
+							} else {
+								if (Lodestone.PORT_SARIM.canUse(ctx)) {
+									Lodestone.PORT_SARIM.teleport(ctx);
+								} else {
+									stop();
+								}
+							}
+						}
+					} else {
+						if (Lodestone.FALADOR.canUse(ctx)) {
+							Lodestone.FALADOR.teleport(ctx);
+						} else if (Lodestone.PORT_SARIM.canUse(ctx)) {
+							Lodestone.PORT_SARIM.teleport(ctx);
+						} else if (Lodestone.DRAYNOR.canUse(ctx)) {
+							Lodestone.DRAYNOR.teleport(ctx);
+						}
+					}
+				} else if (getAssignmentString().equalsIgnoreCase("Oak")) {
+					if (oakLocation.equalsIgnoreCase("Varrock (W)")) {
+						if (Lodestone.VARROCK.canUse(ctx)) {
+							Lodestone.VARROCK.teleport(ctx);
+						} else {
+							if (Lodestone.DRAYNOR.canUse(ctx)) {
+								Lodestone.DRAYNOR.teleport(ctx);
+							} else {
+								if (Lodestone.PORT_SARIM.canUse(ctx)) {
+									Lodestone.PORT_SARIM.teleport(ctx);
+								} else {
+									stop();
+								}
 							}
 						}
 					}
@@ -880,7 +1355,7 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 			if (bestAxeId != 0) {
 				for (Item item : ctx.backpack.select().id(1355, 1357, 1359)) {
 					if (item.id() < bestAxeId
-							|| (!ctx.backpack.select().id(item.id()).isEmpty() && returnToolbeltToItemId() == bestAxeId)) {
+							|| ((!ctx.backpack.select().id(bestAxeId).isEmpty()) && returnToolbeltToItemId() >= bestAxeId)) {
 						ctx.bank.deposit(item.id(), Amount.ALL);
 					} else {
 						if (ctx.backpack.select().id(item.id()).count() > 1) {
@@ -929,7 +1404,7 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 		}
 		if (bestAxeId != 0) {
 			if (ctx.backpack.select().id(bestAxeId).count() > 1
-					|| (!ctx.backpack.select().id(bestAxeId).isEmpty() && returnToolbeltToItemId() == bestAxeId)) {
+					|| ((!ctx.backpack.select().id(bestAxeId).isEmpty()) && returnToolbeltToItemId() >= bestAxeId)) {
 				hasExtraAxe = true;
 			}
 		}
@@ -971,6 +1446,8 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 			return 0;
 		} else if (woodcuttingLevel >= yewLevel && chopYews) {
 			return 1515;
+		} else if (woodcuttingLevel >= mapleLevel && chopMaples) {
+			return 1517;
 		} else if (woodcuttingLevel >= willowLevel && chopWillows) {
 			return 1519;
 		} else if (woodcuttingLevel >= oakLevel && chopOaks) {
@@ -986,6 +1463,8 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 			return 332.5;
 		} else if (woodcuttingLevel >= yewLevel && chopYews) {
 			return 175;
+		} else if (woodcuttingLevel >= mapleLevel && chopMaples) {
+			return 100;
 		} else if (woodcuttingLevel >= willowLevel && chopWillows) {
 			return 67.5;
 		} else if (woodcuttingLevel >= oakLevel && chopOaks) {
@@ -1014,9 +1493,11 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 	private int[] extraItemIds() {
 		int woodcuttingLevel = currentWoodcuttingLevel;
 		if (woodcuttingLevel >= ivyLevel && chopIvy) {
-			return new int[] { 1519, 1511, 1521 };
+			return new int[] { 1511, 1519, 1521 };
 		} else if (woodcuttingLevel >= yewLevel && chopYews) {
-			return new int[] { 1519, 1511, 1521 };
+			return new int[] { 1511, 1519, 1521 };
+		} else if (woodcuttingLevel >= mapleLevel && chopMaples) {
+			return new int[] { 1511, 1519, 1521 };
 		} else if (woodcuttingLevel >= willowLevel && chopWillows) {
 			return new int[] { 1511, 1521 };
 		} else if (woodcuttingLevel >= oakLevel && chopOaks) {
@@ -1026,12 +1507,39 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 		}
 	}
 
-	private int[] getAssignmentTreeIds() {
-		int woodcuttingLevel = ctx.skills.level(Constants.SKILLS_WOODCUTTING);
+	private int[] otherLogIds() {
+		int woodcuttingLevel = currentWoodcuttingLevel;
 		if (woodcuttingLevel >= ivyLevel && chopIvy) {
-			return new int[] { 86561, 86562, 86563, 86564 };
+			return new int[] { 1511, 1515, 1517, 1519, 1521 };
+		} else if (woodcuttingLevel >= yewLevel && chopYews) {
+			return new int[] { 1511, 1515, 1517, 1519, 1521 };
+		} else if (woodcuttingLevel >= mapleLevel && chopMaples) {
+			return new int[] { 1511, 1519, 1521 };
+		} else if (woodcuttingLevel >= willowLevel && chopWillows) {
+			return new int[] { 1511, 1515, 1517, 1521 };
+		} else if (woodcuttingLevel >= oakLevel && chopOaks) {
+			return new int[] { 1511, 1515, 1517, 1521 };
+		} else {
+			return new int[] { 1515, 1517, 1519, 1521 };
+		}
+	}
+
+	private int[] allLogIds() {
+		return new int[] { 1511, 1515, 1517, 1519, 1521 };
+	}
+
+	private boolean hasLogsToBank() {
+		return ctx.backpack.select().id(otherLogIds()).count() > 0;
+	}
+
+	private int[] getAssignmentTreeIds() {
+		int woodcuttingLevel = currentWoodcuttingLevel;
+		if (woodcuttingLevel >= ivyLevel && chopIvy) {
+			return new int[] { 46318, 46322, 46324, 86561, 86562, 86563, 86564 };
 		} else if (woodcuttingLevel >= yewLevel && chopYews) {
 			return new int[] { 38755 };
+		} else if (woodcuttingLevel >= mapleLevel && chopMaples) {
+			return new int[] { 51843, 51845 };
 		} else if (woodcuttingLevel >= willowLevel && chopWillows) {
 			return new int[] { 38616, 38627, };
 		} else if (woodcuttingLevel >= oakLevel && chopOaks) {
@@ -1041,12 +1549,31 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 		}
 	}
 
+	private int[] getAssignmentBankerNpcIds() {
+		int woodcuttingLevel = currentWoodcuttingLevel;
+		if (woodcuttingLevel >= ivyLevel && chopIvy) {
+			return new int[] { 3418, 2718 };
+		} else if (woodcuttingLevel >= yewLevel && chopYews) {
+			return new int[] { 3418, 2718 };
+		} else if (woodcuttingLevel >= mapleLevel && chopMaples) {
+			return new int[] { 495 };
+		} else if (woodcuttingLevel >= willowLevel && chopWillows) {
+			return new int[] { 4456, 4457, 4458, 4459 };// TODO
+		} else if (woodcuttingLevel >= oakLevel && chopOaks) {
+			return new int[] { 553, 2759 };
+		} else {
+			return new int[] { 0 };
+		}
+	}
+
 	private String getAssignmentString() {
 		int woodcuttingLevel = currentWoodcuttingLevel;
 		if (woodcuttingLevel >= ivyLevel && chopIvy) {
 			return "Ivy";
 		} else if (woodcuttingLevel >= yewLevel && chopYews) {
 			return "Yew";
+		} else if (woodcuttingLevel >= mapleLevel && chopMaples) {
+			return "Maple";
 		} else if (woodcuttingLevel >= willowLevel && chopWillows) {
 			return "Willow";
 		} else if (woodcuttingLevel >= oakLevel && chopOaks) {
@@ -1062,6 +1589,8 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 			return "Ivy";
 		} else if (woodcuttingLevel >= yewLevel && chopYews) {
 			return "Yew";
+		} else if (woodcuttingLevel >= mapleLevel && chopMaples) {
+			return "Maple Tree";
 		} else if (woodcuttingLevel >= willowLevel && chopWillows) {
 			return "Willow";
 		} else if (woodcuttingLevel >= oakLevel && chopOaks) {
@@ -1077,6 +1606,8 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 			return ivyLocation;
 		} else if (woodcuttingLevel >= yewLevel && chopYews) {
 			return yewLocation;
+		} else if (woodcuttingLevel >= mapleLevel && chopMaples) {
+			return mapleLocation;
 		} else if (woodcuttingLevel >= willowLevel && chopWillows) {
 			return willowLocation;
 		} else if (woodcuttingLevel >= oakLevel && chopOaks) {
@@ -1086,6 +1617,27 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 		}
 	}
 
+	private String getAssignmentDropAction() {
+		int woodcuttingLevel = currentWoodcuttingLevel;
+		if (woodcuttingLevel >= yewLevel && chopYews) {
+			if (hasRequiredFiremakingLevel())
+				return yewDropAction;
+		} else if (woodcuttingLevel >= mapleLevel && chopMaples) {
+			if (hasRequiredFiremakingLevel())
+				return mapleDropAction;
+		} else if (woodcuttingLevel >= willowLevel && chopWillows) {
+			if (hasRequiredFiremakingLevel())
+				return willowDropAction;
+		} else if (woodcuttingLevel >= oakLevel && chopOaks) {
+			if (hasRequiredFiremakingLevel())
+				return oakDropAction;
+		} else {
+			if (hasRequiredFiremakingLevel())
+				return regDropAction;
+		}
+		return "Drop";
+	}
+
 	private Area getAssignmentArea() {
 		int woodcuttingLevel = currentWoodcuttingLevel;
 		if (woodcuttingLevel >= ivyLevel && chopIvy) {
@@ -1093,7 +1645,7 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 				return new Area(new Tile(3201, 3505), new Tile(3225, 3498));
 			} else {
 				if (ivyLocation.equalsIgnoreCase("Falador (SE)")) {
-					return new Area(new Tile(3042, 3328), new Tile(3054, 3326));
+					return new Area(new Tile(3042, 3328), new Tile(3054, 3320));
 				} else {
 					return new Area(new Tile(3201, 3505), new Tile(3225, 3498));
 				}
@@ -1104,6 +1656,12 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 			} else {
 				return new Area(new Tile(3201, 3505), new Tile(3225, 3498));
 			}
+		} else if (woodcuttingLevel >= mapleLevel && chopMaples) {
+			if (mapleLocation.endsWith("Seers' Village (Bank)")) {
+				return new Area(new Tile(2718, 3504), new Tile(2736, 3494));
+			} else {
+				return new Area(new Tile(2669, 3546), new Tile(2688, 3520));
+			}
 		} else if (woodcuttingLevel >= willowLevel && chopWillows) {
 			if (!willowLocation.equalsIgnoreCase("Draynor Village")) {
 				return new Area(new Tile(3052, 3268), new Tile(3067, 3246));
@@ -1111,10 +1669,15 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 				return new Area(new Tile(3080, 3239), new Tile(3092, 3226));
 			}
 		} else if (woodcuttingLevel >= oakLevel && chopOaks) {
-			System.out.println("Using oak area?");
-			return new Area(new Tile(3028, 3274), new Tile(3063, 3258));
+			if (oakLocation.equalsIgnoreCase("Port Sarim")) {
+				return new Area(new Tile(3028, 3274), new Tile(3063, 3258));
+			} else if (oakLocation.equalsIgnoreCase("Varrock (W)")) {
+				return new Area(new Tile(3160, 3424), new Tile(3173, 3410));
+			} else {
+				return new Area(new Tile(3028, 3274), new Tile(3063, 3258));// Default
+																			// PS
+			}
 		} else {
-			System.out.println("Using regular area");
 			return new Area(new Tile(2975, 3233), new Tile(3009, 3191));
 		}
 	}
@@ -1137,6 +1700,18 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 			} else {
 				return new Area(new Tile(5, 6), new Tile(7, 8));
 			}
+		} else if (woodcuttingLevel >= mapleLevel && chopMaples) {
+			if (mapleLocation.equalsIgnoreCase("Seers' Village (Bank)")) {
+				return new Area(new Tile(2720, 3494), new Tile(2731, 3494),
+						new Tile(2731, 3489), new Tile(2728, 3489), new Tile(
+								2728, 3486), new Tile(2723, 3486), new Tile(
+								2723, 3489), new Tile(2720, 3489));
+			} else {
+				return new Area(new Tile(2720, 3494), new Tile(2731, 3494),
+						new Tile(2731, 3489), new Tile(2728, 3489), new Tile(
+								2728, 3486), new Tile(2723, 3486), new Tile(
+								2723, 3489), new Tile(2720, 3489));
+			}
 		} else if (woodcuttingLevel >= willowLevel && chopWillows) {
 			if (willowLocation.equalsIgnoreCase("Draynor Village")) {
 				return new Area(new Tile(3088, 3246), new Tile(3097, 3240));
@@ -1144,7 +1719,13 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 				return new Area(new Tile(3043, 3237), new Tile(3050, 3234));
 			}
 		} else if (woodcuttingLevel >= oakLevel && chopOaks) {
-			return new Area(new Tile(3043, 3237), new Tile(3050, 3234));
+			if (oakLocation.equalsIgnoreCase("Port Sarim")) {
+				return new Area(new Tile(3043, 3237), new Tile(3050, 3234));
+			} else if (oakLocation.equalsIgnoreCase("Varrock (W)")) {
+				return new Area(new Tile(3182, 3446), new Tile(3190, 3432));
+			} else {
+				return new Area(new Tile(3043, 3237), new Tile(3050, 3234));
+			}
 		} else {
 			return new Area(new Tile(3043, 3237), new Tile(3050, 3234));
 		}
@@ -1169,6 +1750,29 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 		return false;
 	}
 
+	private boolean hasRequiredFiremakingLevel() {
+		int woodcuttingLevel = currentWoodcuttingLevel;
+		int fmLevel = ctx.skills.level(Constants.SKILLS_FIREMAKING);
+		if (woodcuttingLevel >= yewLevel && chopYews) {
+			if (fmLevel >= 60)
+				return true;
+		} else if (woodcuttingLevel >= mapleLevel && chopMaples) {
+			if (fmLevel >= 45)
+				return true;
+		} else if (woodcuttingLevel >= willowLevel && chopWillows) {
+			if (fmLevel >= 30)
+				return true;
+		} else if (woodcuttingLevel >= oakLevel && chopOaks) {
+			if (fmLevel >= 15)
+				return true;
+		} else if (getAssignmentString().equalsIgnoreCase("Regular")
+				&& fmLevel >= 1) {
+			return true;
+		}
+		return false;
+
+	}
+
 	private boolean atTreeArea() {
 		return getAssignmentArea().contains(ctx.players.local());
 	}
@@ -1188,6 +1792,9 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 				return true;
 		} else if (woodcuttingLevel >= yewLevel && chopYews) {
 			if (bankYews)
+				return true;
+		} else if (woodcuttingLevel >= mapleLevel && chopMaples) {
+			if (bankMaples)
 				return true;
 		} else if (woodcuttingLevel >= willowLevel && chopWillows) {
 			if (bankWillow)
@@ -1221,14 +1828,150 @@ public class DBWoodcutter extends PollingScript<ClientContext> implements
 				.contains(ctx.players.local());
 	}
 
+	private boolean inOverallVarrockArea() {
+		return new Area(new Tile(3135, 3517, 0), new Tile(3194, 3517, 0),
+				new Tile(3199, 3511, 0), new Tile(3231, 3511, 0), new Tile(
+						3236, 3505, 0), new Tile(3256, 3505, 0), new Tile(3259,
+						3366, 0), new Tile(3137, 3367, 0)).contains(ctx.players
+				.local());
+	}
+
 	private boolean inVarrockYewArea() {
 		return new Area(new Tile(3170, 3510), new Tile(3231, 3472))
+				.contains(ctx.players.local());
+	}
+
+	private boolean inOverallSeersVillage() {
+		return new Area(new Tile(2632, 3547), new Tile(2782, 3547), new Tile(
+				2783, 3456), new Tile(2632, 3456))
 				.contains(ctx.players.local());
 	}
 
 	private boolean comingFromDraynorLodestone() {
 		return new Area(new Tile(3100, 3299), new Tile(3110, 3233))
 				.contains(ctx.players.local());
+	}
+
+	private boolean inOverallFaladorArea() {
+		return new Area(new Tile(2936, 3411, 0), new Tile(3007, 3411, 0),
+				new Tile(3027, 3395, 0), new Tile(3042, 3391, 0), new Tile(
+						3067, 3390, 0), new Tile(3067, 3379, 0), new Tile(3067,
+						3366, 0), new Tile(3060, 3360, 0), new Tile(3061, 3350,
+						0), new Tile(3065, 3349, 0), new Tile(3066, 3332, 0),
+				new Tile(3067, 3328, 0), new Tile(3065, 3325, 0), new Tile(
+						3061, 3327, 0), new Tile(3025, 3327, 0), new Tile(3022,
+						3326, 0), new Tile(3016, 3325, 0), new Tile(3011, 3321,
+						0), new Tile(3007, 3321, 0), new Tile(2985, 3306, 0),
+				new Tile(2937, 3306, 0)).contains(ctx.players.local());
+	}
+
+	private boolean hasDestination() {
+		if (ctx.movement.destination().x() == -1
+				|| ctx.movement.destination().y() == -1) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+
+	private boolean facingDestination() {
+		if (!hasDestination())
+			return true;
+		if (hasDestination() && facingTile(ctx.movement.destination()))
+			return true;
+		return false;
+	}
+
+	private boolean facingTile(Tile tile) {
+		return tile.matrix(ctx).inViewport();
+	}
+
+	private boolean turnTo(Locatable l) {
+		final Tile ltile = l.tile();
+		if (facingTile(ltile)) {
+			return true;
+		} else {
+			ctx.camera.turnTo(l);
+			Condition.wait(new Callable<Boolean>() {
+				@Override
+				public Boolean call() {
+					return facingTile(ltile); // condition is met. for example,
+												// the backpack turns empty
+				}
+			}, 2000, 5);
+			if (facingTile(ltile))
+				return true;
+
+		}
+		return false;
+	}
+
+	private boolean combineCamera(final int angle, final int pitch) {
+		final Runnable setAngle = new Runnable() {
+			@Override
+			public void run() {
+				ctx.camera.angle(angle);
+			}
+		};
+		final Runnable setPitch = new Runnable() {
+			@Override
+			public void run() {
+				ctx.camera.pitch(pitch);
+			}
+		};
+
+		if (Random.nextInt(0, 100) < 50) {
+			new Thread(setAngle).start();
+			new Thread(setPitch).start();
+		} else {
+			new Thread(setPitch).start();
+			new Thread(setAngle).start();
+		}
+
+		return Condition.wait(new Callable<Boolean>() {
+			@Override
+			public Boolean call() throws Exception {
+				return ctx.camera.pitch() == pitch && ctx.camera.yaw() == angle;
+			}
+		}, Random.nextInt(50, 200), Random.nextInt(4, 8));
+	}
+
+	private boolean tileHasFire() {
+		final Tile ptile = ctx.players.local().tile();
+		final GameObject obj = ctx.objects.select().id(70757, 70761).nearest().poll();
+		if (ctx.movement.distance(obj) == 0) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public void setZoomLevel(int zoomLevel) {
+		for (int i = 0; i < 10; i++) {
+			ctx.input.send("{VK_PAGE_UP}");
+		}
+		for (int i = 0; i < zoomLevel; i++) {
+			ctx.input.send("{VK_PAGE_DOWN}");
+		}
+		zoomLevelSet = true;
+	}
+
+	private int getZoomLevel() {
+		if (getAssignmentString().equalsIgnoreCase("Regular")) {
+			return 10;
+		} else if (getAssignmentString().equalsIgnoreCase("Oak")) {
+			return 6;
+		} else if (getAssignmentString().equalsIgnoreCase("Willow")) {
+			return 8;
+		} else if (getAssignmentString().equalsIgnoreCase("Maple")) {
+			return 8;
+		} else if (getAssignmentString().equalsIgnoreCase("Yew")) {
+			return 7;
+		} else if (getAssignmentString().equalsIgnoreCase("Ivy")) {
+			return 4;
+		} else {
+			return 5;
+		}
 	}
 
 }
