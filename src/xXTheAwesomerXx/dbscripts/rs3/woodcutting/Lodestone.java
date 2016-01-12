@@ -44,7 +44,7 @@ public enum Lodestone {
 	private final int shift;
 	private final Tile location;
 	private final String key;
-	private final Timer t = new Timer(Random.nextInt(1800, 2200));
+	private final LTimer t = new LTimer(Random.nextInt(1800, 2200));
 	private boolean wrongDest = false;
 
 
