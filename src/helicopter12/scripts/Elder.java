@@ -358,9 +358,8 @@ public class Elder extends PollingScript<ClientContext> implements PaintListener
 
     private int getPrice() {
         final String content = downloadString("http://itemdb-rs.runescape.com/viewitem.ws?obj=29556");
-        int ret = 0;
         if (content == null) {
-            ret = -1;
+            return 0;
         }
 
         final String[] lines = content.split("\n");
@@ -369,10 +368,10 @@ public class Elder extends PollingScript<ClientContext> implements PaintListener
                 String rString = lines[i].replace("<h3>Current Guide Price <span title='", "");
                 rString = rString.substring(rString.indexOf("'>") + 2, 20);
                 rString = rString.replace(",", "");
-                ret = Integer.parseInt(rString.trim());
+                return Integer.parseInt(rString.trim());
             }
         }
-        return ret;
+        return 0;
     }
 
     private boolean shouldBank() {
