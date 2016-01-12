@@ -387,10 +387,7 @@ public class Elder extends PollingScript<ClientContext> implements PaintListener
 
         int next;
 
-        for (next = c + 1; next != c; next = (next + 1) % locationCount) {
-            if (next == 4) {
-                next = 0;
-            }
+        for (next = (c + 1) % locationCount; next != c; next = (next + 1) % locationCount) {
             if (spawnTime[randomizedLocations[next]] <= 1) {
                 break;
             }
@@ -505,7 +502,13 @@ public class Elder extends PollingScript<ClientContext> implements PaintListener
     }
 
     private void triggerTimer() {
-        respawn[randomizedLocations[currentElderLocation]] = getTotalRuntime() + 600000;
+        int tree = randomizedLocations[currentElderLocation];
+        long currentTime = getTotalRuntime();
+        if (respawn[tree] < currentTime) {
+            respawn[tree] = currentTime + 600000;
+        } else {
+            // Seeing tree we already knew was dead
+        }
     }
 
     // Credit to LodeStone class
