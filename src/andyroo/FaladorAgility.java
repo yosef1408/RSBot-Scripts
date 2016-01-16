@@ -11,7 +11,7 @@ import java.util.concurrent.Callable;
 
 @Script.Manifest(
         name = "Fally Agility", properties = "author=andyroo; topic=1298690; client=4;",
-        description = "Fally agility"
+        description = "Does agility course at Falador rooftops."
 )
 
 public class FaladorAgility extends PollingScript<ClientContext> implements PaintListener {
