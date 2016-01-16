@@ -5,6 +5,8 @@ import org.powerbot.script.rt4.*;
 import org.powerbot.script.rt4.ClientContext;
 
 import java.awt.*;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -12,7 +14,7 @@ import java.util.concurrent.Callable;
 
 @Script.Manifest(
         name = "Fally Agility", properties = "author=andyroo; topic=1298690; client=4;",
-        description = "v1.1 - Completes Falador agility course"
+        description = "v 1.2 - Completes Falador agility course"
 )
 
 public class FaladorAgility extends PollingScript<ClientContext> implements PaintListener {
@@ -70,7 +72,9 @@ public class FaladorAgility extends PollingScript<ClientContext> implements Pain
 
     private Area currentArea;
     static private Timer timer = new Timer();
+    long startTime;
     int startXP;
+    int startMarkCount;
 
     /******************************************************************************************/
 
@@ -82,14 +86,22 @@ public class FaladorAgility extends PollingScript<ClientContext> implements Pain
 
     @Override
     public void start() {
+        startMarkCount = ctx.inventory.id(MARK_ID).poll().stackSize();
         startXP = ctx.skills.experience(16);
+        startTime = System.currentTimeMillis();
     }
 
 
     public void stop() {
+        int stopMarkCount = ctx.inventory.id(MARK_ID).poll().stackSize();
+        long stopTime = System.currentTimeMillis();
+        int stopXP = ctx.skills.experience(16);
+
         log.info("Starting XP: " + startXP);
         log.info("Ending XP: " + ctx.skills.experience(16));
-        log.info("Gained: " + Integer.toString(ctx.skills.experience(16) - startXP));
+        log.info("Gained: " + Integer.toString(stopXP - startXP));
+        log.info("Marks : " + Integer.toString(stopMarkCount - startMarkCount));
+        log.info(new SimpleDateFormat("mm:ss").format(new Date(stopTime - startTime)));
     }
 
 
@@ -136,16 +148,23 @@ public class FaladorAgility extends PollingScript<ClientContext> implements Pain
         int roll = Random.nextInt(0, 10 + 1);
         if(ctx.game.loggedIn()) {
             switch (roll) {
-                case 0:
+                case 0: // move camera
                     writeln("antiban 0");
                     adjustCamera(ctx);
                     break;
-                case 1:
+                case 1: // switch between inventory/stats tabs
                     writeln("antiban 1");
 
                     if (ctx.game.tab() == Game.Tab.INVENTORY) {
                         ctx.game.tab(Game.Tab.STATS);
                     } else ctx.game.tab(Game.Tab.STATS);
+                    break;
+                case 2: // right click on a player
+                    Point mouseLoc = ctx.input.getLocation();
+                    writeln("antiban 2");
+                    ctx.players.poll().click(false);
+                    Condition.sleep(Random.getDelay());
+                    ctx.input.move(mouseLoc.x + Random.nextInt(-10, 10), mouseLoc.y - Random.nextInt(5, 20));
                     break;
                 default:
                     break;
@@ -242,8 +261,8 @@ public class FaladorAgility extends PollingScript<ClientContext> implements Pain
                     tightrope1.bounds(TIGHTROPE1_BOUNDS);
                     writeln("tightrope found");
                     //tightrope1.hover();
-                    tightrope1.click("Cross");
-                    obstacleFound = true;
+                    if(tightrope1.click("Cross", Game.Crosshair.ACTION))
+                        obstacleFound = true;
                 }
                 break;
 
