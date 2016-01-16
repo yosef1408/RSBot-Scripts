@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 @Script.Manifest(
         name = "Chicken Slayer",
         description = "Kills chickens and collects feathers at NW Lumbridge spot",
-        properties = "author=SirFancyGamer;topic=12312321;"
+        properties = "author=SirFancyGamer;topic=1298781;"
 )
 public class ChickenSlayer extends PollingScript<ClientContext> implements PaintListener{
 
