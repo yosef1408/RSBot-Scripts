@@ -10,8 +10,8 @@ import java.util.TimerTask;
 import java.util.concurrent.Callable;
 
 @Script.Manifest(
-        name = "poopsicle", properties = "author=andyroo; topic=1298690; client=4;",
-        description = "poopsicle"
+        name = "Fally Agility", properties = "author=andyroo; topic=1298690; client=4;",
+        description = "Fally agility"
 )
 
 public class FaladorAgility extends PollingScript<ClientContext> implements PaintListener {
