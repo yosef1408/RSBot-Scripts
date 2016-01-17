@@ -6,8 +6,10 @@ import org.powerbot.script.Random;
 import org.powerbot.script.rt4.Camera;
 import org.powerbot.script.rt4.ClientContext;
 import org.powerbot.script.rt4.Game;
+import org.powerbot.script.rt4.Player;
 
 import java.awt.*;
+
 
 public class Antiban {
     static public synchronized void run(final ClientContext ctx) {
@@ -29,9 +31,12 @@ public class Antiban {
                 case 2: // right click on a player
                     Point mouseLoc = ctx.input.getLocation();
                     System.out.println("antiban 2");
-                    ctx.players.poll().click(false);
-                    Condition.sleep(Random.getDelay());
-                    ctx.input.move(mouseLoc.x + Random.nextInt(-10, 10), mouseLoc.y - Random.nextInt(5, 20));
+                    Player p = ctx.players.poll();
+                    if(p != ctx.players.local()) {
+                        p.click(false);
+                        Condition.sleep(Random.getDelay());
+                        ctx.input.move(mouseLoc.x + Random.nextInt(-10, 10), mouseLoc.y - Random.nextInt(5, 20));
+                    }
                     break;
                 default:
                     break;
