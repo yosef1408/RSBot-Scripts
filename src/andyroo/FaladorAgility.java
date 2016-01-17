@@ -5,13 +5,16 @@ import org.powerbot.script.rt4.*;
 import org.powerbot.script.rt4.ClientContext;
 
 import java.awt.*;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Callable;
 
 @Script.Manifest(
         name = "Fally Agility", properties = "author=andyroo; topic=1298690; client=4;",
-        description = "Does agility course at Falador rooftops."
+        description = "v 1.2 - Completes Falador agility course"
 )
 
 public class FaladorAgility extends PollingScript<ClientContext> implements PaintListener {
@@ -57,6 +60,8 @@ public class FaladorAgility extends PollingScript<ClientContext> implements Pain
     static final int LEDGE4_ID = 11370;
     static final int EDGE1_ID = 11371;
 
+    static final int MARK_ID = 11849;
+
     static final int[] ROUGH_WALL_BOUNDS = {16, 96, -192, -68, 100, 140};
     static final int[] TIGHTROPE1_BOUNDS = {64, 120, 28, 68, 44, 128};
     static final int[] HANDHOLDS_BOUNDS = {-28, 28, -12, 60, 60, 120};
@@ -67,7 +72,9 @@ public class FaladorAgility extends PollingScript<ClientContext> implements Pain
 
     private Area currentArea;
     static private Timer timer = new Timer();
+    long startTime;
     int startXP;
+    int startMarkCount;
 
     /******************************************************************************************/
 
@@ -79,30 +86,45 @@ public class FaladorAgility extends PollingScript<ClientContext> implements Pain
 
     @Override
     public void start() {
-        timer.schedule(new AntibanTask(), 0, 5000);
+        startMarkCount = ctx.inventory.id(MARK_ID).poll().stackSize();
         startXP = ctx.skills.experience(16);
+        startTime = System.currentTimeMillis();
     }
 
 
     public void stop() {
-        System.out.println("Starting XP: " + startXP);
-        System.out.println("Ending XP: " + ctx.skills.experience(16));
-        System.out.println(ctx.skills.experience(16) - startXP);
-        timer.cancel();
+        int stopMarkCount = ctx.inventory.id(MARK_ID).poll().stackSize();
+        long stopTime = System.currentTimeMillis();
+        int stopXP = ctx.skills.experience(16);
+
+        log.info("Starting XP: " + startXP);
+        log.info("Ending XP: " + ctx.skills.experience(16));
+        log.info("Gained: " + Integer.toString(stopXP - startXP));
+        log.info("Marks : " + Integer.toString(stopMarkCount - startMarkCount));
+        log.info(new SimpleDateFormat("mm:ss").format(new Date(stopTime - startTime)));
     }
 
 
     // check for marks of grace
     private void markCheck() {
-        GroundItem mark = ctx.groundItems.select(10).id(11849).poll();
+        final GroundItem mark = ctx.groundItems.select(10).id(MARK_ID).poll();
 
         if (currentArea != null && currentArea.contains(mark.tile())) {
             writeln("mark found");
             if (mark.inViewport()) {
+                final Item markCount = ctx.inventory.id(MARK_ID).poll();
+
                 mark.click("Take");
-                waitMovement(ctx);
+
+                Condition.wait(new Callable<Boolean>() {
+                    public Boolean call() throws Exception {
+                        //writeln("waiting to stop moving");
+                        return !mark.valid();
+                    }
+                }, 300, 10);
+
             } else if (mark.valid()) {
-                writeln("attempt to pick up mark");
+                writeln("walk to mark");
                 ctx.movement.step(mark.tile());
             }
         }
@@ -121,55 +143,55 @@ public class FaladorAgility extends PollingScript<ClientContext> implements Pain
     }
 
 
-    class AntibanTask extends TimerTask {
-        public void run() {
-            int roll = Random.nextInt(0, 2);
-            if(ctx.game.loggedIn()) {
-                switch (roll) {
-                    case 0:
-                        writeln("antiban 0");
-                        adjustCamera(ctx);
-                        break;
-                    case 1:
-                        writeln("antiban 1");
 
-                        if (ctx.game.tab() == Game.Tab.INVENTORY) {
-                            ctx.game.tab(Game.Tab.STATS);
-                        } else ctx.game.tab(Game.Tab.STATS);
-                        break;
-                    default:
-                        break;
-                }
+    public void antiban() {
+        int roll = Random.nextInt(0, 10 + 1);
+        if(ctx.game.loggedIn()) {
+            switch (roll) {
+                case 0: // move camera
+                    writeln("antiban 0");
+                    adjustCamera(ctx);
+                    break;
+                case 1: // switch between inventory/stats tabs
+                    writeln("antiban 1");
+
+                    if (ctx.game.tab() == Game.Tab.INVENTORY) {
+                        ctx.game.tab(Game.Tab.STATS);
+                    } else ctx.game.tab(Game.Tab.STATS);
+                    break;
+                case 2: // right click on a player
+                    Point mouseLoc = ctx.input.getLocation();
+                    writeln("antiban 2");
+                    ctx.players.poll().click(false);
+                    Condition.sleep(Random.getDelay());
+                    ctx.input.move(mouseLoc.x + Random.nextInt(-10, 10), mouseLoc.y - Random.nextInt(5, 20));
+                    break;
+                default:
+                    break;
             }
         }
     }
+
 
 
     static public void waitObstacle(final ClientContext ctx) {
         Condition.wait(new Callable<Boolean>() {
             public Boolean call() throws Exception {
                 Player me = ctx.players.local();
-                //writeln("waiting to animate");
+                writeln("waiting to animate");
                 return me.animation() != -1;
             }
-        }, 250, 10);
+        }, 250, 8);
         Condition.wait(new Callable<Boolean>() {
             public Boolean call() throws Exception {
                 Player me = ctx.players.local();
-                //writeln("waiting to stop moving");
+                writeln("waiting to stop moving");
                 return !me.inMotion();
             }
         }, 250, 8);
     }
 
     static public void waitMovement(final ClientContext ctx) {
-        Condition.wait(new Callable<Boolean>() {
-            public Boolean call() throws Exception {
-                Player me = ctx.players.local();
-                //writeln("waiting to move");
-                return me.inMotion();
-            }
-        }, 250, 10);
         Condition.wait(new Callable<Boolean>() {
             public Boolean call() throws Exception {
                 Player me = ctx.players.local();
@@ -193,10 +215,12 @@ public class FaladorAgility extends PollingScript<ClientContext> implements Pain
 
 
     public void poll() {
-        State s;
+        boolean obstacleFound = false;
+        State s = state();
+
         markCheck();
 
-        switch (s = state()) {
+        switch (s) {
             case LOST:
                 ctx.movement.step(START_TILE);
                 Condition.wait(new Callable<Boolean>() {
@@ -219,6 +243,13 @@ public class FaladorAgility extends PollingScript<ClientContext> implements Pain
                     roughWall.click("Climb");
                     //roughWall.hover();
 
+                    Condition.wait(new Callable<Boolean>() {
+                        public Boolean call() throws Exception {
+                            Player me = ctx.players.local();
+                            return me.tile().floor() == 3;
+                        }
+                    }, 250, 10);
+
                     // if fail, 1. point north/south 2. camera angle down
                 }
                 break;
@@ -230,7 +261,8 @@ public class FaladorAgility extends PollingScript<ClientContext> implements Pain
                     tightrope1.bounds(TIGHTROPE1_BOUNDS);
                     writeln("tightrope found");
                     //tightrope1.hover();
-                    tightrope1.click("Cross");
+                    if(tightrope1.click("Cross", Game.Crosshair.ACTION))
+                        obstacleFound = true;
                 }
                 break;
 
@@ -242,6 +274,7 @@ public class FaladorAgility extends PollingScript<ClientContext> implements Pain
                     writeln("handholds found");
                     // handholds.hover();
                     handholds.click("Cross");
+                    obstacleFound = true;
                 } else {
                     ctx.movement.step(OBSTACLE2_TILE);
 
@@ -250,7 +283,7 @@ public class FaladorAgility extends PollingScript<ClientContext> implements Pain
                         public Boolean call() throws Exception {
                             return OBSTACLE2_TILE.distanceTo(ctx.players.local()) < 3;
                         }
-                    }, 250, 10);
+                    }, 250, 6);
                 }
                 break;
 
@@ -262,6 +295,7 @@ public class FaladorAgility extends PollingScript<ClientContext> implements Pain
                     writeln("gap found");
                     //gap1.hover();
                     gap1.click("Jump");
+                    obstacleFound = true;
                 }
                 break;
 
@@ -273,6 +307,7 @@ public class FaladorAgility extends PollingScript<ClientContext> implements Pain
                     writeln("gap found");
                     //gap2.hover();
                     gap2.click("Jump");
+                    obstacleFound = true;
                 }
                 break;
 
@@ -284,6 +319,7 @@ public class FaladorAgility extends PollingScript<ClientContext> implements Pain
                     writeln("tightrope found");
                     //tightrope2.hover();
                     tightrope2.click("Cross");
+                    obstacleFound = true;
                 } else {
                     ctx.movement.step(OBSTACLE5_TILE);
 
@@ -292,7 +328,7 @@ public class FaladorAgility extends PollingScript<ClientContext> implements Pain
                         public Boolean call() throws Exception {
                             return OBSTACLE5_TILE.distanceTo(ctx.players.local()) < 3;
                         }
-                    }, 250, 10);
+                    }, 250, 6);
                 }
                 break;
 
@@ -304,6 +340,7 @@ public class FaladorAgility extends PollingScript<ClientContext> implements Pain
                     writeln("tightrope found");
                     //tightrope3.hover();
                     tightrope3.click("Cross");
+                    obstacleFound = true;
                 }
                 break;
 
@@ -315,6 +352,7 @@ public class FaladorAgility extends PollingScript<ClientContext> implements Pain
                     writeln("gap found");
                     //gap3.hover();
                     gap3.click("Jump");
+                    obstacleFound = true;
                 }
                 break;
 
@@ -326,6 +364,7 @@ public class FaladorAgility extends PollingScript<ClientContext> implements Pain
                     writeln("ledge found");
                     //ledge1.hover();
                     ledge1.click("Jump");
+                    obstacleFound = true;
                 } else {
                     ctx.movement.step(OBSTACLE8_TILE);
 
@@ -334,7 +373,7 @@ public class FaladorAgility extends PollingScript<ClientContext> implements Pain
                         public Boolean call() throws Exception {
                             return ctx.players.local().tile().compareTo(OBSTACLE8_TILE) == 0;
                         }
-                    }, 250, 10);
+                    }, 250, 6);
                 }
                 break;
 
@@ -346,6 +385,7 @@ public class FaladorAgility extends PollingScript<ClientContext> implements Pain
                     writeln("ledge found");
                     //ledge2.hover();
                     ledge2.click("Jump");
+                    obstacleFound = true;
                 }
                 break;
 
@@ -357,6 +397,7 @@ public class FaladorAgility extends PollingScript<ClientContext> implements Pain
                     writeln("ledge found");
                     //ledge3.hover();
                     ledge3.click("Jump");
+                    obstacleFound = true;
                 } else {
                     ctx.movement.step(OBSTACLE10_TILE);
 
@@ -365,7 +406,7 @@ public class FaladorAgility extends PollingScript<ClientContext> implements Pain
                         public Boolean call() throws Exception {
                             return ctx.players.local().tile().compareTo(OBSTACLE10_TILE) == 0;
                         }
-                    }, 250, 10);
+                    }, 250, 6);
                 }
                 break;
 
@@ -377,6 +418,7 @@ public class FaladorAgility extends PollingScript<ClientContext> implements Pain
                     writeln("ledge found");
                     //ledge4.hover();
                     ledge4.click("Jump");
+                    obstacleFound = true;
                 } else {
                     ctx.movement.step(OBSTACLE11_TILE);
                     Condition.wait(new Callable<Boolean>() {
@@ -384,7 +426,7 @@ public class FaladorAgility extends PollingScript<ClientContext> implements Pain
                         public Boolean call() throws Exception {
                             return ctx.players.local().tile().compareTo(OBSTACLE11_TILE) == 0;
                         }
-                    }, 250, 10);
+                    }, 250, 6);
                 }
                 break;
 
@@ -396,6 +438,7 @@ public class FaladorAgility extends PollingScript<ClientContext> implements Pain
                     writeln("ledge found");
                     //edge1.hover();
                     edge1.click("Jump");
+                    obstacleFound = true;
                 } else {
                     ctx.movement.step(OBSTACLE12_TILE);
 
@@ -404,15 +447,18 @@ public class FaladorAgility extends PollingScript<ClientContext> implements Pain
                         public Boolean call() throws Exception {
                             return ctx.players.local().tile().compareTo(OBSTACLE12_TILE) == 0;
                         }
-                    }, 250, 10);
+                    }, 250, 6);
                 }
                 break;
             default:
                 break;
         }
-        if(s.ordinal() < 13) {
+
+        if(obstacleFound) {
             waitObstacle(ctx);
+            antiban();
         }
+
     }
 
 
