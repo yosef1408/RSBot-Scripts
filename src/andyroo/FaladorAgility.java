@@ -7,14 +7,13 @@ import org.powerbot.script.rt4.ClientContext;
 import java.awt.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.Callable;
+
+import andyroo.Antiban;
 
 @Script.Manifest(
         name = "Fally Agility", properties = "author=andyroo; topic=1298690; client=4;",
-        description = "v 1.2 - Completes Falador agility course"
+        description = "v 1.3 - Completes Falador agility course"
 )
 
 public class FaladorAgility extends PollingScript<ClientContext> implements PaintListener {
@@ -71,7 +70,6 @@ public class FaladorAgility extends PollingScript<ClientContext> implements Pain
     /******************************************************************************************/
 
     private Area currentArea;
-    static private Timer timer = new Timer();
     long startTime;
     int startXP;
     int startMarkCount;
@@ -83,25 +81,46 @@ public class FaladorAgility extends PollingScript<ClientContext> implements Pain
         System.out.println(s);
     }
 
+    // output time elapsed from ms to hh:mm:ss
+    static public String getTimeElapsed(long ms) {
+        long sec, min, hr;
+
+        sec = (ms / 1000) % 60;
+        min = ((ms / 1000) / 1000) % 60;
+        hr = ((ms / 1000) / 60) / 60;
+
+        StringBuilder timeElpasedString = new StringBuilder();
+        timeElpasedString.append(hr);
+        timeElpasedString.append(':');
+        timeElpasedString.append(min);
+        timeElpasedString.append(':');
+        timeElpasedString.append(sec);
+
+        return timeElpasedString.toString();
+    }
 
     @Override
     public void start() {
-        startMarkCount = ctx.inventory.id(MARK_ID).poll().stackSize();
+        ctx.game.tab(Game.Tab.INVENTORY);
+        startMarkCount = ctx.inventory.select().id(MARK_ID).poll().stackSize();
         startXP = ctx.skills.experience(16);
         startTime = System.currentTimeMillis();
     }
 
 
     public void stop() {
-        int stopMarkCount = ctx.inventory.id(MARK_ID).poll().stackSize();
+        ctx.game.tab(Game.Tab.INVENTORY);
+        int stopMarkCount = ctx.inventory.select().id(MARK_ID).poll().stackSize();
         long stopTime = System.currentTimeMillis();
         int stopXP = ctx.skills.experience(16);
 
-        log.info("Starting XP: " + startXP);
-        log.info("Ending XP: " + ctx.skills.experience(16));
-        log.info("Gained: " + Integer.toString(stopXP - startXP));
-        log.info("Marks : " + Integer.toString(stopMarkCount - startMarkCount));
-        log.info(new SimpleDateFormat("mm:ss").format(new Date(stopTime - startTime)));
+        String totalTime = getTimeElapsed(stopTime - startTime);
+
+        //log.info("Starting XP: " + startXP);
+        //log.info("Ending XP: " + ctx.skills.experience(16));
+        log.info("Gained XP: " + Integer.toString(stopXP - startXP));
+        log.info("Marks collected: " + Integer.toString(stopMarkCount - startMarkCount));
+        log.info("Time run: " + totalTime);
     }
 
 
@@ -112,7 +131,6 @@ public class FaladorAgility extends PollingScript<ClientContext> implements Pain
         if (currentArea != null && currentArea.contains(mark.tile())) {
             writeln("mark found");
             if (mark.inViewport()) {
-                final Item markCount = ctx.inventory.id(MARK_ID).poll();
 
                 mark.click("Take");
 
@@ -131,50 +149,13 @@ public class FaladorAgility extends PollingScript<ClientContext> implements Pain
     }
 
 
-    static public void adjustCamera(ClientContext ctx) {
-        Camera cam = ctx.camera;
-
-        if (Random.nextInt(0, 10) == 0)
-            cam.pitch(Random.nextInt(50, 100));
-        else {
-            cam.angle(Random.nextGaussian(0, 360, cam.yaw(), 40));
-            cam.pitch(true);
-        }
-    }
-
-
-
-    public void antiban() {
-        int roll = Random.nextInt(0, 10 + 1);
-        if(ctx.game.loggedIn()) {
-            switch (roll) {
-                case 0: // move camera
-                    writeln("antiban 0");
-                    adjustCamera(ctx);
-                    break;
-                case 1: // switch between inventory/stats tabs
-                    writeln("antiban 1");
-
-                    if (ctx.game.tab() == Game.Tab.INVENTORY) {
-                        ctx.game.tab(Game.Tab.STATS);
-                    } else ctx.game.tab(Game.Tab.STATS);
-                    break;
-                case 2: // right click on a player
-                    Point mouseLoc = ctx.input.getLocation();
-                    writeln("antiban 2");
-                    ctx.players.poll().click(false);
-                    Condition.sleep(Random.getDelay());
-                    ctx.input.move(mouseLoc.x + Random.nextInt(-10, 10), mouseLoc.y - Random.nextInt(5, 20));
-                    break;
-                default:
-                    break;
+    private void waitObstacle() {
+        new Thread(new Runnable() {
+            public void run() {
+                Antiban.run(ctx);
             }
-        }
-    }
+        }).start();
 
-
-
-    static public void waitObstacle(final ClientContext ctx) {
         Condition.wait(new Callable<Boolean>() {
             public Boolean call() throws Exception {
                 Player me = ctx.players.local();
@@ -260,7 +241,8 @@ public class FaladorAgility extends PollingScript<ClientContext> implements Pain
                 if (tightrope1.inViewport()) {
                     tightrope1.bounds(TIGHTROPE1_BOUNDS);
                     writeln("tightrope found");
-                    //tightrope1.hover();
+
+                    // CHECK THIS
                     if(tightrope1.click("Cross", Game.Crosshair.ACTION))
                         obstacleFound = true;
                 }
@@ -272,7 +254,6 @@ public class FaladorAgility extends PollingScript<ClientContext> implements Pain
                 if (handholds.inViewport()) {
                     handholds.bounds(HANDHOLDS_BOUNDS);
                     writeln("handholds found");
-                    // handholds.hover();
                     handholds.click("Cross");
                     obstacleFound = true;
                 } else {
@@ -293,7 +274,6 @@ public class FaladorAgility extends PollingScript<ClientContext> implements Pain
                 if (gap1.inViewport()) {
                     //gap1.bounds(GAP1_BOUNDS);
                     writeln("gap found");
-                    //gap1.hover();
                     gap1.click("Jump");
                     obstacleFound = true;
                 }
@@ -305,7 +285,6 @@ public class FaladorAgility extends PollingScript<ClientContext> implements Pain
                 if (gap2.inViewport()) {
                     //gap2.bounds(GAP2_BOUNDS);
                     writeln("gap found");
-                    //gap2.hover();
                     gap2.click("Jump");
                     obstacleFound = true;
                 }
@@ -317,7 +296,6 @@ public class FaladorAgility extends PollingScript<ClientContext> implements Pain
                 if (tightrope2.inViewport()) {
                     tightrope2.bounds(TIGHTROPE2_BOUNDS);
                     writeln("tightrope found");
-                    //tightrope2.hover();
                     tightrope2.click("Cross");
                     obstacleFound = true;
                 } else {
@@ -338,7 +316,6 @@ public class FaladorAgility extends PollingScript<ClientContext> implements Pain
                 if (tightrope3.inViewport()) {
                     tightrope3.bounds(TIGHTROPE3_BOUNDS);
                     writeln("tightrope found");
-                    //tightrope3.hover();
                     tightrope3.click("Cross");
                     obstacleFound = true;
                 }
@@ -362,7 +339,6 @@ public class FaladorAgility extends PollingScript<ClientContext> implements Pain
                 if (ledge1.inViewport()) {
                     //ledge1.bounds(LEDGE1_BOUNDS);
                     writeln("ledge found");
-                    //ledge1.hover();
                     ledge1.click("Jump");
                     obstacleFound = true;
                 } else {
@@ -383,7 +359,6 @@ public class FaladorAgility extends PollingScript<ClientContext> implements Pain
                 if (ledge2.inViewport()) {
                     //ledge2.bounds(LEDGE2_BOUNDS);
                     writeln("ledge found");
-                    //ledge2.hover();
                     ledge2.click("Jump");
                     obstacleFound = true;
                 }
@@ -395,7 +370,6 @@ public class FaladorAgility extends PollingScript<ClientContext> implements Pain
                 if (ledge3.inViewport()) {
                     //ledge3.bounds(LEDGE3_BOUNDS);
                     writeln("ledge found");
-                    //ledge3.hover();
                     ledge3.click("Jump");
                     obstacleFound = true;
                 } else {
@@ -416,7 +390,6 @@ public class FaladorAgility extends PollingScript<ClientContext> implements Pain
                 if (ledge4.inViewport()) {
                     //ledge4.bounds(LEDGE4_BOUNDS);
                     writeln("ledge found");
-                    //ledge4.hover();
                     ledge4.click("Jump");
                     obstacleFound = true;
                 } else {
@@ -436,7 +409,6 @@ public class FaladorAgility extends PollingScript<ClientContext> implements Pain
                 if (edge1.inViewport()) {
                     //edge1.bounds(EDGE1_BOUNDS);
                     writeln("ledge found");
-                    //edge1.hover();
                     edge1.click("Jump");
                     obstacleFound = true;
                 } else {
@@ -455,8 +427,7 @@ public class FaladorAgility extends PollingScript<ClientContext> implements Pain
         }
 
         if(obstacleFound) {
-            waitObstacle(ctx);
-            antiban();
+            waitObstacle();
         }
 
     }
