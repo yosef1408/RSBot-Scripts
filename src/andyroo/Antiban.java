@@ -2,6 +2,7 @@ package andyroo;
 
 import org.powerbot.script.Client;
 import org.powerbot.script.Condition;
+import org.powerbot.script.Filter;
 import org.powerbot.script.Random;
 import org.powerbot.script.rt4.Camera;
 import org.powerbot.script.rt4.ClientContext;
@@ -31,9 +32,16 @@ public class Antiban {
                 case 2: // right click on a player
                     Point mouseLoc = ctx.input.getLocation();
                     System.out.println("antiban 2");
-                    Player p = ctx.players.poll();
-                    if(p != ctx.players.local()) {
-                        p.click(false);
+
+                    if(ctx.players.select(new Filter<Player>() {
+                        @Override
+                        public boolean accept(Player player) {
+                            return player.name().compareTo(ctx.players.local().name()) != 0;
+                        }
+                    }).viewable().peek().valid()) { // if player is not local player, and is on the screen
+
+                        System.out.println(ctx.players.poll().name());
+                        ctx.players.poll().click(false);
                         Condition.sleep(Random.getDelay());
                         ctx.input.move(mouseLoc.x + Random.nextInt(-10, 10), mouseLoc.y - Random.nextInt(5, 20));
                     }
