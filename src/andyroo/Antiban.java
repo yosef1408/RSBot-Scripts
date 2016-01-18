@@ -1,6 +1,5 @@
 package andyroo;
 
-import org.powerbot.script.Client;
 import org.powerbot.script.Condition;
 import org.powerbot.script.Filter;
 import org.powerbot.script.Random;
