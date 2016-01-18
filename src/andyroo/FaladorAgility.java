@@ -226,8 +226,7 @@ public class FaladorAgility2 extends PollingScript<ClientContext> {
                         else ctx.camera.angle(180);
                         roughWall.bounds(ROUGH_WALL_BOUNDS);
                         writeln("rough wall found");
-                        roughWall.click("Climb");
-                        //roughWall.hover();
+                        if(roughWall.click("Climb", Game.Crosshair.ACTION)) {
 
                         Condition.wait(new Callable<Boolean>() {
                             public Boolean call() throws Exception {
@@ -235,8 +234,7 @@ public class FaladorAgility2 extends PollingScript<ClientContext> {
                                 return me.tile().floor() == 3;
                             }
                         }, 250, 10);
-
-                        // if fail, 1. point north/south 2. camera angle down
+			{
                     }
                     else {
                         ctx.camera.angle(0);
