@@ -76,7 +76,7 @@ public class OSGuardSlayer extends PollingScript<ClientContext> implements Paint
             food.interact("Eat");
         }
         if (ctx.inventory.select().id(foodID).count() <= 0) {
-            while (!ctx.movement.reachable(ctx.players.local().tile(), castleTile)) {
+            if (!ctx.movement.reachable(ctx.players.local().tile(), castleTile)) {
                 status = "Status: Opening door!";
                 closedDoor = ctx.objects.select().id(6839).nearest().poll();
                 if (closedDoor.orientation() == 0 && closedDoor.tile().distanceTo(castleTile) <= 13) {
