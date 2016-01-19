@@ -160,12 +160,15 @@ public class OSGuardSlayer extends PollingScript<ClientContext> implements Paint
                 }
 
                 try {
-                    TimeUnit.MILLISECONDS.sleep((long) ((rn.nextDouble() + .85) * 1000));
+                    TimeUnit.MILLISECONDS.sleep((long) ((rn.nextDouble() + .65) * 1000));
                 } catch (InterruptedException e) {
                     e.getMessage();
                 }
             } else {
                 guard = ctx.npcs.name("Al-Kharid warrior").nearest().poll();
+                if (!guard.inViewport()) {
+                    ctx.camera.turnTo(guard);
+                }
             }
         } else {
             randChance = rn.nextInt(100);
