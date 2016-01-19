@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
 @Script.Manifest(
         name = "Al-Kharid Slayer",
         description = "Kills the Al-Kharid warriors and auto heals/banks for food.",
-        properties = "author=SirFancyGamer;topic=1298880;game=4;"
+        properties = "author=SirFancyGamer;topic=1298880;client=4;"
 )
 
 public class OSGuardSlayer extends PollingScript<ClientContext> implements PaintListener {
