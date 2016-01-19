@@ -13,7 +13,7 @@ import andyroo.Antiban;
         description = "v 2.0 - Completes Falador agility course"
 )
 
-public class FaladorAgility2 extends PollingScript<ClientContext> {
+public class FaladorAgility extends PollingScript<ClientContext> {
 
     /***********************************
      * Constants
