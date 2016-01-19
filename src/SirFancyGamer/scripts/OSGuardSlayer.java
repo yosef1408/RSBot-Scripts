@@ -207,7 +207,11 @@ public class OSGuardSlayer extends PollingScript<ClientContext> implements Paint
         pathCastle = ctx.movement.newTilePath(tilesToCastle);
         if (ctx.players.local().tile().distanceTo(castleTile) > 3) {
             pathCastle.traverse();
-            ctx.camera.turnTo(pathCastle.next());
+            try {
+                ctx.camera.turnTo(pathCastle.next());
+            } catch (NullPointerException e) {
+                e.getMessage();
+            }
             canAttack = false;
             try {
                 TimeUnit.MILLISECONDS.sleep((long) (rn.nextDouble() + .85) * 1000);
