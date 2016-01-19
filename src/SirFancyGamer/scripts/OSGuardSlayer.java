@@ -141,7 +141,7 @@ public class OSGuardSlayer extends PollingScript<ClientContext> implements Paint
 
     public void attackGuard() {
         status = "Status: Attacking";
-        if (!ctx.players.local().inCombat()) {
+        if (!ctx.players.local().inCombat() || guard.animation() == 836) {
             guard = ctx.npcs.select().name("Al-Kharid warrior").nearest().poll();
             if (!guard.inCombat() && guard.valid()) {
                 openDoor();
