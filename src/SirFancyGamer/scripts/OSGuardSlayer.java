@@ -1,11 +1,9 @@
 package SirFancyGamer.scripts;
 
 
-import org.powerbot.script.PaintListener;
-import org.powerbot.script.PollingScript;
-import org.powerbot.script.Script;
-import org.powerbot.script.Tile;
+import org.powerbot.script.*;
 import org.powerbot.script.rt4.*;
+import org.powerbot.script.rt4.ClientContext;
 
 import javax.swing.*;
 import java.awt.*;
@@ -19,6 +17,13 @@ import java.util.concurrent.TimeUnit;
 )
 
 public class OSGuardSlayer extends PollingScript<ClientContext> implements PaintListener {
+
+    final int[] eastDoorBounds = {0, 32, -212, 0, 28, 240};
+    final int[] westDoorBounds = {112, 144, -224, 0, -104, 108};
+
+    Area castleArea = new Area(new Tile(3296, 3174), new Tile(3288, 3169));
+
+    double maxHealth = 1;
 
     Font font = new Font("Verdana", Font.BOLD, 12);
 
@@ -41,11 +46,13 @@ public class OSGuardSlayer extends PollingScript<ClientContext> implements Paint
     int foodID;
     Bank bank = new Bank(ctx);
 
-    org.powerbot.script.Tile[] tilesToBank = new org.powerbot.script.Tile[]{new org.powerbot.script.Tile(3293, 3179), new Tile(3286, 3179),
-            new Tile(3280, 3179), new Tile(3273, 3167), new Tile(3269, 3167)};
+    org.powerbot.script.Tile[] tilesToBank = {new Tile(3293, 3178, 0), new Tile(3290, 3179, 0), new Tile(3287, 3179, 0),
+            new Tile(3284, 3179, 0), new Tile(3281, 3179, 0), new Tile(3280, 3176, 0), new Tile(3277, 3173, 0), new Tile(3276, 3170, 0),
+            new Tile(3273, 3167, 0), new Tile(3270, 3167, 0)};
 
-    org.powerbot.script.Tile[] tilesToCastle = new org.powerbot.script.Tile[]{new Tile(3269, 3167), new Tile(3273, 3167), new Tile(3280, 3179),
-            new Tile(3286, 3179), castleTile};
+    org.powerbot.script.Tile[] tilesToCastle = {new Tile(3271, 3167, 0), new Tile(3274, 3170, 0), new Tile(3275, 3173, 0), new Tile(3277, 3176, 0),
+            new Tile(3280, 3179, 0), new Tile(3283, 3179, 0), new Tile(3286, 3179, 0), new Tile(3289, 3179, 0),
+            new Tile(3292, 3179, 0), castleTile};
 
     TilePath pathBank = ctx.movement.newTilePath(tilesToBank);
     TilePath pathCastle = ctx.movement.newTilePath(tilesToCastle);
@@ -64,33 +71,46 @@ public class OSGuardSlayer extends PollingScript<ClientContext> implements Paint
 
 
     public void poll() {
-        tempExp = ctx.skills.experience(0) + ctx.skills.experience(1) + ctx.skills.experience(2) + ctx.skills.experience(3)
-                + ctx.skills.experience(4) + ctx.skills.experience(6);
-        expGained = "Exp gained: " + (tempExp - startingExp);
-        if ((ctx.combat.health() <= 5)) {
+        if (((double)ctx.combat.health() / maxHealth) * 100 <= 40) {
             food = ctx.inventory.select().id(foodID).poll();
             food.interact("Eat");
         }
         if (ctx.inventory.select().id(foodID).count() <= 0) {
-            closedDoor = ctx.objects.select().id(6839).nearest().poll();
-            if (closedDoor.valid() && closedDoor.tile().distanceTo(ctx.players.local().tile()) <= 3) {
-                closedDoor.interact("Open");
-            }
-            try {
-                TimeUnit.MILLISECONDS.sleep((long) ((rn.nextDouble() + .55) * 1000));
-            } catch (InterruptedException e) {
-                e.getMessage();
+            if (!ctx.movement.reachable(ctx.players.local().tile(), castleTile)) {
+                status = "Status: Opening door!";
+                do {
+                    if (closedDoor.orientation() == 0 && closedDoor.tile().distanceTo(castleTile) <= 13) {
+                        closedDoor.bounds(eastDoorBounds);
+                        ctx.camera.turnTo(closedDoor);
+                        closedDoor.interact("Open");
+                        try {
+                            TimeUnit.MILLISECONDS.sleep((long) ((rn.nextDouble() + .55) * 1000));
+                        } catch (InterruptedException e) {
+                            e.getMessage();
+                        }
+                    } else if (closedDoor.orientation() == 2 && closedDoor.tile().distanceTo(castleTile) <= 13) {
+                        closedDoor.bounds(westDoorBounds);
+                        ctx.camera.turnTo(closedDoor);
+                        closedDoor.interact("Open");
+                        try {
+                            TimeUnit.MILLISECONDS.sleep((long) ((rn.nextDouble() + .95) * 1000));
+                        } catch (InterruptedException e) {
+                            e.getMessage();
+                        }
+                    }
+                } while (!ctx.movement.reachable(ctx.players.local().tile(), castleTile));
             }
             needBank = true;
             canAttack = false;
         }
+
         if (needBank && !canAttack && ctx.players.local().tile().distanceTo(bankTile) <= 3) {
             bankInteraction();
         } else if (needBank && !canAttack) {
             walkToBank();
         }
         if (!needBank && !canAttack) {
-            randomCastleTile();
+            castleTile = castleArea.getRandomTile();
             walkToCastle();
         }
         if (canAttack) {
@@ -101,7 +121,9 @@ public class OSGuardSlayer extends PollingScript<ClientContext> implements Paint
     public void start() {
         System.out.println("Script started!");
         selectFoodItem();
+        castleTile = castleArea.getRandomTile();
         food = ctx.inventory.select().id(foodID).poll();
+        maxHealth = ctx.skills.realLevel(Constants.SKILLS_HITPOINTS);;
         if (ctx.inventory.select().id(foodID).count() <= 0) {
             needBank = true;
         } else {
@@ -121,37 +143,43 @@ public class OSGuardSlayer extends PollingScript<ClientContext> implements Paint
         status = "Status: Attacking";
         if (!ctx.players.local().inCombat()) {
             guard = ctx.npcs.select().name("Al-Kharid warrior").nearest().poll();
-            closeDoor();
-            ctx.camera.turnTo(guard);
-            guard.interact("Attack");
-            try {
-                TimeUnit.MILLISECONDS.sleep((long) ((rn.nextDouble() + .15) * 1000));
-            } catch (InterruptedException e) {
-                e.getMessage();
-            }
-            randChance = rn.nextInt(100);
-            if (randChance >= 45) {
-                ctx.input.move(rn.nextInt(350), rn.nextInt(300));
-            }
+            if (!guard.inCombat() && guard.valid()) {
+                openDoor();
+                if (!guard.inViewport()) {
+                    ctx.camera.turnTo(guard);
+                }
+                guard.interact("Attack");
+                try {
+                    TimeUnit.MILLISECONDS.sleep((long) ((rn.nextDouble() + .15) * 1000));
+                } catch (InterruptedException e) {
+                    e.getMessage();
+                }
+                randChance = rn.nextInt(100);
+                if (randChance >= 45) {
+                    ctx.input.move(rn.nextInt(350), rn.nextInt(300));
+                }
 
-            try {
-                TimeUnit.MILLISECONDS.sleep((long) ((rn.nextDouble() + .85) * 1000));
-            } catch (InterruptedException e) {
-                e.getMessage();
+                try {
+                    TimeUnit.MILLISECONDS.sleep((long) ((rn.nextDouble() + .85) * 1000));
+                } catch (InterruptedException e) {
+                    e.getMessage();
+                }
+            } else {
+                guard = ctx.npcs.name("Al-Kharid warrior").nearest().poll();
             }
         } else {
             randChance = rn.nextInt(100);
             if (randChance >= 97) {
-                ctx.input.move(ctx.input.getLocation().x + rn.nextInt(25), ctx.input.getLocation().y + rn.nextInt(25));
+                ctx.input.move(ctx.input.getLocation().x + rn.nextInt(35), ctx.input.getLocation().y + rn.nextInt(35));
             }
             if (randChance <= 3) {
-                ctx.input.move(ctx.input.getLocation().x - rn.nextInt(25), ctx.input.getLocation().y - rn.nextInt(25));
+                ctx.input.move(ctx.input.getLocation().x - rn.nextInt(35), ctx.input.getLocation().y - rn.nextInt(35));
             }
             if (randChance >= 30 && randChance <= 32) {
-                ctx.input.move(ctx.input.getLocation().x - rn.nextInt(25), ctx.input.getLocation().y + rn.nextInt(25));
+                ctx.input.move(ctx.input.getLocation().x - rn.nextInt(35), ctx.input.getLocation().y + rn.nextInt(35));
             }
             if (randChance >= 40 && randChance <= 42) {
-                ctx.input.move(ctx.input.getLocation().x + rn.nextInt(25), ctx.input.getLocation().y - rn.nextInt(25));
+                ctx.input.move(ctx.input.getLocation().x + rn.nextInt(35), ctx.input.getLocation().y - rn.nextInt(35));
             }
             ctx.camera.turnTo(randomGuardLocation());
             try {
@@ -163,12 +191,20 @@ public class OSGuardSlayer extends PollingScript<ClientContext> implements Paint
     }
 
     public Tile randomGuardLocation() {
-        return guardLocation = new Tile(guard.tile().x() + rn.nextInt(3), guard.tile().y() + rn.nextInt(3));
+        if (org.powerbot.script.Random.nextInt(0, 100) <= 45) {
+            ctx.camera.pitch(org.powerbot.script.Random.nextInt(30, 65));
+            guardLocation = new Tile(guard.tile().x() + rn.nextInt(3), guard.tile().y() + rn.nextInt(3));
+        }
+        return guardLocation;
     }
 
     public void walkToCastle() {
         status = "Status: Walking to castle";
-        randomCastleTile();
+        castleTile = castleArea.getRandomTile();
+        tilesToCastle = new Tile[] {new Tile(3271, 3167, 0), new Tile(3274, 3170, 0), new Tile(3275, 3173, 0), new Tile(3277, 3176, 0),
+                new Tile(3280, 3179, 0), new Tile(3283, 3179, 0), new Tile(3286, 3179, 0), new Tile(3289, 3179, 0),
+                new Tile(3292, 3179, 0), castleTile};
+        pathCastle = ctx.movement.newTilePath(tilesToCastle);
         if (ctx.players.local().tile().distanceTo(castleTile) > 3) {
             pathCastle.traverse();
             ctx.camera.turnTo(pathCastle.next());
@@ -200,6 +236,7 @@ public class OSGuardSlayer extends PollingScript<ClientContext> implements Paint
             return;
         }
     }
+
 
     public void bankInteraction() {
         status = "Status: Interacting with bank";
@@ -240,49 +277,41 @@ public class OSGuardSlayer extends PollingScript<ClientContext> implements Paint
         }
     }
 
-    public void closeDoor() {
-        closedDoor = ctx.objects.select().id(6839).nearest().poll();
-        if (closedDoor.valid() && closedDoor.tile().distanceTo(guard.tile()) <= 6 && !ctx.players.local().inCombat()) {
-            status = "Status: Opening door..";
-            ctx.camera.turnTo(new Tile(closedDoor.tile().x() + 10, closedDoor.tile().y() + 10));
-            ctx.camera.pitch(30);
-            closedDoor.interact("Open");
-            try {
-                TimeUnit.MILLISECONDS.sleep((long) ((rn.nextDouble() + .75) * 1000));
-            } catch (InterruptedException e) {
-                e.getMessage();
-            }
-        }
-    }
-
-    public void randomCastleTile() {
-        int tempNum = rn.nextInt(5);
-
-        switch (tempNum) {
-            case 1:
-                castleTile = new Tile(3293, 3174);
-                break;
-            case 2:
-                castleTile = new Tile(3296, 3172);
-                break;
-            case 3:
-                castleTile = new Tile(3288, 3175);
-                break;
-            case 4:
-                castleTile = new Tile(3290, 3171);
-                break;
-            case 5:
-                castleTile = new Tile(3293, 3169);
-                break;
-            default:
-                castleTile = new Tile(3293, 3174);
-                break;
+    public void openDoor() {
+        if (!guard.tile().matrix(ctx).reachable()) {
+            do {
+                status = "Status: Opening door!";
+                if (closedDoor.orientation() == 0 && closedDoor.tile().distanceTo(castleTile) <= 13) {
+                    closedDoor.bounds(eastDoorBounds);
+                    ctx.camera.turnTo(closedDoor);
+                    closedDoor.interact("Open");
+                    try {
+                        TimeUnit.MILLISECONDS.sleep((long) ((rn.nextDouble() + .55) * 1000));
+                    } catch (InterruptedException e) {
+                        e.getMessage();
+                    }
+                } else if (closedDoor.orientation() == 2 && closedDoor.tile().distanceTo(castleTile) <= 13) {
+                    closedDoor.bounds(westDoorBounds);
+                    ctx.camera.turnTo(closedDoor);
+                    closedDoor.interact("Open");
+                    try {
+                        TimeUnit.MILLISECONDS.sleep((long) ((rn.nextDouble() + .95) * 1000));
+                    } catch (InterruptedException e) {
+                        e.getMessage();
+                    }
+                }
+            } while (!guard.tile().matrix(ctx).reachable() && guard.valid());
         }
     }
 
 
     @Override
     public void repaint(Graphics graphics) {
+        tempExp = ctx.skills.experience(0) + ctx.skills.experience(1) + ctx.skills.experience(2) + ctx.skills.experience(3)
+                + ctx.skills.experience(4) + ctx.skills.experience(6);
+        expGained = "Exp gained: " + (tempExp - startingExp);
+        //Graphics2D g2d = (Graphics2D)graphics;
+        //closedDoor.draw(g2d, 255);
         graphics.setFont(font);
         graphics.setColor(transGrey);
         graphics.drawRect(0, 0, 230, 75);
