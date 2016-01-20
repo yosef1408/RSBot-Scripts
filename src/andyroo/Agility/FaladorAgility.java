@@ -6,8 +6,6 @@ import org.powerbot.script.rt4.ClientContext;
 
 import java.util.concurrent.Callable;
 
-import andyroo.Antiban;
-import andyroo.Obstacle;
 
 @Script.Manifest(
         name = "Fally Agility", properties = "author=andyroo; topic=1298690; client=4;",
