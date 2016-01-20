@@ -71,6 +71,7 @@ public class OSGuardSlayer extends PollingScript<ClientContext> implements Paint
 
 
     public void poll() {
+        dismissRandomEvent();
         if (((double) ctx.combat.health() / maxHealth) * 100 <= 40) {
             food = ctx.inventory.select().id(foodID).poll();
             food.interact("Eat");
@@ -326,6 +327,30 @@ public class OSGuardSlayer extends PollingScript<ClientContext> implements Paint
                     e.getMessage();
                 }
             }
+        }
+    }
+
+    public void dismissRandomEvent() {
+        /* Credit to @laputa.  URL: https://www.powerbot.org/community/topic/1292825-random-event-dismisser/  */
+        Npc randomNpc = ctx.npcs.select().within(2.0).select(new Filter<Npc>() {
+
+            @Override
+            public boolean accept(Npc npc) {
+                return npc.overheadMessage().contains(ctx.players.local().name());
+            }
+
+        }).poll();
+
+        if (randomNpc.valid()) {
+            String action = randomNpc.name().equalsIgnoreCase("genie") ? "Talk-to" : "Dismiss";
+            if (randomNpc.interact(action)) {
+                try {
+                    TimeUnit.MILLISECONDS.sleep((long) (org.powerbot.script.Random.nextDouble(3, 3.5) * 1000));
+                } catch (InterruptedException e) {
+                    e.getMessage();
+                }
+            }
+
         }
     }
 
