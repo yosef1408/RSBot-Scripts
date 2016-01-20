@@ -66,7 +66,7 @@ public class FaladorAgility extends PollingScript<ClientContext> {
     public long startTime;
     public int startXP;
     public int startMarkCount;
-    static public String version = "v2.0";
+    static public String version = "v 2.0";
 
     private Area currentArea;
     private Location location;
@@ -86,7 +86,7 @@ public class FaladorAgility extends PollingScript<ClientContext> {
         long sec, min, hr;
 
         sec = (ms / 1000) % 60;
-        min = ((ms / 1000) / 1000) % 60;
+        min = ((ms / 1000) / 60) % 60;
         hr = ((ms / 1000) / 60) / 60;
 
         StringBuilder timeElpasedString = new StringBuilder();
@@ -111,7 +111,7 @@ public class FaladorAgility extends PollingScript<ClientContext> {
         ctx.game.tab(Game.Tab.INVENTORY);
         energyThreshold = Random.nextInt(30, 60);
         startMarkCount = ctx.inventory.select().id(MARK_ID).poll().stackSize();
-        startXP = ctx.skills.experience(16);
+        startXP = ctx.skills.experience(Constants.SKILLS_AGILITY);
         startTime = System.currentTimeMillis();
 
     }
@@ -121,7 +121,7 @@ public class FaladorAgility extends PollingScript<ClientContext> {
         ctx.game.tab(Game.Tab.INVENTORY);
         int stopMarkCount = ctx.inventory.select().id(MARK_ID).poll().stackSize();
         long stopTime = System.currentTimeMillis();
-        int stopXP = ctx.skills.experience(16);
+        int stopXP = ctx.skills.experience(Constants.SKILLS_AGILITY);
 
         String totalTime = getTimeElapsed(stopTime - startTime);
 
@@ -200,10 +200,12 @@ public class FaladorAgility extends PollingScript<ClientContext> {
         markCheck();
 
         switch (s) {
-            case INVALID:
+            case INVALID: {
                 Condition.sleep();
-                break;
-            case RUN_TOGGLE:
+            }
+            break;
+
+            case RUN_TOGGLE: {
                 ctx.movement.running(true);
                 energyThreshold = Random.nextInt(30, 60);
                 Condition.wait(new Callable<Boolean>() {
@@ -212,8 +214,10 @@ public class FaladorAgility extends PollingScript<ClientContext> {
                         return ctx.movement.running();
                     }
                 }, 250, 4);
-                break;
-            case FELL:
+            }
+            break;
+
+            case FELL: {
                 ctx.movement.step(START_TILE);
                 Condition.wait(new Callable<Boolean>() {
                     @Override
@@ -221,19 +225,20 @@ public class FaladorAgility extends PollingScript<ClientContext> {
                         return START_TILE.distanceTo(ctx.players.local()) < 5;
                     }
                 }, 300, 10);
-                break;
+            }
+            break;
 
-            case START_POINT:
+            case START_POINT: {
                 GameObject roughWall = ctx.objects.select(10).id(ROUGH_WALL_ID).poll();
 
-                if(roughWall.valid()) {
+                if (roughWall.valid()) {
                     if (roughWall.inViewport()) {
                         if (Random.nextInt(0, 2) == 0)
                             ctx.camera.angle(0);
                         else ctx.camera.angle(180);
                         roughWall.bounds(ROUGH_WALL_BOUNDS);
                         writeln("rough wall found");
-                        if(roughWall.click("Climb", Game.Crosshair.ACTION)) {
+                        if (roughWall.click("Climb", Game.Crosshair.ACTION)) {
 
                             Condition.wait(new Callable<Boolean>() {
                                 public Boolean call() throws Exception {
@@ -242,8 +247,7 @@ public class FaladorAgility extends PollingScript<ClientContext> {
                                 }
                             }, 250, 10);
                         }
-                    }
-                    else {
+                    } else {
                         ctx.camera.angle(0);
                         ctx.camera.angle(180);
                         ctx.movement.step(START_TILE);
@@ -256,23 +260,22 @@ public class FaladorAgility extends PollingScript<ClientContext> {
 
                     }
                 }
+            }
+            break;
 
-
-                break;
-
-            case OBSTACLE:
+            case OBSTACLE: {
                 GameObject obstacleObject = null;
                 Obstacle obstacleInfo = FALLY_OBSTACLES[obstacleNum];
 
                 if (location == Location.FALADOR)
                     obstacleObject = ctx.objects.select(10).id(obstacleInfo.getId()).poll();
 
-                if(obstacleObject == null) {
+                if (obstacleObject == null) {
                     writeln("Obstacle not found");
                     break;
                 }
 
-                if(obstacleObject.valid()) {
+                if (obstacleObject.valid()) {
                     if (obstacleObject.inViewport()) {
                         writeln("Obstacle " + obstacleNum + " found");
 
@@ -282,8 +285,7 @@ public class FaladorAgility extends PollingScript<ClientContext> {
                         if (obstacleObject.click(obstacleInfo.getAction(), Game.Crosshair.ACTION)) {
                             obstacleFound = true;
                         }
-                    }
-                    else {
+                    } else {
                         writeln("Move to obstacle " + obstacleNum);
 
                         final Tile obstacleTile = obstacleObject.tile();
@@ -297,8 +299,8 @@ public class FaladorAgility extends PollingScript<ClientContext> {
                         }, 250, 6);
                     }
                 }
-
-                break;
+            }
+            break;
 
             default:
                 break;
@@ -317,7 +319,7 @@ public class FaladorAgility extends PollingScript<ClientContext> {
 
         Player me = ctx.players.local();
 
-        if(!ctx.movement.running() && (ctx.movement.energyLevel() > energyThreshold)) {
+        if (!ctx.movement.running() && (ctx.movement.energyLevel() > energyThreshold)) {
             writeln("Toggle run");
             return State.RUN_TOGGLE;
         }
