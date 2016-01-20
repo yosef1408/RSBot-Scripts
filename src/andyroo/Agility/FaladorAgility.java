@@ -317,7 +317,7 @@ public class FaladorAgility extends PollingScript<ClientContext> {
 
         Player me = ctx.players.local();
 
-        if(!ctx.movement.running() && ctx.movement.energyLevel() > energyThreshold) {
+        if(!ctx.movement.running() && (ctx.movement.energyLevel() > energyThreshold)) {
             writeln("Toggle run");
             return State.RUN_TOGGLE;
         }
