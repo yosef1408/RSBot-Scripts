@@ -149,6 +149,7 @@ public class OSGuardSlayer extends PollingScript<ClientContext> implements Paint
                 if (!guard.inCombat() && guard.valid()) {
                     openDoor();
                     if (!guard.inViewport()) {
+                        walkToGuard();
                         ctx.camera.turnTo(guard);
                     }
 
@@ -169,6 +170,7 @@ public class OSGuardSlayer extends PollingScript<ClientContext> implements Paint
                 if (!ctx.players.local().inCombat() && guard.valid() && guard.inCombat()) {
                     guard = ctx.npcs.name("Al-Kharid warrior").nearest().poll();
                     if (!guard.inViewport()) {
+                        walkToGuard();
                         ctx.camera.turnTo(guard);
                     }
                 }
@@ -283,6 +285,20 @@ public class OSGuardSlayer extends PollingScript<ClientContext> implements Paint
 
             if (foodID >= 0) {
                 success = true;
+            }
+        }
+    }
+
+    public void walkToGuard() {
+        if (!guard.inViewport()) {
+            status = "Status: Walking to guard!";
+            ctx.movement.findPath(guard.tile()).traverse();
+            if (ctx.players.local().inMotion()) {
+                try {
+                    TimeUnit.MILLISECONDS.sleep((long) (org.powerbot.script.Random.nextDouble(.35, .75) + .85) * 1000);
+                } catch (InterruptedException e) {
+                    e.getMessage();
+                }
             }
         }
     }
