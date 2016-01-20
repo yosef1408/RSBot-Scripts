@@ -7,6 +7,7 @@ import org.powerbot.script.rt4.ClientContext;
 import java.util.concurrent.Callable;
 
 import andyroo.Antiban;
+import andyroo.Obstacle;
 
 @Script.Manifest(
         name = "Fally Agility", properties = "author=andyroo; topic=1298690; client=4;",
@@ -65,7 +66,7 @@ public class FaladorAgility extends PollingScript<ClientContext> {
     public long startTime;
     public int startXP;
     public int startMarkCount;
-    static public String version = "2.0";
+    static public String version = "v2.0";
 
     private Area currentArea;
     private Location location;
@@ -205,6 +206,12 @@ public class FaladorAgility extends PollingScript<ClientContext> {
             case RUN_TOGGLE:
                 ctx.movement.running(true);
                 energyThreshold = Random.nextInt(30, 60);
+                Condition.wait(new Callable<Boolean>() {
+                    @Override
+                    public Boolean call() throws Exception {
+                        return ctx.movement.running();
+                    }
+                }, 250, 4);
                 break;
             case FELL:
                 ctx.movement.step(START_TILE);
@@ -228,13 +235,13 @@ public class FaladorAgility extends PollingScript<ClientContext> {
                         writeln("rough wall found");
                         if(roughWall.click("Climb", Game.Crosshair.ACTION)) {
 
-                        Condition.wait(new Callable<Boolean>() {
-                            public Boolean call() throws Exception {
-                                Player me = ctx.players.local();
-                                return me.tile().floor() == 3;
-                            }
-                        }, 250, 10);
-			{
+                            Condition.wait(new Callable<Boolean>() {
+                                public Boolean call() throws Exception {
+                                    Player me = ctx.players.local();
+                                    return me.tile().floor() == 3;
+                                }
+                            }, 250, 10);
+                        }
                     }
                     else {
                         ctx.camera.angle(0);
@@ -311,6 +318,7 @@ public class FaladorAgility extends PollingScript<ClientContext> {
         Player me = ctx.players.local();
 
         if(!ctx.movement.running() && ctx.movement.energyLevel() > energyThreshold) {
+            writeln("Toggle run");
             return State.RUN_TOGGLE;
         }
 
