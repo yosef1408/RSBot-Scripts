@@ -2,7 +2,9 @@ package andyroo;
 
 
 public class Obstacle {
-    static public enum Type { TIGHTROPE, HANDHOLDS, GAP, LEDGE, EDGE };
+    public enum Type {
+        TIGHTROPE, HANDHOLDS, GAP, LEDGE, EDGE
+    }
 
     private int id;
     private Type type;
@@ -38,9 +40,9 @@ public class Obstacle {
     }
 
     public String getAction() {
-        if(type == Type.TIGHTROPE || type == Type.HANDHOLDS)
+        if (type == Type.TIGHTROPE || type == Type.HANDHOLDS)
             return new String("Cross");
-        if(type == Type.GAP || type == Type.LEDGE || type == Type.EDGE)
+        if (type == Type.GAP || type == Type.LEDGE || type == Type.EDGE)
             return new String("Jump");
 
         return null;
