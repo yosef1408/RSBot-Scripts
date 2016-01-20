@@ -293,7 +293,8 @@ public class OSGuardSlayer extends PollingScript<ClientContext> implements Paint
     public void walkToGuard() {
         if (!guard.inViewport()) {
             status = "Status: Walking to guard!";
-            ctx.movement.findPath(guard.tile()).traverse();
+            ctx.movement.findPath(new Tile(guard.tile().x() + org.powerbot.script.Random.nextInt(1, 3),
+                    guard.tile().y() + org.powerbot.script.Random.nextInt(1, 3))).traverse();
             if (ctx.players.local().inMotion()) {
                 try {
                     TimeUnit.MILLISECONDS.sleep((long) (org.powerbot.script.Random.nextDouble(.35, .75) + .85) * 1000);
