@@ -27,7 +27,7 @@ public class OSGuardSlayer extends PollingScript<ClientContext> implements Paint
 
     Font font = new Font("Verdana", Font.BOLD, 12);
 
-    String title = "Al-Kharid Guard Slayer";
+    String title = "Al-Kharid Guard Slayer v1.1";
     String expGained = "Exp gained: 0";
     String status = "Status: N/A";
 
@@ -71,6 +71,7 @@ public class OSGuardSlayer extends PollingScript<ClientContext> implements Paint
 
 
     public void poll() {
+        dismissRandomEvent();
         if (((double) ctx.combat.health() / maxHealth) * 100 <= 40) {
             food = ctx.inventory.select().id(foodID).poll();
             food.interact("Eat");
@@ -123,7 +124,6 @@ public class OSGuardSlayer extends PollingScript<ClientContext> implements Paint
         castleTile = castleArea.getRandomTile();
         food = ctx.inventory.select().id(foodID).poll();
         maxHealth = ctx.skills.realLevel(Constants.SKILLS_HITPOINTS);
-        ;
         if (ctx.inventory.select().id(foodID).count() <= 0) {
             needBank = true;
         } else {
@@ -143,31 +143,37 @@ public class OSGuardSlayer extends PollingScript<ClientContext> implements Paint
         status = "Status: Attacking";
         if (!ctx.players.local().inCombat() || guard.animation() == 836) {
             guard = ctx.npcs.select().name("Al-Kharid warrior").nearest().poll();
-            if (!guard.inCombat() && guard.valid()) {
-                openDoor();
-                if (!guard.inViewport()) {
-                    ctx.camera.turnTo(guard);
+            for (int i = 8; i > 0; i--) {
+                if (ctx.players.local().inCombat()) {
+                    break;
                 }
-                guard.interact("Attack");
-                try {
-                    TimeUnit.MILLISECONDS.sleep((long) ((rn.nextDouble() + .15) * 1000));
-                } catch (InterruptedException e) {
-                    e.getMessage();
-                }
-                randChance = rn.nextInt(100);
-                if (randChance >= 45) {
-                    ctx.input.move(rn.nextInt(350), rn.nextInt(300));
+                if (!guard.inCombat() && guard.valid()) {
+                    openDoor();
+                    if (!guard.inViewport()) {
+                        walkToGuard();
+                        ctx.camera.turnTo(guard);
+                    }
+
+                    if (guard.interact("Attack")) {
+                        try {
+                            TimeUnit.MILLISECONDS.sleep((long) ((org.powerbot.script.Random.nextDouble(.5, .75) + 2.95) * 1000));
+                        } catch (InterruptedException e) {
+                            e.getMessage();
+                        }
+                    }
+
+                    randChance = rn.nextInt(100);
+                    if (randChance >= 45) {
+                        ctx.input.move(rn.nextInt(350), rn.nextInt(300));
+                    }
                 }
 
-                try {
-                    TimeUnit.MILLISECONDS.sleep((long) ((rn.nextDouble() + .65) * 1000));
-                } catch (InterruptedException e) {
-                    e.getMessage();
-                }
-            } else {
-                guard = ctx.npcs.name("Al-Kharid warrior").nearest().poll();
-                if (!guard.inViewport()) {
-                    ctx.camera.turnTo(guard);
+                if (!ctx.players.local().inCombat() && guard.valid() && guard.inCombat()) {
+                    guard = ctx.npcs.name("Al-Kharid warrior").nearest().poll();
+                    if (!guard.inViewport()) {
+                        walkToGuard();
+                        ctx.camera.turnTo(guard);
+                    }
                 }
             }
         } else {
@@ -186,7 +192,7 @@ public class OSGuardSlayer extends PollingScript<ClientContext> implements Paint
             }
             ctx.camera.turnTo(randomGuardLocation());
             try {
-                TimeUnit.MILLISECONDS.sleep((long)((org.powerbot.script.Random.nextDouble()) * 1000));
+                TimeUnit.MILLISECONDS.sleep((long)((org.powerbot.script.Random.nextDouble(0, .75)) * 1000));
             } catch (InterruptedException e) {
                 e.getMessage();
             }
@@ -284,6 +290,21 @@ public class OSGuardSlayer extends PollingScript<ClientContext> implements Paint
         }
     }
 
+    public void walkToGuard() {
+        if (!guard.inViewport()) {
+            status = "Status: Walking to guard!";
+            ctx.movement.findPath(new Tile(guard.tile().x() + org.powerbot.script.Random.nextInt(1, 3),
+                    guard.tile().y() + org.powerbot.script.Random.nextInt(1, 3))).traverse();
+            if (ctx.players.local().inMotion()) {
+                try {
+                    TimeUnit.MILLISECONDS.sleep((long) (org.powerbot.script.Random.nextDouble(.35, .75) + .85) * 1000);
+                } catch (InterruptedException e) {
+                    e.getMessage();
+                }
+            }
+        }
+    }
+
     public void openDoor() {
         if (!guard.tile().matrix(ctx).reachable() && guard.valid()) {
             status = "Status: Opening door!";
@@ -293,7 +314,7 @@ public class OSGuardSlayer extends PollingScript<ClientContext> implements Paint
                 ctx.camera.turnTo(closedDoor);
                 closedDoor.interact("Open");
                 try {
-                    TimeUnit.MILLISECONDS.sleep((long) ((rn.nextDouble() + .55) * 1000));
+                    TimeUnit.MILLISECONDS.sleep((long) ((org.powerbot.script.Random.nextDouble(.5, .95) + 1) * 1000));
                 } catch (InterruptedException e) {
                     e.getMessage();
                 }
@@ -310,14 +331,38 @@ public class OSGuardSlayer extends PollingScript<ClientContext> implements Paint
         }
     }
 
+    public void dismissRandomEvent() {
+        /* Credit to @laputa.  URL: https://www.powerbot.org/community/topic/1292825-random-event-dismisser/  */
+        Npc randomNpc = ctx.npcs.select().within(2.0).select(new Filter<Npc>() {
+
+            @Override
+            public boolean accept(Npc npc) {
+                return npc.overheadMessage().contains(ctx.players.local().name());
+            }
+
+        }).poll();
+
+        if (randomNpc.valid()) {
+            String action = randomNpc.name().equalsIgnoreCase("genie") ? "Talk-to" : "Dismiss";
+            if (randomNpc.interact(action)) {
+                try {
+                    TimeUnit.MILLISECONDS.sleep((long) (org.powerbot.script.Random.nextDouble(3, 3.5) * 1000));
+                } catch (InterruptedException e) {
+                    e.getMessage();
+                }
+            }
+
+        }
+    }
+
 
     @Override
     public void repaint(Graphics graphics) {
         tempExp = ctx.skills.experience(0) + ctx.skills.experience(1) + ctx.skills.experience(2) + ctx.skills.experience(3)
                 + ctx.skills.experience(4) + ctx.skills.experience(6);
         expGained = "Exp gained: " + (tempExp - startingExp);
-        //Graphics2D g2d = (Graphics2D)graphics;
-        //closedDoor.draw(g2d, 255);
+        Graphics2D g2d = (Graphics2D)graphics;
+        guard.draw(g2d, 255);
         graphics.setFont(font);
         graphics.setColor(transGrey);
         graphics.drawRect(0, 0, 230, 75);
