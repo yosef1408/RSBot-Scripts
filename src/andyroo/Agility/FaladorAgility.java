@@ -1,11 +1,10 @@
 package andyroo;
 
 import org.powerbot.script.*;
-import org.powerbot.script.rt4.*;
 import org.powerbot.script.rt4.ClientContext;
+import org.powerbot.script.rt4.*;
 
 import java.util.concurrent.Callable;
-
 
 @Script.Manifest(
         name = "Fally Agility", properties = "author=andyroo; topic=1298690; client=4;",
@@ -87,20 +86,7 @@ public class FaladorAgility extends PollingScript<ClientContext> {
         min = ((ms / 1000) / 60) % 60;
         hr = ((ms / 1000) / 60) / 60;
 
-        StringBuilder timeElpasedString = new StringBuilder();
-        if (hr < 10)
-            timeElpasedString.append('0');
-        timeElpasedString.append(hr);
-        timeElpasedString.append(':');
-        if (min < 10)
-            timeElpasedString.append('0');
-        timeElpasedString.append(min);
-        timeElpasedString.append(':');
-        if (sec < 10)
-            timeElpasedString.append('0');
-        timeElpasedString.append(sec);
-
-        return timeElpasedString.toString();
+        return String.format("%02d:%02d:%02d", hr, min, sec);
     }
 
 
@@ -181,7 +167,7 @@ public class FaladorAgility extends PollingScript<ClientContext> {
     }
 
 
-    static public void waitMovement(final ClientContext ctx) {
+     private void waitMovement() {
         Condition.wait(new Callable<Boolean>() {
             public Boolean call() throws Exception {
                 Player me = ctx.players.local();

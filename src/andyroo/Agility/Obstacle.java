@@ -41,9 +41,9 @@ public class Obstacle {
 
     public String getAction() {
         if (type == Type.TIGHTROPE || type == Type.HANDHOLDS)
-            return new String("Cross");
+            return "Cross";
         if (type == Type.GAP || type == Type.LEDGE || type == Type.EDGE)
-            return new String("Jump");
+            return "Jump";
 
         return null;
     }
