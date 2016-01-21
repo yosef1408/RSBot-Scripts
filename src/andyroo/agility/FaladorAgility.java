@@ -1,5 +1,6 @@
 package andyroo.agility;
 
+import andyroo.util.Antiban;
 import org.powerbot.script.*;
 import org.powerbot.script.rt4.ClientContext;
 import org.powerbot.script.rt4.*;
@@ -90,6 +91,7 @@ public class FaladorAgility extends PollingScript<ClientContext> {
     }
 
     public void start() {
+	ctx.camera.pitch(true);
         ctx.game.tab(Game.Tab.INVENTORY);
         energyThreshold = Random.nextInt(30, 60);
         startMarkCount = ctx.inventory.select().id(MARK_ID).poll().stackSize();
