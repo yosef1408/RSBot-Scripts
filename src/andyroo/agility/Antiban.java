@@ -1,4 +1,4 @@
-package andyroo;
+package andyroo.agility;
 
 import org.powerbot.script.Condition;
 import org.powerbot.script.Filter;
@@ -12,27 +12,29 @@ import java.awt.*;
 
 
 public class Antiban {
-    static public synchronized void run(final ClientContext ctx) {
+    public static synchronized void run(final ClientContext ctx) {
         System.out.println("Antiban start");
         int roll = Random.nextInt(0, 10 + 1);
-        if(ctx.game.loggedIn()) {
+        if (ctx.game.loggedIn()) {
             switch (roll) {
-                case 0: // move camera
+                case 0: {  // move camera
                     System.out.println("antiban 0");
                     adjustCamera(ctx);
-                    break;
-                case 1: // switch between inventory/stats tabs
-                    System.out.println("antiban 01");
+                }
+                break;
+                case 1: {  // switch between inventory/stats tabs
+                    System.out.println("antiban 1");
 
                     if (ctx.game.tab() == Game.Tab.INVENTORY) {
                         ctx.game.tab(Game.Tab.STATS);
-                    } else ctx.game.tab(Game.Tab.STATS);
-                    break;
-                case 2: // right click on a player
+                    } else ctx.game.tab(Game.Tab.INVENTORY);
+                }
+                break;
+                case 2: {  // right click on a player
                     Point mouseLoc = ctx.input.getLocation();
                     System.out.println("antiban 2");
 
-                    if(ctx.players.select(new Filter<Player>() {
+                    if (ctx.players.select(new Filter<Player>() {
                         @Override
                         public boolean accept(Player player) {
                             return player.name().compareTo(ctx.players.local().name()) != 0;
@@ -44,7 +46,8 @@ public class Antiban {
                         Condition.sleep(Random.getDelay());
                         ctx.input.move(mouseLoc.x + Random.nextInt(-10, 10), mouseLoc.y - Random.nextInt(5, 20));
                     }
-                    break;
+                }
+                break;
                 default:
                     break;
             }
@@ -52,7 +55,7 @@ public class Antiban {
         System.out.println("Antiban stop");
     }
 
-    static private void adjustCamera(ClientContext ctx) {
+    private static void adjustCamera(ClientContext ctx) {
         Camera cam = ctx.camera;
 
         if (Random.nextInt(0, 10) == 0)

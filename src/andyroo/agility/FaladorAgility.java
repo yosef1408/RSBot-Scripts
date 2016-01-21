@@ -1,13 +1,10 @@
-package andyroo;
+package andyroo.agility;
 
 import org.powerbot.script.*;
-import org.powerbot.script.rt4.*;
 import org.powerbot.script.rt4.ClientContext;
+import org.powerbot.script.rt4.*;
 
 import java.util.concurrent.Callable;
-
-import andyroo.Antiban;
-import andyroo.Obstacle;
 
 @Script.Manifest(
         name = "Fally Agility", properties = "author=andyroo; topic=1298690; client=4;",
@@ -21,11 +18,11 @@ public class FaladorAgility extends PollingScript<ClientContext> {
      ***********************************/
 
 
-    static final Tile START_TILE = new Tile(3036, 3340, 0);
+    private static final Tile START_TILE = new Tile(3036, 3340, 0);
 
-    static final Area FALLY_START_AREA = new Area(new Tile(3033, 3337, 0), new Tile(3041, 3346, 0));
+    private static final Area FALLY_START_AREA = new Area(new Tile(3033, 3337, 0), new Tile(3041, 3346, 0));
 
-    static final Area[] fallyAreas = {
+    private static final Area[] fallyAreas = {
             new Area(new Tile(3035, 3344, 3), new Tile(3041, 3341, 3)),
             new Area(new Tile(3052, 3341, 3), new Tile(3044, 3350, 3)),
             new Area(new Tile(3047, 3357, 3), new Tile(3051, 3359, 3)),
@@ -40,13 +37,13 @@ public class FaladorAgility extends PollingScript<ClientContext> {
             new Area(new Tile(3018, 3331, 3), new Tile(3025, 3336, 3))
     };
 
-    static final int ROUGH_WALL_ID = 10833;
+    private static final int ROUGH_WALL_ID = 10833;
 
-    static final int MARK_ID = 11849;
+    private static final int MARK_ID = 11849;
 
-    static final int[] ROUGH_WALL_BOUNDS = {16, 96, -192, -68, 100, 140};
+    private static final int[] ROUGH_WALL_BOUNDS = {16, 96, -192, -68, 100, 140};
 
-    static final Obstacle[] FALLY_OBSTACLES = {
+    private static final Obstacle[] FALLY_OBSTACLES = {
             new Obstacle(10834, Obstacle.Type.TIGHTROPE, new int[]{64, 120, 28, 68, 44, 128}),
             new Obstacle(10836, Obstacle.Type.HANDHOLDS, new int[]{-28, 28, -12, 60, 60, 120}),
             new Obstacle(11161, Obstacle.Type.GAP),
@@ -63,10 +60,10 @@ public class FaladorAgility extends PollingScript<ClientContext> {
 
     /******************************************************************************************/
 
-    public long startTime;
-    public int startXP;
-    public int startMarkCount;
-    static public String version = "2.0";
+    private long startTime;
+    private int startXP;
+    private int startMarkCount;
+    private static String version = "v 2.0";
 
     private Area currentArea;
     private Location location;
@@ -76,42 +73,27 @@ public class FaladorAgility extends PollingScript<ClientContext> {
     /******************************************************************************************/
 
 
-    static public void writeln(String s) {
+    public static void writeln(String s) {
         System.out.println(s);
     }
 
 
     // output time elapsed from ms to hh:mm:ss
-    static public String getTimeElapsed(long ms) {
+    public static String getTimeElapsed(long ms) {
         long sec, min, hr;
 
         sec = (ms / 1000) % 60;
-        min = ((ms / 1000) / 1000) % 60;
+        min = ((ms / 1000) / 60) % 60;
         hr = ((ms / 1000) / 60) / 60;
 
-        StringBuilder timeElpasedString = new StringBuilder();
-        if (hr < 10)
-            timeElpasedString.append('0');
-        timeElpasedString.append(hr);
-        timeElpasedString.append(':');
-        if (min < 10)
-            timeElpasedString.append('0');
-        timeElpasedString.append(min);
-        timeElpasedString.append(':');
-        if (sec < 10)
-            timeElpasedString.append('0');
-        timeElpasedString.append(sec);
-
-        return timeElpasedString.toString();
+        return String.format("%02d:%02d:%02d", hr, min, sec);
     }
 
-
-    @Override
     public void start() {
         ctx.game.tab(Game.Tab.INVENTORY);
         energyThreshold = Random.nextInt(30, 60);
         startMarkCount = ctx.inventory.select().id(MARK_ID).poll().stackSize();
-        startXP = ctx.skills.experience(16);
+        startXP = ctx.skills.experience(Constants.SKILLS_AGILITY);
         startTime = System.currentTimeMillis();
 
     }
@@ -121,7 +103,7 @@ public class FaladorAgility extends PollingScript<ClientContext> {
         ctx.game.tab(Game.Tab.INVENTORY);
         int stopMarkCount = ctx.inventory.select().id(MARK_ID).poll().stackSize();
         long stopTime = System.currentTimeMillis();
-        int stopXP = ctx.skills.experience(16);
+        int stopXP = ctx.skills.experience(Constants.SKILLS_AGILITY);
 
         String totalTime = getTimeElapsed(stopTime - startTime);
 
@@ -183,7 +165,7 @@ public class FaladorAgility extends PollingScript<ClientContext> {
     }
 
 
-    static public void waitMovement(final ClientContext ctx) {
+     private void waitMovement() {
         Condition.wait(new Callable<Boolean>() {
             public Boolean call() throws Exception {
                 Player me = ctx.players.local();
@@ -200,49 +182,56 @@ public class FaladorAgility extends PollingScript<ClientContext> {
         markCheck();
 
         switch (s) {
-            case INVALID:
+            case INVALID: {
                 Condition.sleep();
-                break;
-            case RUN_TOGGLE:
+            }
+            break;
+
+            case RUN_TOGGLE: {
                 ctx.movement.running(true);
                 energyThreshold = Random.nextInt(30, 60);
-                break;
-            case FELL:
+                Condition.wait(new Callable<Boolean>() {
+                    public Boolean call() throws Exception {
+                        return ctx.movement.running();
+                    }
+                }, 250, 4);
+            }
+            break;
+
+            case FELL: {
                 ctx.movement.step(START_TILE);
                 Condition.wait(new Callable<Boolean>() {
-                    @Override
                     public Boolean call() throws Exception {
                         return START_TILE.distanceTo(ctx.players.local()) < 5;
                     }
                 }, 300, 10);
-                break;
+            }
+            break;
 
-            case START_POINT:
+            case START_POINT: {
                 GameObject roughWall = ctx.objects.select(10).id(ROUGH_WALL_ID).poll();
 
-                if(roughWall.valid()) {
+                if (roughWall.valid()) {
                     if (roughWall.inViewport()) {
                         if (Random.nextInt(0, 2) == 0)
                             ctx.camera.angle(0);
                         else ctx.camera.angle(180);
                         roughWall.bounds(ROUGH_WALL_BOUNDS);
                         writeln("rough wall found");
-                        if(roughWall.click("Climb", Game.Crosshair.ACTION)) {
+                        if (roughWall.click("Climb", Game.Crosshair.ACTION)) {
 
-                        Condition.wait(new Callable<Boolean>() {
-                            public Boolean call() throws Exception {
-                                Player me = ctx.players.local();
-                                return me.tile().floor() == 3;
-                            }
-                        }, 250, 10);
-			{
-                    }
-                    else {
+                            Condition.wait(new Callable<Boolean>() {
+                                public Boolean call() throws Exception {
+                                    Player me = ctx.players.local();
+                                    return me.tile().floor() == 3;
+                                }
+                            }, 250, 10);
+                        }
+                    } else {
                         ctx.camera.angle(0);
                         ctx.camera.angle(180);
                         ctx.movement.step(START_TILE);
                         Condition.wait(new Callable<Boolean>() {
-                            @Override
                             public Boolean call() throws Exception {
                                 return START_TILE.distanceTo(ctx.players.local()) < 3;
                             }
@@ -250,23 +239,22 @@ public class FaladorAgility extends PollingScript<ClientContext> {
 
                     }
                 }
+            }
+            break;
 
-
-                break;
-
-            case OBSTACLE:
+            case OBSTACLE: {
                 GameObject obstacleObject = null;
                 Obstacle obstacleInfo = FALLY_OBSTACLES[obstacleNum];
 
                 if (location == Location.FALADOR)
                     obstacleObject = ctx.objects.select(10).id(obstacleInfo.getId()).poll();
 
-                if(obstacleObject == null) {
+                if (obstacleObject == null) {
                     writeln("Obstacle not found");
                     break;
                 }
 
-                if(obstacleObject.valid()) {
+                if (obstacleObject.valid()) {
                     if (obstacleObject.inViewport()) {
                         writeln("Obstacle " + obstacleNum + " found");
 
@@ -276,23 +264,21 @@ public class FaladorAgility extends PollingScript<ClientContext> {
                         if (obstacleObject.click(obstacleInfo.getAction(), Game.Crosshair.ACTION)) {
                             obstacleFound = true;
                         }
-                    }
-                    else {
+                    } else {
                         writeln("Move to obstacle " + obstacleNum);
 
                         final Tile obstacleTile = obstacleObject.tile();
 
                         ctx.movement.step(obstacleTile);
                         Condition.wait(new Callable<Boolean>() {
-                            @Override
                             public Boolean call() throws Exception {
                                 return obstacleTile.distanceTo(ctx.players.local()) < 3;
                             }
                         }, 250, 6);
                     }
                 }
-
-                break;
+            }
+            break;
 
             default:
                 break;
@@ -311,7 +297,8 @@ public class FaladorAgility extends PollingScript<ClientContext> {
 
         Player me = ctx.players.local();
 
-        if(!ctx.movement.running() && ctx.movement.energyLevel() > energyThreshold) {
+        if (!ctx.movement.running() && (ctx.movement.energyLevel() > energyThreshold)) {
+            writeln("Toggle run");
             return State.RUN_TOGGLE;
         }
 
