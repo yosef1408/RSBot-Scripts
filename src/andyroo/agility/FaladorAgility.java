@@ -1,5 +1,6 @@
 package andyroo.agility;
 
+import andyroo.util.Antiban;
 import org.powerbot.script.*;
 import org.powerbot.script.rt4.ClientContext;
 import org.powerbot.script.rt4.*;
