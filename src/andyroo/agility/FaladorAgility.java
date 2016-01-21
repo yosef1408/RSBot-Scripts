@@ -90,6 +90,7 @@ public class FaladorAgility extends PollingScript<ClientContext> {
     }
 
     public void start() {
+	ctx.camera.pitch(true);
         ctx.game.tab(Game.Tab.INVENTORY);
         energyThreshold = Random.nextInt(30, 60);
         startMarkCount = ctx.inventory.select().id(MARK_ID).poll().stackSize();
