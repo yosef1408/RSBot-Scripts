@@ -12,7 +12,7 @@ import java.awt.*;
 
 
 public class Antiban {
-    static public synchronized void run(final ClientContext ctx) {
+    public static synchronized void run(final ClientContext ctx) {
         System.out.println("Antiban start");
         int roll = Random.nextInt(0, 10 + 1);
         if (ctx.game.loggedIn()) {
@@ -55,7 +55,7 @@ public class Antiban {
         System.out.println("Antiban stop");
     }
 
-    static private void adjustCamera(ClientContext ctx) {
+    private static void adjustCamera(ClientContext ctx) {
         Camera cam = ctx.camera;
 
         if (Random.nextInt(0, 10) == 0)

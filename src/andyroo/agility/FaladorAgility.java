@@ -7,7 +7,7 @@ import org.powerbot.script.rt4.*;
 import java.util.concurrent.Callable;
 
 @Script.Manifest(
-        name = "Fally Agility", properties = "author=agility; topic=1298690; client=4;",
+        name = "Fally Agility", properties = "author=andyroo; topic=1298690; client=4;",
         description = "v 2.0 - Completes Falador agility course"
 )
 
@@ -18,11 +18,11 @@ public class FaladorAgility extends PollingScript<ClientContext> {
      ***********************************/
 
 
-    static final Tile START_TILE = new Tile(3036, 3340, 0);
+    private static final Tile START_TILE = new Tile(3036, 3340, 0);
 
-    static final Area FALLY_START_AREA = new Area(new Tile(3033, 3337, 0), new Tile(3041, 3346, 0));
+    private static final Area FALLY_START_AREA = new Area(new Tile(3033, 3337, 0), new Tile(3041, 3346, 0));
 
-    static final Area[] fallyAreas = {
+    private static final Area[] fallyAreas = {
             new Area(new Tile(3035, 3344, 3), new Tile(3041, 3341, 3)),
             new Area(new Tile(3052, 3341, 3), new Tile(3044, 3350, 3)),
             new Area(new Tile(3047, 3357, 3), new Tile(3051, 3359, 3)),
@@ -37,13 +37,13 @@ public class FaladorAgility extends PollingScript<ClientContext> {
             new Area(new Tile(3018, 3331, 3), new Tile(3025, 3336, 3))
     };
 
-    static final int ROUGH_WALL_ID = 10833;
+    private static final int ROUGH_WALL_ID = 10833;
 
-    static final int MARK_ID = 11849;
+    private static final int MARK_ID = 11849;
 
-    static final int[] ROUGH_WALL_BOUNDS = {16, 96, -192, -68, 100, 140};
+    private static final int[] ROUGH_WALL_BOUNDS = {16, 96, -192, -68, 100, 140};
 
-    static final Obstacle[] FALLY_OBSTACLES = {
+    private static final Obstacle[] FALLY_OBSTACLES = {
             new Obstacle(10834, Obstacle.Type.TIGHTROPE, new int[]{64, 120, 28, 68, 44, 128}),
             new Obstacle(10836, Obstacle.Type.HANDHOLDS, new int[]{-28, 28, -12, 60, 60, 120}),
             new Obstacle(11161, Obstacle.Type.GAP),
@@ -60,10 +60,10 @@ public class FaladorAgility extends PollingScript<ClientContext> {
 
     /******************************************************************************************/
 
-    public long startTime;
-    public int startXP;
-    public int startMarkCount;
-    static public String version = "v 2.0";
+    private long startTime;
+    private int startXP;
+    private int startMarkCount;
+    private static String version = "v 2.0";
 
     private Area currentArea;
     private Location location;
@@ -73,13 +73,13 @@ public class FaladorAgility extends PollingScript<ClientContext> {
     /******************************************************************************************/
 
 
-    static public void writeln(String s) {
+    public static void writeln(String s) {
         System.out.println(s);
     }
 
 
     // output time elapsed from ms to hh:mm:ss
-    static public String getTimeElapsed(long ms) {
+    public static String getTimeElapsed(long ms) {
         long sec, min, hr;
 
         sec = (ms / 1000) % 60;
