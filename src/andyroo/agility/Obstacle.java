@@ -1,4 +1,4 @@
-package andyroo;
+package andyroo.agility;
 
 
 public class Obstacle {

@@ -1,4 +1,4 @@
-package andyroo;
+package andyroo.agility;
 
 import org.powerbot.script.*;
 import org.powerbot.script.rt4.ClientContext;
@@ -7,7 +7,7 @@ import org.powerbot.script.rt4.*;
 import java.util.concurrent.Callable;
 
 @Script.Manifest(
-        name = "Fally Agility", properties = "author=andyroo; topic=1298690; client=4;",
+        name = "Fally Agility", properties = "author=agility; topic=1298690; client=4;",
         description = "v 2.0 - Completes Falador agility course"
 )
 
@@ -89,8 +89,6 @@ public class FaladorAgility extends PollingScript<ClientContext> {
         return String.format("%02d:%02d:%02d", hr, min, sec);
     }
 
-
-    @Override
     public void start() {
         ctx.game.tab(Game.Tab.INVENTORY);
         energyThreshold = Random.nextInt(30, 60);
@@ -193,7 +191,6 @@ public class FaladorAgility extends PollingScript<ClientContext> {
                 ctx.movement.running(true);
                 energyThreshold = Random.nextInt(30, 60);
                 Condition.wait(new Callable<Boolean>() {
-                    @Override
                     public Boolean call() throws Exception {
                         return ctx.movement.running();
                     }
@@ -204,7 +201,6 @@ public class FaladorAgility extends PollingScript<ClientContext> {
             case FELL: {
                 ctx.movement.step(START_TILE);
                 Condition.wait(new Callable<Boolean>() {
-                    @Override
                     public Boolean call() throws Exception {
                         return START_TILE.distanceTo(ctx.players.local()) < 5;
                     }
@@ -236,7 +232,6 @@ public class FaladorAgility extends PollingScript<ClientContext> {
                         ctx.camera.angle(180);
                         ctx.movement.step(START_TILE);
                         Condition.wait(new Callable<Boolean>() {
-                            @Override
                             public Boolean call() throws Exception {
                                 return START_TILE.distanceTo(ctx.players.local()) < 3;
                             }
@@ -276,7 +271,6 @@ public class FaladorAgility extends PollingScript<ClientContext> {
 
                         ctx.movement.step(obstacleTile);
                         Condition.wait(new Callable<Boolean>() {
-                            @Override
                             public Boolean call() throws Exception {
                                 return obstacleTile.distanceTo(ctx.players.local()) < 3;
                             }

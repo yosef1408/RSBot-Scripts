@@ -1,4 +1,4 @@
-package andyroo;
+package andyroo.agility;
 
 import org.powerbot.script.Condition;
 import org.powerbot.script.Filter;
@@ -27,7 +27,7 @@ public class Antiban {
 
                     if (ctx.game.tab() == Game.Tab.INVENTORY) {
                         ctx.game.tab(Game.Tab.STATS);
-                    } else ctx.game.tab(Game.Tab.STATS);
+                    } else ctx.game.tab(Game.Tab.INVENTORY);
                 }
                 break;
                 case 2: {  // right click on a player
