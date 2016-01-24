@@ -10,6 +10,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -31,11 +32,11 @@ import xXTheAwesomerXx.dbscripts.rs3.woodcutting.wrapper.Task;
 
 @Script.Manifest(name = "CBFMultitasker", description = "Chained Multitasker by xXTheAwesomerXx", properties = "author=xXTheAwesomerXx; topic=1299510;")
 public class CBFMultitasker extends PollingScript<ClientContext>
-implements
-PaintListener,
-MessageListener,
-MouseListener,
-MouseMotionListener {
+		implements
+			PaintListener,
+			MessageListener,
+			MouseListener,
+			MouseMotionListener {
 	public static boolean addToToolbelt = false, useLodestone = false,
 			scriptStarted = false, shouldStopTask = false, doMuleTask = false,
 			allowMuleTrading = false;
@@ -130,8 +131,8 @@ MouseMotionListener {
 		final int seconds = (int) (millis / 1000);
 
 		return (hours < 10 ? "0" + hours : hours) + " : "
-		+ (minutes < 10 ? "0" + minutes : minutes) + " : "
-		+ (seconds < 10 ? "0" + seconds : seconds);
+				+ (minutes < 10 ? "0" + minutes : minutes) + " : "
+				+ (seconds < 10 ? "0" + seconds : seconds);
 	}
 
 	private double getFLExperiencePerLog(final String treeType,
@@ -379,22 +380,22 @@ MouseMotionListener {
 					- currentFLExperience;
 			final String WCTTL = (currentWoodcuttingLevel != 99
 					? currentWoodcuttingLevel + 1
-							: "X")
-							+ ": "
-							+ formatTime((taskWCExpHr <= 0 ? 0 : (WCExpToLvl * 3600000)
-									/ taskWCExpHr));
+					: "X")
+					+ ": "
+					+ formatTime((taskWCExpHr <= 0 ? 0 : (WCExpToLvl * 3600000)
+							/ taskWCExpHr));
 			final String FMTTL = (currentFiremakingLevel != 99
 					? currentFiremakingLevel + 1
-							: "X")
-							+ ": "
-							+ formatTime((taskFMExpHr <= 0 ? 0 : (FMExpToLvl * 3600000)
-									/ taskFMExpHr));
+					: "X")
+					+ ": "
+					+ formatTime((taskFMExpHr <= 0 ? 0 : (FMExpToLvl * 3600000)
+							/ taskFMExpHr));
 			final String FLTTL = (currentFletchingLevel != 99
 					? currentFletchingLevel + 1
-							: "X")
-							+ ": "
-							+ formatTime((taskFLExpHr <= 0 ? 0 : (FLExpToLvl * 3600000)
-									/ taskFLExpHr));
+					: "X")
+					+ ": "
+					+ formatTime((taskFLExpHr <= 0 ? 0 : (FLExpToLvl * 3600000)
+							/ taskFLExpHr));
 			WCExperienceAtNextLevel = ctx.skills.experienceAt(ctx.skills
 					.level(woodcutting) + 1);
 			WCExperienceAtMyLevel = ctx.skills.experienceAt(ctx.skills
@@ -648,10 +649,9 @@ MouseMotionListener {
 	public void start() {
 		setScriptContext(ctx);
 		try {
-			bg = ImageIO.read(getClass().getResourceAsStream(
-					"CBFMultitaskerBG.png"));
-			showPaintImage = ImageIO.read(getClass().getResourceAsStream(
-					"showPaintButton.png"));
+			bg = ImageIO.read(new URL("http://imgur.com/bzxxLTS.png"));
+			showPaintImage = ImageIO.read(new URL(
+					"http://imgur.com/OGgGh0h.png"));
 		} catch (final Exception e) {
 			e.printStackTrace();
 		}
