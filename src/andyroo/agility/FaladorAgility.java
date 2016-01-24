@@ -9,7 +9,7 @@ import java.util.concurrent.Callable;
 
 @Script.Manifest(
         name = "Fally Agility", properties = "author=andyroo; topic=1298690; client=4;",
-        description = "v 2.0 - Completes Falador agility course"
+        description = "v 2.1 - Completes Falador agility course"
 )
 
 public class FaladorAgility extends PollingScript<ClientContext> {
@@ -64,7 +64,7 @@ public class FaladorAgility extends PollingScript<ClientContext> {
     private long startTime;
     private int startXP;
     private int startMarkCount;
-    private static String version = "v 2.0";
+    private static String version = "v 2.1";
 
     private Area currentArea;
     private Location location;
