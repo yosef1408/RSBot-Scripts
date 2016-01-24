@@ -114,27 +114,35 @@ public class FaladorAgility extends PollingScript<ClientContext> {
 
 
     // check for marks of grace
-    private void markCheck() {
+    private boolean markCheck() {
         final GroundItem mark = ctx.groundItems.select(10).id(MARK_ID).poll();
+
+        if(!mark.valid())
+            return true;
 
         if (currentArea != null && currentArea.contains(mark.tile())) {
             log.info("mark found");
             if (mark.inViewport()) {
+                final int beforeCount = ctx.inventory.select().id(MARK_ID).poll().stackSize();
 
-                mark.click("Take");
+                if(mark.click("Take", Game.Crosshair.ACTION)) {
+                    log.info("Attempt to pick up mark");
+                    return Condition.wait(new Callable<Boolean>() {
+                        public Boolean call() throws Exception {
+                            return ctx.inventory.select().id(MARK_ID).poll().stackSize() == beforeCount + 1 && !mark.valid();
+                        }
+                    }, 300, 10);
+                }
 
-                Condition.wait(new Callable<Boolean>() {
-                    public Boolean call() throws Exception {
-                        //log.info("waiting to stop moving");
-                        return !mark.valid();
-                    }
-                }, 300, 10);
 
             } else if (mark.valid()) {
                 log.info("walk to mark");
                 ctx.movement.step(mark.tile());
             }
         }
+        else return true; // mark is in different area
+
+        return false;
     }
 
 
@@ -176,7 +184,10 @@ public class FaladorAgility extends PollingScript<ClientContext> {
         boolean obstacleFound = false;
         State s = state();
 
-        markCheck();
+        if(!markCheck()) {
+            log.info("Failed to pick up mark");
+            return;
+        }
 
         switch (s) {
             case INVALID: {
