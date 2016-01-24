@@ -72,12 +72,7 @@ public class FaladorAgility extends PollingScript<ClientContext> {
     private int energyThreshold;
 
     /******************************************************************************************/
-
-
-    public static void writeln(String s) {
-        System.out.println(s);
-    }
-
+    
 
     // output time elapsed from ms to hh:mm:ss
     public static String getTimeElapsed(long ms) {
@@ -123,20 +118,20 @@ public class FaladorAgility extends PollingScript<ClientContext> {
         final GroundItem mark = ctx.groundItems.select(10).id(MARK_ID).poll();
 
         if (currentArea != null && currentArea.contains(mark.tile())) {
-            writeln("mark found");
+            log.info("mark found");
             if (mark.inViewport()) {
 
                 mark.click("Take");
 
                 Condition.wait(new Callable<Boolean>() {
                     public Boolean call() throws Exception {
-                        //writeln("waiting to stop moving");
+                        //log.info("waiting to stop moving");
                         return !mark.valid();
                     }
                 }, 300, 10);
 
             } else if (mark.valid()) {
-                writeln("walk to mark");
+                log.info("walk to mark");
                 ctx.movement.step(mark.tile());
             }
         }
@@ -153,14 +148,14 @@ public class FaladorAgility extends PollingScript<ClientContext> {
         Condition.wait(new Callable<Boolean>() {
             public Boolean call() throws Exception {
                 Player me = ctx.players.local();
-                writeln("Waiting to animate");
+                log.info("Waiting to animate");
                 return me.animation() != -1;
             }
         }, 250, 8);
         Condition.wait(new Callable<Boolean>() {
             public Boolean call() throws Exception {
                 Player me = ctx.players.local();
-                writeln("Waiting to stop moving");
+                log.info("Waiting to stop moving");
                 return !me.inMotion();
             }
         }, 250, 8);
@@ -171,7 +166,7 @@ public class FaladorAgility extends PollingScript<ClientContext> {
         Condition.wait(new Callable<Boolean>() {
             public Boolean call() throws Exception {
                 Player me = ctx.players.local();
-                //writeln("waiting to stop moving");
+                //log.info("waiting to stop moving");
                 return !me.inMotion();
             }
         }, 250, 8);
@@ -219,7 +214,7 @@ public class FaladorAgility extends PollingScript<ClientContext> {
                             ctx.camera.angle(0);
                         else ctx.camera.angle(180);
                         roughWall.bounds(ROUGH_WALL_BOUNDS);
-                        writeln("rough wall found");
+                        log.info("rough wall found");
                         if (roughWall.click("Climb", Game.Crosshair.ACTION)) {
 
                             Condition.wait(new Callable<Boolean>() {
@@ -252,13 +247,13 @@ public class FaladorAgility extends PollingScript<ClientContext> {
                     obstacleObject = ctx.objects.select(10).id(obstacleInfo.getId()).poll();
 
                 if (obstacleObject == null) {
-                    writeln("Obstacle not found");
+                    log.info("Obstacle not found");
                     break;
                 }
 
                 if (obstacleObject.valid()) {
                     if (obstacleObject.inViewport()) {
-                        writeln("Obstacle " + obstacleNum + " found");
+                        log.info("Obstacle " + obstacleNum + " found");
 
                         if (obstacleInfo.getBounds() != null) {
                             obstacleObject.bounds(obstacleInfo.getBounds());
@@ -267,7 +262,7 @@ public class FaladorAgility extends PollingScript<ClientContext> {
                             obstacleFound = true;
                         }
                     } else {
-                        writeln("Move to obstacle " + obstacleNum);
+                        log.info("Move to obstacle " + obstacleNum);
 
                         final Tile obstacleTile = obstacleObject.tile();
 
@@ -300,26 +295,26 @@ public class FaladorAgility extends PollingScript<ClientContext> {
         Player me = ctx.players.local();
 
         if (!ctx.movement.running() && (ctx.movement.energyLevel() > energyThreshold)) {
-            writeln("Toggle run");
+            log.info("Toggle run");
             return State.RUN_TOGGLE;
         }
 
         if (FALLY_START_AREA.contains(me.tile())) {
-            writeln("On the ground");
+            log.info("On the ground");
 
             currentArea = FALLY_START_AREA;
             return State.START_POINT;
         }
 
         if (me.tile().floor() == 0) {
-            writeln("Fell");
+            log.info("Fell");
             return State.FELL;
         }
 
         obstacleNum = -1;
         for (int i = 0; i < fallyAreas.length; i++) {
             if (fallyAreas[i].contains(me.tile())) {
-                writeln("Obstacle " + i);
+                log.info("Obstacle " + i);
 
                 obstacleNum = i;
                 currentArea = fallyAreas[i];
