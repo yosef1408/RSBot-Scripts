@@ -3,10 +3,7 @@ package andyroo.util;
 import org.powerbot.script.Condition;
 import org.powerbot.script.Filter;
 import org.powerbot.script.Random;
-import org.powerbot.script.rt4.Camera;
-import org.powerbot.script.rt4.ClientContext;
-import org.powerbot.script.rt4.Game;
-import org.powerbot.script.rt4.Player;
+import org.powerbot.script.rt4.*;
 
 import java.awt.*;
 
@@ -53,7 +50,13 @@ public class Antiban {
                     Point mouseLoc = ctx.input.getLocation();
                     System.out.println("antiban 3");
 
-                    if (ctx.objects.select(10).viewable().action("Examine").shuffle().peek().valid()) {
+                    if(ctx.objects.select(5).select(new Filter<GameObject>() {
+                        @Override
+                        public boolean accept(GameObject gameObject) {
+                            return gameObject.name().compareTo("null") != 0;
+                        }
+                    }).viewable().peek().valid()) {
+                        System.out.println(ctx.objects.peek().name());
                         ctx.objects.poll().interact(false, "Examine");
                         Condition.sleep();
                         ctx.input.move(mouseLoc.x + Random.nextInt(-20, 20), mouseLoc.y - Random.nextInt(10, 30));

@@ -9,7 +9,7 @@ import java.util.concurrent.Callable;
 
 @Script.Manifest(
         name = "Fally Agility", properties = "author=andyroo; topic=1298690; client=4;",
-        description = "v 2.0 - Completes Falador agility course"
+        description = "v 2.1 - Completes Falador agility course"
 )
 
 public class FaladorAgility extends PollingScript<ClientContext> {
@@ -64,7 +64,7 @@ public class FaladorAgility extends PollingScript<ClientContext> {
     private long startTime;
     private int startXP;
     private int startMarkCount;
-    private static String version = "v 2.0";
+    private static String version = "v 2.1";
 
     private Area currentArea;
     private Location location;
@@ -114,27 +114,35 @@ public class FaladorAgility extends PollingScript<ClientContext> {
 
 
     // check for marks of grace
-    private void markCheck() {
+    private boolean markCheck() {
         final GroundItem mark = ctx.groundItems.select(10).id(MARK_ID).poll();
+
+        if(!mark.valid())
+            return true;
 
         if (currentArea != null && currentArea.contains(mark.tile())) {
             log.info("mark found");
             if (mark.inViewport()) {
+                final int beforeCount = ctx.inventory.select().id(MARK_ID).poll().stackSize();
 
-                mark.click("Take");
+                if(mark.click("Take", Game.Crosshair.ACTION)) {
+                    log.info("Attempt to pick up mark");
+                    return Condition.wait(new Callable<Boolean>() {
+                        public Boolean call() throws Exception {
+                            return ctx.inventory.select().id(MARK_ID).poll().stackSize() == beforeCount + 1 && !mark.valid();
+                        }
+                    }, 300, 10);
+                }
 
-                Condition.wait(new Callable<Boolean>() {
-                    public Boolean call() throws Exception {
-                        //log.info("waiting to stop moving");
-                        return !mark.valid();
-                    }
-                }, 300, 10);
 
             } else if (mark.valid()) {
                 log.info("walk to mark");
                 ctx.movement.step(mark.tile());
             }
         }
+        else return true; // mark is in different area
+
+        return false;
     }
 
 
@@ -176,7 +184,10 @@ public class FaladorAgility extends PollingScript<ClientContext> {
         boolean obstacleFound = false;
         State s = state();
 
-        markCheck();
+        if(!markCheck()) {
+            log.info("Failed to pick up mark");
+            return;
+        }
 
         switch (s) {
             case INVALID: {
