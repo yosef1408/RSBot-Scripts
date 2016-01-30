@@ -5,14 +5,25 @@ import org.powerbot.script.*;
 import org.powerbot.script.rt4.ClientContext;
 import org.powerbot.script.rt4.*;
 
+import java.awt.*;
 import java.util.concurrent.Callable;
 
 @Script.Manifest(
         name = "Fally Agility", properties = "author=andyroo; topic=1298690; client=4;",
-        description = "v 2.1 - Completes Falador agility course"
+        description = "v 2.2 - Completes Falador agility course"
 )
 
-public class FaladorAgility extends PollingScript<ClientContext> {
+/**
+ * Changelog
+ *
+ * Fally Agility
+ * v 2.2
+ * Random camera angle for starting obstacle (wall)
+ * Paint proggy
+ *
+ */
+
+public class FaladorAgility extends PollingScript<ClientContext> implements PaintListener {
 
     /***********************************
      * Constants
@@ -64,12 +75,19 @@ public class FaladorAgility extends PollingScript<ClientContext> {
     private long startTime;
     private int startXP;
     private int startMarkCount;
-    private static String version = "v 2.1";
+    private int currentMarkCount;
+    private int currentXP;
+    private static String version = "2.2";
 
     private Area currentArea;
     private Location location;
     private int obstacleNum;
     private int energyThreshold;
+
+    private static final int GUI_X = 350;
+    private static final int GUI_Y = 339;
+    private static final int GUI_WIDTH = 519;
+    private static final int GUI_HEIGHT = 138;
 
     /******************************************************************************************/
     
@@ -85,31 +103,48 @@ public class FaladorAgility extends PollingScript<ClientContext> {
         return String.format("%02d:%02d:%02d", hr, min, sec);
     }
 
-    public void start() {
-	ctx.camera.pitch(true);
+    public void updateInfo() {
         ctx.game.tab(Game.Tab.INVENTORY);
-        energyThreshold = Random.nextInt(30, 60);
-        startMarkCount = ctx.inventory.select().id(MARK_ID).poll().stackSize();
-        startXP = ctx.skills.experience(Constants.SKILLS_AGILITY);
-        startTime = System.currentTimeMillis();
+        if(ctx.inventory.select().id(MARK_ID).peek().valid())
+            currentMarkCount = ctx.inventory.select().id(MARK_ID).poll().stackSize();
+        else
+            currentMarkCount = 0;
+        currentXP = ctx.skills.experience(Constants.SKILLS_AGILITY);
+    }
 
+    public void repaint(Graphics graphics) {
+        int x = GUI_X;
+        int y = GUI_Y;
+        graphics.setColor(new Color(0, 0, 0));
+        graphics.fillRect(x, y, GUI_WIDTH - GUI_X, GUI_HEIGHT);
+        graphics.setColor(new Color(255, 255, 255));
+        x += 10;
+        graphics.drawString("Version: " + version, x, y += 15);
+        graphics.drawString(getTimeElapsed(System.currentTimeMillis() - startTime), x, y += 15);
+        graphics.drawString("XP Gained: " + Integer.toString(currentXP - startXP), x, y += 15);
+        graphics.drawString("Marks collected: " + Integer.toString(currentMarkCount - startMarkCount), x, y += 15);
+    }
+
+    public void start() {
+	    ctx.camera.pitch(true);
+        energyThreshold = Random.nextInt(30, 60);
+        if(ctx.inventory.select().id(MARK_ID).peek().valid())
+            startMarkCount = ctx.inventory.poll().stackSize();
+        else startMarkCount = 0;
+        startXP = ctx.skills.experience(Constants.SKILLS_AGILITY);
+        updateInfo();
+        startTime = System.currentTimeMillis();
     }
 
 
     public void stop() {
-        ctx.game.tab(Game.Tab.INVENTORY);
-        int stopMarkCount = ctx.inventory.select().id(MARK_ID).poll().stackSize();
-        long stopTime = System.currentTimeMillis();
-        int stopXP = ctx.skills.experience(Constants.SKILLS_AGILITY);
+        updateInfo();
+        String totalTime = getTimeElapsed(System.currentTimeMillis() - startTime);
 
-        String totalTime = getTimeElapsed(stopTime - startTime);
-
-        //log.info("Starting XP: " + startXP);
-        //log.info("Ending XP: " + ctx.skills.experience(16));
         log.info(version);
-        log.info("Gained XP: " + Integer.toString(stopXP - startXP));
-        log.info("Marks collected: " + Integer.toString(stopMarkCount - startMarkCount));
         log.info("Time run: " + totalTime);
+        log.info("XP Gained: " + Integer.toString(currentXP - startXP));
+        log.info("Marks collected: " + Integer.toString(currentMarkCount - startMarkCount));
     }
 
 
@@ -123,13 +158,17 @@ public class FaladorAgility extends PollingScript<ClientContext> {
         if (currentArea != null && currentArea.contains(mark.tile())) {
             log.info("mark found");
             if (mark.inViewport()) {
-                final int beforeCount = ctx.inventory.select().id(MARK_ID).poll().stackSize();
+                final int beforeCount;
+                if(ctx.inventory.select().id(MARK_ID).peek().valid()) {
+                    beforeCount = ctx.inventory.poll().stackSize();
+                }
+                else beforeCount = 0;
 
                 if(mark.click("Take", Game.Crosshair.ACTION)) {
                     log.info("Attempt to pick up mark");
                     return Condition.wait(new Callable<Boolean>() {
                         public Boolean call() throws Exception {
-                            return ctx.inventory.select().id(MARK_ID).poll().stackSize() == beforeCount + 1 && !mark.valid();
+                            return ctx.inventory.select().id(MARK_ID).poll().stackSize() > beforeCount && !mark.valid();
                         }
                     }, 300, 10);
                 }
@@ -188,6 +227,8 @@ public class FaladorAgility extends PollingScript<ClientContext> {
             log.info("Failed to pick up mark");
             return;
         }
+        else log.info("Picked up mark");
+        updateInfo();
 
         switch (s) {
             case INVALID: {
@@ -222,8 +263,8 @@ public class FaladorAgility extends PollingScript<ClientContext> {
                 if (roughWall.valid()) {
                     if (roughWall.inViewport()) {
                         if (Random.nextInt(0, 2) == 0)
-                            ctx.camera.angle(0);
-                        else ctx.camera.angle(180);
+                            ctx.camera.angle(Random.nextInt(-30, 30 + 1));
+                        else ctx.camera.angle(Random.nextInt(150, 210 + 1));
                         roughWall.bounds(ROUGH_WALL_BOUNDS);
                         log.info("rough wall found");
                         if (roughWall.click("Climb", Game.Crosshair.ACTION)) {
