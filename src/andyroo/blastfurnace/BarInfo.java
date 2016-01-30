@@ -1,8 +1,6 @@
 package andyroo.blastfurnace;
 
-/**
- * Created by andrewchung on 1/23/16.
- */
+
 public class BarInfo {
     /**
      * VARPBIT
@@ -12,7 +10,8 @@ public class BarInfo {
     public static final int BAR_INFO_VARPBIT1 = 545;
     public static final int BAR_INFO_VARPBIT2 = 546; // bar info for adamantite + runite
 
-    private static final int COAL_MASK = 0xFF;
+    private static final int IRON_MASK = 0x1F0000;
+    private static final int IRON_SHIFT = 4 * 4;
     private static final int MITHRIL_MASK = 0x1F000000;
     private static final int MITHRIL_SHIFT = 6 * 4;
     private static final int ADAMANTITE_MASK = 0x1F; // ore
@@ -53,8 +52,8 @@ public class BarInfo {
             primary = BlastFurnace.ORE.IRON;
             oreVarpbit = ORE_INFO_VARPBIT1;
             barVarpbit = BAR_INFO_VARPBIT1;
-            primaryMask = 0;
-            primaryShift = 0;
+            primaryMask = IRON_MASK;
+            primaryShift = IRON_SHIFT;
             widgetComponent = STEEL_BAR_COMPONENT;
         }
         if(barType == BlastFurnace.BAR.MITHRIL) {
