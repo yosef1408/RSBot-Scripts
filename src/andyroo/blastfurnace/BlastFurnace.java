@@ -14,8 +14,18 @@ import java.util.concurrent.Callable;
 
 @Script.Manifest(
         name = "Blast Furnace", properties = "author=andyroo; topic=1299183; client=4;",
-        description = "v 1.0 - Blast furnace (Mithril only)"
+        description = "v1.1 - Blast furnace (Steel, Mithril, Adamantite only)"
 )
+
+/**
+ * Changelog
+ *
+ * v 1.1
+ * added steel bar
+ * improved conveyor belt interaction
+ * minor misc improvements
+ *
+ */
 
 public class BlastFurnace extends PollingScript<ClientContext> implements PaintListener {
 
@@ -58,6 +68,7 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
     };
 
     private static final int[] BAR_IDs = {
+            2353, // steel
             2359, // mithril
             2361  // adamantite
     };
@@ -68,7 +79,7 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
 
     private static final int BELT_ID = 9100;
     private static final Tile BELT_TILE = new Tile(1942, 4967, 0);
-    private static final Area BELT_AREA = new Area(new Tile(1938, 4966, 0), new Tile(1942, 4964, 0));
+    private static final Area BELT_AREA = new Area(new Tile(1938, 4967, 0), new Tile(1942, 4964, 0));
 
     private static final int ADD_ORE_WIDGET = 219;
     private static final int ADD_ORE_COMPONENT = 0;
@@ -81,8 +92,10 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
     private static final Area DISPENSER_AREA = new Area(new Tile(1938, 4964, 0), new Tile(1940, 4962, 0));
 
 
-    private static final int GUI_X = 0;
+    private static final int GUI_X = 250;
     private static final int GUI_Y = 339;
+    private static final int GUI_WIDTH = 519;
+    private static final int GUI_HEIGHT = 138;
 
     /********************************
      ********************************/
@@ -92,7 +105,7 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
     private long startTime;
     private int startXP;
     private int barsSmelted = 0;
-    private static String version = "v 1.0";
+    private static String version = "1.1";
 
     private BarInfo barType;
 
@@ -119,7 +132,7 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
         int x = GUI_X;
         int y = GUI_Y;
         graphics.setColor(new Color(0, 0, 0));
-        graphics.fillRect(x, y, 519, 138);
+        graphics.fillRect(x, y, GUI_WIDTH - GUI_X, GUI_HEIGHT);
         graphics.setColor(new Color(255, 255, 255));
         x += 10;
         graphics.drawString(getTimeElapsed(System.currentTimeMillis() - startTime), x, y += 15);
@@ -143,7 +156,7 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
         }
         barType = form.getBarType();
 
-        if(barType == null || !(barType.getBarType() == BAR.MITHRIL || barType.getBarType() == BAR.ADAMANTITE)) {
+        if(barType == null || !(barType.getBarType() == BAR.MITHRIL || barType.getBarType() == BAR.ADAMANTITE || barType.getBarType() == BAR.STEEL)) {
             log.info("Invalid bar type");
             log.info(barType.toString());
             ctx.controller.stop();
@@ -259,7 +272,8 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
             break;
 
             default: {
-
+                log.info("huh");
+                Condition.sleep(500);
             }
             break;
         }
@@ -320,7 +334,7 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
         if (primaryCount > expectedPrimaryCount)
             expectedPrimaryCount = primaryCount;
 
-        if (expectedCoalCount >= expectedPrimaryCount * 2)
+        if (expectedCoalCount >= expectedPrimaryCount * barType.getRatio())
             expectedBarCount = expectedPrimaryCount;
     }
 
@@ -362,8 +376,8 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
     private boolean moveToBank() {
         if (!BANK_TILE.matrix(ctx).inViewport() && !ctx.players.local().inMotion()) {
             ctx.camera.pitch(true);
-            ctx.camera.turnTo(BANK_TILE);
             ctx.movement.step(BANK_AREA.getRandomTile());
+            ctx.camera.turnTo(BANK_TILE);
             log.info("move to bank");
         }
 
@@ -472,7 +486,7 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
                 }
             }, 250, 4)) { // if not walking
                 // fails if a random is on top of conveyor
-                if (ctx.objects.peek().click("Put-ore-on", Game.Crosshair.ACTION)) {
+                if (ctx.objects.peek().click("Put-ore-on", Game.Crosshair.ACTION) || ctx.objects.peek().interact(false, "Put-ore-on")) {
                     log.info("Click conveyor belt");
                     Condition.wait(new Callable<Boolean>() {
                         @Override
@@ -480,7 +494,8 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
                             return putOreWidget.visible();
                         }
                     }, 500, 8);
-                } else ctx.camera.turnTo(ctx.objects.peek()); // redundant?
+                }
+                else ctx.camera.turnTo(ctx.objects.peek()); // redundant?
             }
         } else {
             log.info("Add ore to furnace");
