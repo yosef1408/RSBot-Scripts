@@ -23,6 +23,7 @@ import java.util.concurrent.Callable;
  * v 1.1
  * added steel bar
  * improved conveyor belt interaction
+ * fixed bar widget close
  * minor misc improvements
  *
  */
@@ -85,7 +86,7 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
     private static final int ADD_ORE_COMPONENT = 0;
 
     private static final int BAR_WIDGET = 28;
-    private static final int BAR_CLOSE_COMPONENT = 120;
+    private static final int BAR_CLOSE_COMPONENT = 118;
 
     private static final int BAR_DISPENSER_ID = 9096;
     private static final Tile DISPENSER_TILE = new Tile(1939, 4963, 0);
