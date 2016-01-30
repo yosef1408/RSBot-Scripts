@@ -135,6 +135,7 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
         graphics.fillRect(x, y, GUI_WIDTH - GUI_X, GUI_HEIGHT);
         graphics.setColor(new Color(255, 255, 255));
         x += 10;
+        graphics.drawString("Version: " + version, x, y += 15);
         graphics.drawString(getTimeElapsed(System.currentTimeMillis() - startTime), x, y += 15);
         graphics.drawString("Total smelted: " + Integer.toString(barsSmelted), x, y += 15);
         graphics.drawString("Coal left: " + Integer.toString(coalRemaining), x, y += 15);
