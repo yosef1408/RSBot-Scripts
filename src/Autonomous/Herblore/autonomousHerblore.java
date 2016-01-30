@@ -27,7 +27,7 @@ import org.powerbot.script.rt6.ClientContext;
 
 
 @Script.Manifest(name = "Autonomous Herblore", description = "Makes potions or cleans herbs.", properties =
-        "author=Autonomous; topic=1299918;")
+        "author=Autonomous; topic=1299918; client=6;")
 
 public class autonomousHerblore extends PollingScript<ClientContext> implements MessageListener, PaintListener {
 
