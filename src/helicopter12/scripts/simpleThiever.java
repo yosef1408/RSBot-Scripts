@@ -14,7 +14,7 @@ import java.awt.event.MouseListener;
 import java.net.URL;
 
 
-@Script.Manifest(name="simpleThiever", properties = "author=Helicopter12; topic=1300564; client=6;", description="1-99 Thieving; Have food in bank and wear armour!")
+@Script.Manifest(name="simpleThiever", properties = "author=Helicopter12; topic=1300564; client=6; hidden=true;", description="1-99 Thieving; Have food in bank and wear armour!")
 public class simpleThiever extends PollingScript<ClientContext> implements PaintListener, MessageListener, MouseListener{
     private int optionMode, optionFood;
     final private int lobsterID = 379, tunaID = 359, maxTilesAwayToThieve = 7, thievingSkillIndexID = 17;
@@ -408,11 +408,11 @@ public class simpleThiever extends PollingScript<ClientContext> implements Paint
             }
 
             //Start thieving
-            if(allowedToRunScript()) {
+            //if(allowedToRunScript()) {
                 step = state.START;
-            }else{
+            //}else{
                 JOptionPane.showMessageDialog(null, "This script is under development and only white-listed accounts can run the script. If you would like to help test this script you need to follow the instructions given on powerbot.org and apply with your username: " + ctx.players.local().name());
-            }
+            //}
         }
     }
 
