@@ -29,6 +29,7 @@ import java.util.concurrent.Callable;
  * randomized camera movement (turnTo)
  * removed random npc handling
  * handles dialogue
+ * idle timer only triggers when no ore in furnace
  *
  */
 
@@ -225,7 +226,7 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
                 if (openBank()) {
                     log.info("Opened bank");
                     if (withdrawOres() < fullLoad) {
-                        if(primaryRemaining < 28 || coalRemaining < 28) {    // change this for bronze/gold/silver/iron
+                        if(primaryRemaining < fullLoad || coalRemaining < fullLoad) {    // change this for bronze/gold/silver/iron
                             log.info("Expected " + fullLoad + " ores, ran out of ores");
                             ctx.controller.stop();
                         }
@@ -611,7 +612,7 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
         } else {  // wait for bars to be ready
 
             // start a timer to check whether still idle
-            if(!waitingForBars) {
+            if(!waitingForBars && primaryCount() < fullLoad && coalCount() < fullLoad * barType.getRatio()) {
                 log.info("Anti-idle timer start");
                 waitingForBars = true;
                 idleTimer = new Timer();
