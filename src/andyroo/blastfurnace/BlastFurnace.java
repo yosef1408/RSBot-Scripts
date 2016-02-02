@@ -7,24 +7,28 @@ import org.powerbot.script.*;
 import org.powerbot.script.rt4.*;
 import org.powerbot.script.rt4.ClientContext;
 import org.powerbot.script.rt4.Component;
+import z.RA;
 
 import java.awt.*;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.Callable;
 
 
 @Script.Manifest(
         name = "Blast Furnace", properties = "author=andyroo; topic=1299183; client=4;",
-        description = "v1.1 - Blast furnace (Steel, Mithril, Adamantite only)"
+        description = "v1.3 - Blast furnace (Steel, Mithril, Adamantite only)"
 )
 
 /**
  * Changelog
  *
- * v 1.1
- * added steel bar
- * improved conveyor belt interaction
- * fixed bar widget close
- * minor misc improvements
+ * v 1.3
+ * now moves to bank if distance > 5 (instead of just in viewport)
+ * now moves to belt if distance >= 5 (instead of just in viewport)
+ * randomized camera movement (turnTo)
+ * removed random npc handling
+ * handles dialogue
  *
  */
 
@@ -88,10 +92,13 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
     private static final int BAR_WIDGET = 28;
     private static final int BAR_CLOSE_COMPONENT = 118;
 
+    private static final int DIALOGUE_WIDGET = 231;
+
     private static final int BAR_DISPENSER_ID = 9096;
-    private static final Tile DISPENSER_TILE = new Tile(1939, 4963, 0);
+    private static final Tile DISPENSER_TILE = new Tile(1940, 4964, 0);
     private static final Area DISPENSER_AREA = new Area(new Tile(1938, 4964, 0), new Tile(1940, 4962, 0));
 
+    private static final long IDLE_TIME_THRESHOLD = 1000 * 60 * 2;
 
     private static final int GUI_X = 250;
     private static final int GUI_Y = 339;
@@ -106,7 +113,7 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
     private long startTime;
     private int startXP;
     private int barsSmelted = 0;
-    private static String version = "1.1";
+    private static String version = "1.3";
 
     private BarInfo barType;
 
@@ -123,6 +130,8 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
     private int energyThreshold;
     private int fullLoad;
 
+    private boolean waitingForBars;
+    private Timer idleTimer;
 
     /********************************
      ********************************/
@@ -173,6 +182,7 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
 
         log.info(barType.toString());
 
+        waitingForBars = false;
         updateFurnaceStatus();
         primaryRemaining = -1;
         coalRemaining = -1;
@@ -190,7 +200,7 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
         String totalTime = getTimeElapsed(stopTime - startTime);
 
         log.info("---------------------");
-        log.info(version);
+        log.info("Version " + version);
         log.info("Time run: " + totalTime);
         log.info("Gained XP: " + Integer.toString(stopXP - startXP));
         log.info("Smelted " + barsSmelted + " bars");
@@ -199,10 +209,14 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
     @Override
     public void poll() {
         updateFurnaceStatus();
-        checkRandoms();
 
         if (ctx.game.tab() != Game.Tab.INVENTORY)
             ctx.game.tab(Game.Tab.INVENTORY);
+
+        if(!handleDialogue()) {
+            log.info("Failed to handle dialogue");
+            return;
+        }
 
         State s = state();
 
@@ -225,10 +239,12 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
                 if (collectBars()) {
                     log.info("Took bars");
 
+                    if(waitingForBars)
+                        resetIdleTimer();
                     barsSmelted += expectedBarCount;
-                    expectedCoalCount = coalCount;
-                    expectedPrimaryCount = primaryCount;
-                    expectedBarCount = barCount;
+                    expectedCoalCount = coalCount();
+                    expectedPrimaryCount = primaryCount();
+                    expectedBarCount = barCount();
                 }
             }
             break;
@@ -326,10 +342,9 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
      *
      */
     private void updateFurnaceStatus() {
-        coalCount = ctx.varpbits.varpbit(BarInfo.ORE_INFO_VARPBIT1) & 0xFF; // 0xFF is mask for coal
-
-        primaryCount = (ctx.varpbits.varpbit(barType.getOreVarpbit()) & barType.getPrimaryMask()) >> barType.getPrimaryShift();
-        barCount = (ctx.varpbits.varpbit(barType.getBarVarpbit()) & barType.getPrimaryMask()) >> barType.getPrimaryShift();
+        coalCount = coalCount();
+        primaryCount = primaryCount();
+        barCount = barCount();
 
         if (coalCount > expectedCoalCount)
             expectedCoalCount = coalCount;
@@ -338,6 +353,18 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
 
         if (expectedCoalCount >= expectedPrimaryCount * barType.getRatio())
             expectedBarCount = expectedPrimaryCount;
+    }
+
+    private int coalCount() {
+        return ctx.varpbits.varpbit(BarInfo.ORE_INFO_VARPBIT1) & 0xFF; // 0xFF is mask for coal
+    }
+
+    private int primaryCount() {
+        return (ctx.varpbits.varpbit(barType.getOreVarpbit()) & barType.getPrimaryMask()) >> barType.getPrimaryShift();
+    }
+
+    private int barCount() {
+        return (ctx.varpbits.varpbit(barType.getBarVarpbit()) & barType.getPrimaryMask()) >> barType.getPrimaryShift();
     }
 
 
@@ -376,10 +403,10 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
      * @return true if bank chest is in viewport
      */
     private boolean moveToBank() {
-        if (!BANK_TILE.matrix(ctx).inViewport() && !ctx.players.local().inMotion()) {
+        if ((BANK_TILE.distanceTo(ctx.players.local()) > 5 || !BANK_TILE.matrix(ctx).inViewport()) && !ctx.players.local().inMotion()) {
             ctx.camera.pitch(true);
             ctx.movement.step(BANK_AREA.getRandomTile());
-            ctx.camera.turnTo(BANK_TILE);
+            ctx.camera.turnTo(BANK_AREA.getRandomTile(), 20);
             log.info("move to bank");
         }
 
@@ -449,7 +476,7 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
      * @return true if belt is in viewport
      */
     private boolean moveToConveyorBelt() {
-        if (!ctx.objects.select(10).id(BELT_ID).peek().inViewport()) {
+        if (!ctx.objects.select(10).id(BELT_ID).peek().inViewport() || (BELT_TILE.distanceTo(ctx.objects.peek()) >= 5)) {
             if (!ctx.players.local().inMotion()) {
                 log.info("Walk to conveyor belt");
                 ctx.movement.step(BELT_AREA.getRandomTile());
@@ -458,11 +485,11 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
             if (!Condition.wait(new Callable<Boolean>() {
                 @Override
                 public Boolean call() throws Exception {
-                    return ctx.objects.peek().inViewport();
+                    return ctx.objects.peek().inViewport() && (BELT_TILE.distanceTo(ctx.objects.peek()) < 5);
                 }
-            }, 250, 10)) {
+            }, 250, 8)) {
                 ctx.camera.pitch(true);
-                ctx.camera.turnTo(BELT_TILE);
+                ctx.camera.turnTo(BELT_TILE, 20);
                 return false;
             } else return true;
         }
@@ -497,12 +524,12 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
                         }
                     }, 500, 8);
                 }
-                else ctx.camera.turnTo(ctx.objects.peek()); // redundant?
+                else ctx.camera.turnTo(ctx.objects.peek(), 20); // redundant?
             }
         } else {
             log.info("Add ore to furnace");
 
-            if (Random.nextInt(0, 5) == 0) // humans are more likely to press 1
+            if (Random.nextInt(0, 5) == 0) // 20% chance to mouse click
                 putOreWidget.click();
             else
                 ctx.input.send("1");
@@ -530,19 +557,23 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
      */
     private boolean moveToDispenser() {
         if(!ctx.players.local().inMotion()) {
-            if (!DISPENSER_TILE.matrix(ctx).inViewport()) {
+            if (DISPENSER_TILE.distanceTo(ctx.players.local()) > 3) {
                 log.info("Move to dispenser");
                 ctx.camera.pitch(true);
-                ctx.camera.turnTo(DISPENSER_TILE);
-                ctx.movement.step(DISPENSER_TILE);
-            } else if (DISPENSER_TILE.distanceTo(ctx.players.local()) > 3)
-                DISPENSER_TILE.matrix(ctx).click("Walk here");
+
+                Tile randomDispenserTile = DISPENSER_AREA.getRandomTile();
+                if(randomDispenserTile.matrix(ctx).inViewport())
+                    randomDispenserTile.matrix(ctx).click("Walk here");
+                else ctx.movement.step(randomDispenserTile);
+
+                ctx.camera.turnTo(DISPENSER_TILE, 10);
+            }
         }
 
         return Condition.wait(new Callable<Boolean>() {
             @Override
             public Boolean call() throws Exception {
-                return DISPENSER_TILE.matrix(ctx).inViewport();
+                return DISPENSER_TILE.distanceTo(ctx.players.local()) <= 3;
             }
         }, 250, 8);
     }
@@ -564,8 +595,7 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
                 return Condition.wait(new Callable<Boolean>() {
                     @Override
                     public Boolean call() throws Exception {
-                        updateFurnaceStatus();
-                        return barCount == 0 && ctx.inventory.select().id(BAR_IDs).count() == fullLoad;
+                        return barCount() == 0 && ctx.inventory.select().id(BAR_IDs).count() == fullLoad;
                     }
                 }, 250, 4);
             } else if (barDispenser.click("Take", Game.Crosshair.ACTION)) {
@@ -574,12 +604,32 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
                 Condition.wait(new Callable<Boolean>() {
                     @Override
                     public Boolean call() throws Exception {
-                        updateFurnaceStatus();
                         return barWidget.visible();
                     }
                 }, 250, 4);
             }
         } else {  // wait for bars to be ready
+
+            // start a timer to check whether still idle
+            if(!waitingForBars) {
+                log.info("Anti-idle timer start");
+                waitingForBars = true;
+                idleTimer = new Timer();
+                idleTimer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        log.info("Idle timer triggered");
+                        if(waitingForBars) {
+                            log.info("Reset ore counts");
+                            expectedPrimaryCount = primaryCount();
+                            expectedCoalCount = coalCount();
+                            expectedBarCount = barCount();
+                            resetIdleTimer();
+                        }
+                    }
+                }, IDLE_TIME_THRESHOLD);
+            }
+
             if (barWidget.visible()) {
                 log.info("close menu");
                 ctx.widgets.component(BAR_WIDGET, BAR_CLOSE_COMPONENT).click();
@@ -603,6 +653,31 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
         return false;
     }
 
+    private void resetIdleTimer() {
+        waitingForBars = false;
+        log.info("Cancel idle timer");
+        idleTimer.cancel();
+    }
+
+    private boolean handleDialogue() {
+        if(ctx.widgets.id(DIALOGUE_WIDGET).peek().valid()) {
+            // click on a random tile next to player to close dialogue
+            log.info("Handling dialogue");
+
+            Tile currentTile = ctx.players.local().tile();
+            Tile newTile = new Tile(currentTile.x() + Random.nextInt(-1, 2), currentTile.y() + Random.nextInt(-1, 2));
+
+            if(!newTile.matrix(ctx).click("Walk here"))
+                newTile.matrix(ctx).interact(false, "Walk here");
+            return Condition.wait(new Callable<Boolean>() {
+                @Override
+                public Boolean call() throws Exception {
+                    return !ctx.widgets.peek().valid();
+                }
+            }, 250, 4);
+        }
+        return true;
+    }
 
     /**
      * Output time elapsed
@@ -619,28 +694,6 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
 
 
         return String.format("%02d:%02d:%02d", hr, min, sec);
-    }
-
-    private void checkRandoms() {
-        //http://www.powerbot.org/community/topic/1292825-random-event-dismisser/
-
-        /* attempt to dismiss a random event if one has appeared */
-        Npc randomNpc = ctx.npcs.select().within(2.0).select(new Filter<Npc>() {
-
-            @Override
-            public boolean accept(Npc npc) {
-                return npc.overheadMessage().contains(ctx.players.local().name());
-            }
-
-        }).poll();
-
-			/* a random npc is present, dismiss them */
-        if (randomNpc.valid()) {
-            String action = randomNpc.name().equalsIgnoreCase("genie") ? "Talk-to" : "Dismiss";
-            if (randomNpc.interact(action))
-                Condition.sleep();
-
-        }
     }
 
     public void setBarType(BarInfo b) {
