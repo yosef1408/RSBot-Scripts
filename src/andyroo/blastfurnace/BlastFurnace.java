@@ -485,7 +485,7 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
             if (!Condition.wait(new Callable<Boolean>() {
                 @Override
                 public Boolean call() throws Exception {
-                    return ctx.objects.peek().inViewport() && (BELT_TILE.distanceTo(ctx.objects.peek()) < 5);
+                    return ctx.objects.peek().inViewport();
                 }
             }, 250, 8)) {
                 ctx.camera.pitch(true);
