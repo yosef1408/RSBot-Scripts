@@ -22,13 +22,12 @@ public class OSThiever extends PollingScript<ClientContext> implements PaintList
     private double successes, failures;
     private boolean hovered = false, thievingStalls = false;
     private int[] thievingIDs;
-    private Tile bankTile, locationTile, nextTileInPath;
-    private Path walkingPath;
+    private Tile bankTile, locationTile;
     private Npc npcToThieve;
     private GameObject stallToThieve;
     private Image bg;
-    String status = "";
-    state step = state.SETUP;
+    private String status = "";
+    private state step = state.SETUP;
     private final Color color1 = new Color(0, 0, 0, 207);
     private final Color color2 = new Color(255, 255, 255);
     private final Color color4 = new Color(152, 2, 208);
@@ -109,15 +108,13 @@ public class OSThiever extends PollingScript<ClientContext> implements PaintList
                         step = state.THIEVE;
                     }
                 }else{
-                    walkingPath = ctx.movement.findPath(locationTile);
-                    nextTileInPath = walkingPath.next();
                     step = state.TRAVERSE;
                 }
                 break;
         }
     }
 
-    public void pickpocketNPC(int npcIDs[]){
+    public void pickpocketNPC(final int npcIDs[]){
         if(npcToThieve == null || npcToThieve.tile().distanceTo(ctx.players.local().tile()) > maxTilesAwayToThieve || !npcToThieve.valid()){
             npcToThieve = ctx.npcs.select().id(npcIDs).nearest().poll();
             npcToThieve.bounds(npcBounds[0], npcBounds[1], npcBounds[2], npcBounds[3], npcBounds[4], npcBounds[5]);
@@ -161,7 +158,7 @@ public class OSThiever extends PollingScript<ClientContext> implements PaintList
 
     }
 
-    public void stealFromStall(int stallID[], Tile safeTiles){
+    public void stealFromStall(final int stallID[], final Tile safeTiles){
 
         status = "Stealing";
         if (stallToThieve == null || safeTiles.distanceTo(ctx.players.local().tile()) > maxTilesAwayToThieve || !stallToThieve.valid()) {
@@ -197,7 +194,7 @@ public class OSThiever extends PollingScript<ClientContext> implements PaintList
         }
     }
 
-    public void eat(int mFoodID){
+    public void eat(final int mFoodID){
         //Check if inventory is open, if not open it
         if(HP != 0 && HP <= hpToEatAt){
             final Item food = ctx.inventory.select().id(mFoodID).poll();
@@ -247,7 +244,7 @@ public class OSThiever extends PollingScript<ClientContext> implements PaintList
         }
     }
 
-    public boolean rightClick(Npc npcToClick) {
+    public boolean rightClick(final Npc npcToClick) {
         Point rndPoint = npcToClick.nextPoint();
         if(ctx.input.move(rndPoint) && npcToClick.contains(rndPoint) && npcToClick.click(false)) {
             return true;
@@ -257,7 +254,7 @@ public class OSThiever extends PollingScript<ClientContext> implements PaintList
     }
 
 
-    public boolean canThieve(int lvlRequired){
+    public boolean canThieve(final int lvlRequired){
         if(ctx.skills.realLevel(Constants.SKILLS_THIEVING) >= lvlRequired){
             return true;
         }
@@ -287,7 +284,7 @@ public class OSThiever extends PollingScript<ClientContext> implements PaintList
         return false;
     }
 
-    public void hoverMenuItem(String action){
+    public void hoverMenuItem(final String action){
         ctx.menu.hover(new Filter<MenuCommand>() {
             @Override
             public boolean accept(final MenuCommand menuCommand) {
@@ -296,7 +293,7 @@ public class OSThiever extends PollingScript<ClientContext> implements PaintList
         });
     }
 
-    public void clickMenuItem(String action){
+    public void clickMenuItem(final String action){
         ctx.menu.click(new Filter<MenuCommand>() {
             @Override
             public boolean accept(final MenuCommand menuCommand) {
@@ -306,7 +303,7 @@ public class OSThiever extends PollingScript<ClientContext> implements PaintList
     }
 
     @Override
-    public void mouseClicked(MouseEvent m) {
+    public void mouseClicked(final MouseEvent m) {
         //Only check mouse clicks if we are in set-up
         if(step == state.SETUP) {
             if (m.getX() <= 40 && m.getX() >= 23 && m.getY() <= 40 && m.getY() >= 23) {
@@ -354,7 +351,7 @@ public class OSThiever extends PollingScript<ClientContext> implements PaintList
         }
     }
 
-    private void setVariablesForNPC(thief npc) {
+    private void setVariablesForNPC(final thief npc) {
         thievingIDs = npc.ID();
         bankTile = npc.bankTile();
         locationTile = npc.location();
@@ -363,7 +360,7 @@ public class OSThiever extends PollingScript<ClientContext> implements PaintList
     }
 
     @Override
-    public void repaint(Graphics graphics) {
+    public void repaint(final Graphics graphics) {
         final Graphics2D g = (Graphics2D) graphics;
         if (step != state.SETUP) {
             drawPaint(g);
@@ -374,7 +371,7 @@ public class OSThiever extends PollingScript<ClientContext> implements PaintList
 
     }
 
-    public void drawPaint(Graphics g){
+    public void drawPaint(final Graphics g){
         currentXP = ctx.skills.experience(Constants.SKILLS_THIEVING);
 
         if(bg != null) {
@@ -406,8 +403,8 @@ public class OSThiever extends PollingScript<ClientContext> implements PaintList
         drawDebugBoundingBoxes(g);
     }
 
-    public void drawDebugBoundingBoxes(Graphics g){
-        if(npcToThieve.valid() && npcToThieve.inViewport()) {
+    public void drawDebugBoundingBoxes(final Graphics g){
+        if(npcToThieve != null && npcToThieve.valid() && npcToThieve.inViewport()) {
             npcToThieve.bounds(npcBounds[0], npcBounds[1], npcBounds[2], npcBounds[3], npcBounds[4], npcBounds[5]);
             for (Polygon poly : npcToThieve.triangles()) {
                 g.drawPolygon(poly);
@@ -415,14 +412,14 @@ public class OSThiever extends PollingScript<ClientContext> implements PaintList
         }
     }
 
-    public void drawMouse(Graphics g){
+    public void drawMouse(final Graphics g){
 
         final Point pt =  ctx.input.getLocation();
         g.setColor(Color.RED);
         g.fillOval(pt.x - 5, pt.y -5, 10, 10);
     }
 
-    public void drawSettings(Graphics g){
+    public void drawSettings(final Graphics g){
         g.setColor(color1);
         g.fillRect(9, 10, 335, 242);
         g.setColor(color2);
@@ -509,7 +506,7 @@ public class OSThiever extends PollingScript<ClientContext> implements PaintList
     }
 
     @Override
-    public void messaged(MessageEvent e) {
+    public void messaged(final MessageEvent e) {
         final String msg = e.text().toLowerCase();
         if (msg.contains("just advanced a thieving level")) {
             lvlUps++;
@@ -565,22 +562,22 @@ public class OSThiever extends PollingScript<ClientContext> implements PaintList
     }
 
     @Override
-    public void mouseReleased(MouseEvent m){
+    public void mouseReleased(final MouseEvent m){
 
     }
 
     @Override
-    public void mousePressed(MouseEvent m){
+    public void mousePressed(final MouseEvent m){
 
     }
 
     @Override
-    public void mouseEntered(MouseEvent m){
+    public void mouseEntered(final MouseEvent m){
 
     }
 
     @Override
-    public void mouseExited(MouseEvent m){
+    public void mouseExited(final MouseEvent m){
 
     }
 
