@@ -18,14 +18,15 @@ import java.util.concurrent.Callable;
 
 @Script.Manifest(
         name = "Blast Furnace", properties = "author=andyroo; topic=1299183; client=4;",
-        description = "v1.3c - Blast furnace (Steel, Mithril, Adamantite only)"
+        description = "v1.3d - Blast furnace (Steel, Mithril, Adamantite only)"
 )
 
 /**
  * Changelog
  *
- * v 1.3c
- * added screenshot on script end
+ * v 1.3d
+ * adjusted bank and dispenser areas
+ * fixed anti-idle triggering when bars were ready
  *
  */
 
@@ -77,12 +78,11 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
 
     private static final int BANK_CHEST_ID = 26707;
     private static final Tile BANK_TILE = new Tile(1948, 4957, 0);
-    private static final Area BANK_AREA = new Area(new Tile(1946, 4954, 0), new Tile(1950, 4958));
+    private static final Area BANK_AREA = new Area(new Tile(1947, 4954, 0), new Tile(1950, 4958));
 
     private static final int BELT_ID = 9100;
     private static final Tile BELT_TILE = new Tile(1942, 4967, 0);
     private static final Area BELT_AREA = new Area(new Tile(1942, 4967, 0), new Tile(1937, 4968, 0));
-
 
     private static final int ADD_ORE_WIDGET = 219;
     private static final int ADD_ORE_COMPONENT = 0;
@@ -97,7 +97,7 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
 
     private static final int BAR_DISPENSER_ID = 9096;
     private static final Tile DISPENSER_TILE = new Tile(1940, 4964, 0);
-    private static final Area DISPENSER_AREA = new Area(new Tile(1938, 4964, 0), new Tile(1940, 4962, 0));
+    private static final Area DISPENSER_AREA = new Area(new Tile(1939, 4962, 0), new Tile(1941, 4965, 0));
 
     private static final long IDLE_TIME_THRESHOLD = 1000 * 60 * 2;
 
@@ -114,7 +114,7 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
     private long startTime;
     private int startXP;
     private int barsSmelted = 0;
-    private static String version = "1.3c";
+    private static String version = "1.3d";
 
     private BarInfo barType;
 
@@ -538,6 +538,7 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
                 }
             }, 250, 4)) { // if not walking
                 // fails if a random is on top of conveyor
+                //ctx.objects.peek().bounds(BELT_BOUNDS);
                 if (ctx.objects.peek().click("Put-ore-on", Game.Crosshair.ACTION) || ctx.objects.peek().interact(false, "Put-ore-on")) {
                     log.info("Click conveyor belt");
                     Condition.wait(new Callable<Boolean>() {
@@ -545,7 +546,7 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
                         public Boolean call() throws Exception {
                             return putOreWidget.valid();
                         }
-                    }, 250, 6);
+                    }, 250, 10);
                 } else {
                     ctx.camera.turnTo(ctx.objects.peek(), 20); // redundant?
                     log.info("No conveyor belt");
@@ -640,7 +641,7 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
         } else {  // wait for bars to be ready
 
             // start a timer to check whether still idle
-            if (!waitingForBars && primaryCount() < fullLoad && coalCount() < fullLoad * barType.getRatio()) {
+            if (!waitingForBars && primaryCount() < fullLoad && coalCount() < fullLoad * barType.getRatio() && barCount() < fullLoad) {
                 log.info("Anti-idle timer start");
                 waitingForBars = true;
                 idleTimer = new Timer();
