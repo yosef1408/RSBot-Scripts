@@ -87,12 +87,14 @@ public class Humidify extends PollingScript<ClientContext> {
                     }
                 }, 100, 10)) {
                     log.info("Casted humidify");
+                    castedCount++;
                     nextState = State.BANK;
                 } else {
                     ctx.game.tab(Game.Tab.INVENTORY);
                     if (ctx.inventory.select().id(WET_CLAY_ID).count() == fullInventoryCount) {
                         log.info("Casted humidify");
                         castedCount++;
+                        System.out.println(castedCount);
                         nextState = State.BANK;
                     }
                 }
