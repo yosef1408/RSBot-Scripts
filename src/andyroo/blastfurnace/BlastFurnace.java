@@ -2,13 +2,15 @@ package andyroo.blastfurnace;
 
 import andyroo.blastfurnace.ui.BlastFurnaceForm;
 import andyroo.util.Antiban;
-
 import org.powerbot.script.*;
 import org.powerbot.script.rt4.*;
 import org.powerbot.script.rt4.ClientContext;
 import org.powerbot.script.rt4.Component;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Callable;
@@ -22,10 +24,8 @@ import java.util.concurrent.Callable;
 /**
  * Changelog
  *
- * v 1.3b
- * fixed some logic while moving to conveyor belt
- * randomized camera turning decision
- * handles case when attempting to deposit ores when furnace is full
+ * v 1.3c
+ * added screenshot on script end
  *
  */
 
@@ -40,7 +40,7 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
     }
 
     public enum BAR {
-        STEEL, MITHRIL, ADAMANTITE, RUNITE;
+        STEEL, MITHRIL, ADAMANTITE, RUNITE
     }
 
     public enum ORE {
@@ -52,7 +52,7 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
 
         private final int id;
 
-        private ORE(int id) {
+        ORE(int id) {
             this.id = id;
         }
 
@@ -205,6 +205,18 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
         log.info("Time run: " + totalTime);
         log.info("Gained XP: " + Integer.toString(stopXP - startXP));
         log.info("Smelted " + barsSmelted + " bars");
+
+        final int width = ctx.game.dimensions().width, height = ctx.game.dimensions().height;
+        BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        repaint(img.createGraphics());
+        img = img.getSubimage(GUI_X, GUI_Y, GUI_WIDTH, GUI_HEIGHT);
+        System.out.print(getStorageDirectory().toString());
+        final File screenshot = new File(getStorageDirectory(), String.valueOf(System.currentTimeMillis()).concat(".png"));
+        try {
+            ImageIO.write(img, "png", screenshot);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
