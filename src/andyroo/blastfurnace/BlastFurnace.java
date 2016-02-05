@@ -18,7 +18,7 @@ import java.util.concurrent.Callable;
 
 @Script.Manifest(
         name = "Blast Furnace", properties = "author=andyroo; topic=1299183; client=4;",
-        description = "v1.3b - Blast furnace (Steel, Mithril, Adamantite only)"
+        description = "v1.3c - Blast furnace (Steel, Mithril, Adamantite only)"
 )
 
 /**
@@ -114,7 +114,7 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
     private long startTime;
     private int startXP;
     private int barsSmelted = 0;
-    private static String version = "1.3b";
+    private static String version = "1.3c";
 
     private BarInfo barType;
 
