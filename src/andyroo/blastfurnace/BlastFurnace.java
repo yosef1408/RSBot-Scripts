@@ -206,6 +206,7 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
         log.info("Gained XP: " + Integer.toString(stopXP - startXP));
         log.info("Smelted " + barsSmelted + " bars");
 
+        //https://www.powerbot.org/community/topic/1228458-saving-script-screenshots/
         final int width = ctx.game.dimensions().width, height = ctx.game.dimensions().height;
         BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         repaint(img.createGraphics());
