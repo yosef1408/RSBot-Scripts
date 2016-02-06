@@ -60,7 +60,7 @@ public class Humidify extends PollingScript<ClientContext> {
                                 log.info("Withdrew");
                                 ctx.bank.close();
                                 nextState = State.CAST_SPELL;
-                            } else {
+                            } else if(ctx.bank.id(CLAY_ID).count() < fullInventoryCount){
                                 log.info("Ran out of clay");
                                 ctx.controller.stop();
                             }

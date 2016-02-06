@@ -27,6 +27,7 @@ public class Antiban {
                     ctx.game.tab(Game.Tab.INVENTORY);
                 }
                     break;
+                /*
                 case 2: {  // right click on random player
                     Point mouseLoc = ctx.input.getLocation();
                     System.out.println("antiban 2");
@@ -45,6 +46,7 @@ public class Antiban {
                     }
                 }
                     break;
+                */
                 case 3: { // right click random object
 
                     Point mouseLoc = ctx.input.getLocation();
@@ -61,6 +63,13 @@ public class Antiban {
                         Condition.sleep();
                         ctx.input.move(mouseLoc.x + Random.nextInt(-20, 20), mouseLoc.y - Random.nextInt(10, 30));
                     }
+                }
+                case 4: { // right click random npc
+                    if(ctx.npcs.select().viewable().shuffle().peek().valid()) {
+                        ctx.npcs.peek().interact("Examine");
+                        Condition.sleep();
+                    }
+
                 }
                 default:
                     break;
