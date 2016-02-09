@@ -18,7 +18,7 @@ public class OSThiever extends PollingScript<ClientContext> implements PaintList
     private final int npcBounds[] = {-30, 30, -180, -5, -30, 30};
     private final int lobsterID = 379, tunaID = 359, maxTilesAwayToThieve = 7, locationTileDiviation = 25;
     private final int doorIDs[] =  { 34808, 34811, 34807, 34812 };
-    private int HP, lvlUps, foodID = lobsterID, startingXP, currentXP, requiredXP, hpToEatAt, energyToRunAt;
+    private int HP, lvlUps, foodID = lobsterID, startingXP, currentXP, requiredXP, hpToEatAt, energyToRunAt, currentLvl;
     private double successes, failures;
     private boolean hovered = false, thievingStalls = false;
     private int[] thievingIDs;
@@ -28,6 +28,7 @@ public class OSThiever extends PollingScript<ClientContext> implements PaintList
     private Image bg;
     private String status = "";
     private state step = state.SETUP;
+    private thief optionSelected;
     private final Color color1 = new Color(0, 0, 0, 207);
     private final Color color2 = new Color(255, 255, 255);
     private final Color color4 = new Color(152, 2, 208);
@@ -43,6 +44,7 @@ public class OSThiever extends PollingScript<ClientContext> implements PaintList
         //Set parameters
         startingXP = ctx.skills.experience(Constants.SKILLS_THIEVING);
         requiredXP = ctx.skills.experienceAt(ctx.skills.level(Constants.SKILLS_THIEVING) + 1);
+        currentLvl = ctx.skills.realLevel(Constants.SKILLS_THIEVING);
         hpToEatAt =  Random.nextInt(55,71);
         energyToRunAt = Random.nextInt(40, 70);
 
@@ -51,13 +53,17 @@ public class OSThiever extends PollingScript<ClientContext> implements PaintList
             final URL cursorURL = new URL("http://elder.comlu.com/testPaint.png");
             bg = ImageIO.read(cursorURL);
         }catch (Exception ex) {
-            log.info("Error: Couldn't load image");
+            log.info("Error: Couldn't load image (" + ex.toString() + ")");
         }
 
         //Set default state to thieve men:
         setVariablesForNPC(thief.Man);
 
         status = "Configuring...";
+    }
+
+    public void stop() {
+        uploadLog();
     }
 
     public void poll() {
@@ -93,6 +99,7 @@ public class OSThiever extends PollingScript<ClientContext> implements PaintList
                         stealFromStall(thievingIDs, locationTile);
                     }
                 }
+                antiBan();
                 break;
 
             case BANK:
@@ -272,6 +279,13 @@ public class OSThiever extends PollingScript<ClientContext> implements PaintList
         }
     }
 
+    public void uploadLog() {
+        final String url = "http://elder.comlu.com/thief/records.php?time=" + (getTotalRuntime() / 1000) + "&user=" +
+                ctx.properties.getProperty("user.id") + "&mode=" + optionSelected + "&lvl=" +
+                currentLvl + "&xp=" + (currentXP - startingXP);
+        downloadString(url);
+    }
+
     public boolean logout(){
         final Component doorIcon = ctx.widgets.component(161, 31);
         if(doorIcon.valid() && doorIcon.visible() && doorIcon.click(true)) {
@@ -300,6 +314,31 @@ public class OSThiever extends PollingScript<ClientContext> implements PaintList
                 return menuCommand.action.equals(action);
             }
         });
+    }
+
+    private void antiBan() {
+        int rnd = Random.nextInt(0, 200);
+        switch (rnd) {
+            case 0:
+                ctx.camera.angle(Random.nextInt(0, 300));
+                break;
+            case 1:
+                ctx.camera.pitch(Random.nextInt(0, 71));
+                break;
+            case 2:
+                ctx.camera.angle(Random.nextInt(0, 300));
+                ctx.camera.pitch(Random.nextInt(0, 71));
+                break;
+            case 3:
+                ctx.input.move(ctx.input.getLocation().x + Random.nextInt(-200, 200),
+                        ctx.input.getLocation().y + Random.nextInt(-300, 250));
+                break;
+            case 4:
+                status = "Breaking...";
+                ctx.input.move(Random.nextInt(-10,1), Random.nextInt(-10,1));
+                Condition.sleep(Random.nextInt(2000,45000));
+                break;
+        }
     }
 
     @Override
@@ -357,6 +396,7 @@ public class OSThiever extends PollingScript<ClientContext> implements PaintList
         locationTile = npc.location();
         thievingStalls = npc.stall();
         optionMode = npc.option();
+        optionSelected = npc;
     }
 
     @Override
@@ -511,6 +551,7 @@ public class OSThiever extends PollingScript<ClientContext> implements PaintList
         if (msg.contains("just advanced a thieving level")) {
             lvlUps++;
             requiredXP = ctx.skills.experienceAt(ctx.skills.level(Constants.SKILLS_THIEVING) + 1);
+            currentLvl = ctx.skills.realLevel(Constants.SKILLS_THIEVING);
         }else if(msg.contains("coins have been added") || msg.contains("you steal") || msg.contains("you pick")) {
             successes++;
         }else if(msg.contains("you fail to pick")){
