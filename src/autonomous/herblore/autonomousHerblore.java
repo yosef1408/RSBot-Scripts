@@ -1,4 +1,4 @@
-package Autonomous.Herblore;
+package autonomous.herblore;
 //**********************************************************
 // Script: Autonomous Herblore
 //
@@ -27,7 +27,7 @@ import org.powerbot.script.rt6.ClientContext;
 
 
 @Script.Manifest(name = "Autonomous Herblore", description = "Makes potions or cleans herbs.", properties =
-        "author=Autonomous; topic=1299918; client=6;")
+        "author=Autonomous; topic=1301191; client=6;")
 
 public class autonomousHerblore extends PollingScript<ClientContext> implements MessageListener, PaintListener {
 
@@ -35,6 +35,8 @@ public class autonomousHerblore extends PollingScript<ClientContext> implements 
     private long milliseconds;
 
     private int potsMade = 0;
+    private int extraPots = 0;
+    private int totalPots = 0;
     private int savedIngredient = 0;
     private int cleanedHerbs = 0;
     private int potionID = 0;
@@ -56,6 +58,7 @@ public class autonomousHerblore extends PollingScript<ClientContext> implements 
 
     private boolean cleaned = false;
     private boolean made = false;
+    private boolean enoughSupplies = true;
 
     @Override
     public void poll() {
@@ -82,8 +85,15 @@ public class autonomousHerblore extends PollingScript<ClientContext> implements 
                 firstHalfID = ctx.backpack.itemAt(0).id();
                 secondHalfID = ctx.backpack.itemAt(27).id();
 
+                if (!ctx.backpack.itemAt(0).name().toLowerCase().contains("unf") && !ctx.backpack.itemAt(0).name()
+                        .toLowerCase().contains("vial")){
+                    ingredientID = ctx.backpack.itemAt(0).id();
+                }
+                else{
+                    ingredientID = ctx.backpack.itemAt(27).id();
+                }
+
                 if (ctx.objects.select(10).id(89770).poll().inViewport()){
-                    System.out.println("Well in sight");
                     ctx.objects.select().id(89770).peek().interact("Mix Potions");
                 }
                 else {
@@ -102,15 +112,9 @@ public class autonomousHerblore extends PollingScript<ClientContext> implements 
                         made = true;
                     }
                 }
-                Condition.sleep(3000);
+                Condition.sleep(1000);
                 potionID = ctx.backpack.itemAt(0).id();
-                if (!ctx.backpack.itemAt(0).name().toLowerCase().contains("unf") && !ctx.backpack.itemAt(0).name()
-                        .toLowerCase().contains("vial")){
-                    ingredientID = ctx.backpack.itemAt(0).id();
-                }
-                else{
-                    ingredientID = ctx.backpack.itemAt(27).id();
-                }
+
                 break;
 
             }
@@ -134,6 +138,11 @@ public class autonomousHerblore extends PollingScript<ClientContext> implements 
 
             case WAITING: {
                 Condition.sleep(3000);
+                break;
+            }
+
+            case GRABBING: {
+
                 break;
             }
 
@@ -169,12 +178,12 @@ public class autonomousHerblore extends PollingScript<ClientContext> implements 
             System.out.println("Cleaning");
             return State.CLEANING;
         }
-        else if (ctx.backpack.select().id(secondHalfID).count() == 0 || ctx.backpack
+        else if (enoughSupplies == true && ctx.backpack.select().id(secondHalfID).count() == 0 || enoughSupplies == true && ctx.backpack
                 .select().id
                 (grimyID).count() == 0){
             System.out.println("Banking");
             return State.BANKING;
-        }  else {
+        } else {
             System.out.println("Stopping.");
             return State.STOP;
         }
@@ -182,22 +191,26 @@ public class autonomousHerblore extends PollingScript<ClientContext> implements 
     }
 
     private enum State {
-        BANKING, MAKING, STOP, WAITING, CLEANING
+        BANKING, MAKING, STOP, WAITING, CLEANING, GRABBING
     }
 
     @Override
     public void messaged(MessageEvent e) {
         final String msg = e.text().toLowerCase();
-        if (e.source().isEmpty() && msg.contains("you mix the") || msg.contains("you mix such a " +
-                "potent " +
-                "potion")) {
+        if (e.source().isEmpty() && msg.contains("you mix the")) {
             potsMade++;
+        }
+        if (e.source().isEmpty() && msg.contains("you mix such a ")){
+            extraPots++;
         }
         if (e.source().isEmpty() && msg.contains("save an ingredient")){
             savedIngredient++;
         }
         if (e.source().isEmpty() && msg.contains("you clean")){
             cleanedHerbs++;
+        }
+        if (e.source().isEmpty() && msg.contains("item could not be found")){
+            enoughSupplies = false;
         }
     }
 
@@ -210,16 +223,27 @@ public class autonomousHerblore extends PollingScript<ClientContext> implements 
 
             double hoursPercent = ((double)seconds/3600) + ((double)minutes/60) + (double)hours;
 
-            int profitHr;
-            int cleanedHr;
-            int moneyMade;
+            int profitHr = 0;
+            int cleanedHr = 0;
+            int moneyMade = 0;
             int xpHr = (int)((ctx.skills.experience(15) - startXp)/hoursPercent)/1000;
+
+
 
             String time = String.format("%02d:%02d:%02d", hours, minutes, seconds);
 
             if (potsMade > 0){
-                moneyMade = (potsMade*getPrice(potionID)) - (potsMade*(getPrice(firstHalfID)+ getPrice(secondHalfID))
+
+                totalPots = potsMade + extraPots;
+                System.out.println("Potions Total: " + totalPots*getPrice(potionID));
+                System.out.println("Ingredients Price: " + (potsMade*(getPrice(firstHalfID)+ getPrice(secondHalfID))));
+                System.out.println("Saved Ingredients Money Saved: " + (savedIngredient*(getPrice(ingredientID))));
+
+                moneyMade = (totalPots*getPrice(potionID)) - (potsMade*(getPrice(firstHalfID)+ getPrice(secondHalfID))
                 ) + (savedIngredient*(getPrice(ingredientID)));
+
+                System.out.println("Profit Total: " + moneyMade);
+
                 profitHr = (int)(moneyMade/hoursPercent)/1000;
 
                 img = downloadImage("http://i67.tinypic.com/o0ufbq.png");
@@ -227,13 +251,13 @@ public class autonomousHerblore extends PollingScript<ClientContext> implements 
                 g.setFont(font);
                 g.drawImage(img, 0, 314, 280, 75, null);
                 g.drawString(time, 43, 346);
-                g.drawString(Integer.toString(potsMade), 211, 346);
+                g.drawString(Integer.toString(totalPots), 211, 346);
                 g.drawString(Integer.toString(savedIngredient), 227, 362);
                 g.drawString(xpHr + "k", 50, 361);
 
                 if (profitHr > 999){
-                    profitHr = profitHr/1000;
-                    g.drawString(profitHr + "m", 180, 377);
+                    double millsHr = (double)profitHr/1000;
+                    g.drawString(millsHr + "m", 180, 377);
                 }
                 else {
                     g.drawString(profitHr + "k", 180, 377);
