@@ -148,7 +148,6 @@ public class AutonomousHerblore extends PollingScript<ClientContext> implements 
                     }
                 }
                 Condition.sleep(1500);
-                cleanID = ctx.backpack.itemAt(0).id();
                 break;
             }
 
@@ -235,6 +234,7 @@ public class AutonomousHerblore extends PollingScript<ClientContext> implements 
         }
         if (e.source().isEmpty() && msg.contains("you clean")){
             cleanedHerbs++;
+            cleanID = ctx.backpack.itemAt(0).id();
             if (cleanedHerbs < 3){
                 img = downloadImage("http://i67.tinypic.com/vywrjl.png");
 
