@@ -1,6 +1,7 @@
 package helicopter12.scripts;
 
 import org.powerbot.script.*;
+import org.powerbot.script.Random;
 import org.powerbot.script.rt4.ClientContext;
 import org.powerbot.script.rt4.*;
 import org.powerbot.script.rt4.Component;
@@ -10,6 +11,8 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.net.URL;
+import java.util.*;
+import java.util.List;
 
 
 @Script.Manifest(name="OSThiever", properties = "author=Helicopter12; topic=1300564; client=4; hidden=true;", description="1-99 Thieving; Have food in bank and wear armour!")
@@ -29,6 +32,7 @@ public class OSThiever extends PollingScript<ClientContext> implements PaintList
     private String status = "";
     private state step = state.SETUP;
     private thief optionSelected;
+    public static List<MenuOption> thiefMenuOptions = new ArrayList<MenuOption>();
     private final Color color1 = new Color(0, 0, 0, 207);
     private final Color color2 = new Color(255, 255, 255);
     private final Color color4 = new Color(152, 2, 208);
@@ -40,6 +44,9 @@ public class OSThiever extends PollingScript<ClientContext> implements PaintList
     }
 
     public void start() {
+
+        //Set up our menu
+        defineMenuOptions();
 
         //Set parameters
         startingXP = ctx.skills.experience(Constants.SKILLS_THIEVING);
@@ -256,7 +263,6 @@ public class OSThiever extends PollingScript<ClientContext> implements PaintList
         if(ctx.input.move(rndPoint) && npcToClick.contains(rndPoint) && npcToClick.click(false)) {
             return true;
         }
-
         return false;
     }
 
@@ -265,7 +271,6 @@ public class OSThiever extends PollingScript<ClientContext> implements PaintList
         if(ctx.skills.realLevel(Constants.SKILLS_THIEVING) >= lvlRequired){
             return true;
         }
-
         return false;
     }
 
@@ -341,43 +346,36 @@ public class OSThiever extends PollingScript<ClientContext> implements PaintList
         }
     }
 
+    public void defineMenuOptions() {
+        thiefMenuOptions.add(new MenuOption(0, "Man",           1,  10, thief.Man,         true));
+        thiefMenuOptions.add(new MenuOption(1, "Farmer",        10, 20, thief.Farmer,      false));
+        thiefMenuOptions.add(new MenuOption(2, "Silk Stall",    20, 38, thief.SilkStall,   false));
+        thiefMenuOptions.add(new MenuOption(3, "Master Farmer", 38, 40, thief.mFarmer,     false));
+        thiefMenuOptions.add(new MenuOption(4, "Guards",        40, 55, thief.Guards,      false));
+        thiefMenuOptions.add(new MenuOption(5, "Knights",       55, 70, thief.Knights,     false));
+        thiefMenuOptions.add(new MenuOption(6, "Paladins",      70, 80, thief.Paladin,     false));
+        thiefMenuOptions.add(new MenuOption(7, "Heroes",        80, 99, thief.Hero,        false));
+    }
+
     @Override
     public void mouseClicked(final MouseEvent m) {
         //Only check mouse clicks if we are in set-up
         if(step == state.SETUP) {
-            if (m.getX() <= 40 && m.getX() >= 23 && m.getY() <= 40 && m.getY() >= 23) {
-                if (canThieve(thief.Man.lvlReq())) {
-                    setVariablesForNPC(thief.Man);
+            int index = 0;
+            for ( MenuOption opt : thiefMenuOptions ) {
+                if(opt.wasClicked(m.getPoint()) && canThieve(opt.getStyle().lvlReq())){
+                    opt.selected = true;
+                    setVariablesForNPC(opt.getStyle());
+                    for(int i = 0; i < thiefMenuOptions.size(); i++) {
+                        if(i != index) {
+                            thiefMenuOptions.get(i).selected = false;
+                        }
+                    }
                 }
-            } else if (m.getX() <= 40 && m.getX() >= 23 && m.getY() <= 64 && m.getY() >= 47) {
-                if (canThieve(thief.Farmer.lvlReq())) {
-                    setVariablesForNPC(thief.Farmer);
-                }
-            } else if (m.getX() <= 40 && m.getX() >= 23 && m.getY() <= 88 && m.getY() >= 71) {
-                if (canThieve(thief.SilkStall.lvlReq())) {
-                    setVariablesForNPC(thief.SilkStall);
-                }
-            } else if (m.getX() <= 40 && m.getX() >= 23 && m.getY() <= 111 && m.getY() >= 94) {
-                if (canThieve(thief.mFarmer.lvlReq())) {
-                    setVariablesForNPC(thief.mFarmer);
-                }
-            } else if (m.getX() <= 40 && m.getX() >= 23 && m.getY() <= 134 && m.getY() >= 117) {
-                if (canThieve(thief.Guards.lvlReq())) {
-                    setVariablesForNPC(thief.Guards);
-                }
-            } else if (m.getX() <= 40 && m.getX() >= 23 && m.getY() <= 157 && m.getY() >= 140) {
-                if (canThieve(thief.Knights.lvlReq())) {
-                    setVariablesForNPC(thief.Knights);
-                }
-            } else if (m.getX() <= 40 && m.getX() >= 23 && m.getY() <= 180 && m.getY() >= 163) {
-                if (canThieve(thief.Paladin.lvlReq())) {
-                    setVariablesForNPC(thief.Paladin);
-                }
-            } else if (m.getX() <= 40 && m.getX() >= 23 && m.getY() <= 203 && m.getY() >= 186) {
-                if (canThieve(thief.Hero.lvlReq())) {
-                    setVariablesForNPC(thief.Hero);
-                }
-            } else if (m.getX() <= 97 && m.getX() >= 80 && m.getY() <= 243 && m.getY() >= 226) {
+                index++;
+            }
+
+            if (m.getX() <= 97 && m.getX() >= 80 && m.getY() <= 243 && m.getY() >= 226) {
                 optionFood = 0;
                 foodID = lobsterID;
             } else if (m.getX() <= 181 && m.getX() >= 164 && m.getY() <= 243 && m.getY() >= 226) {
@@ -472,69 +470,19 @@ public class OSThiever extends PollingScript<ClientContext> implements PaintList
 
         //Checkboxes
         g.setColor(color2);
-        g.drawRect(23, 23,  17, 17);
-        g.drawRect(23, 94,  17, 17);
-        g.drawRect(23, 117, 17, 17);
-        g.drawRect(23, 140, 17, 17);
-        g.drawRect(23, 163, 17, 17);
-        g.drawRect(23, 186, 17, 17);
-        g.drawRect(23, 47,  17, 17);
-        g.drawRect(23, 71,  17, 17);
-
         g.drawRect(80,  226, 17, 17);
         g.drawRect(164, 226, 17, 17);
-
-        g.drawString("Man",            49, 38);
-        g.drawString("Farmer",         49, 62);
-        g.drawString("Silk Stall",     49, 86);
-        g.drawString("Master Farmer",  49, 109);
-        g.drawString("Guards",         49, 132);
-        g.drawString("Knights",        49, 155);
-        g.drawString("Padadins",       49, 179);
-        g.drawString("Heroes",         49, 202);
-
-        g.drawString("level  1 - 10",  245, 38);
-        g.drawString("level 10 - 20",  245, 62);
-        g.drawString("level 20 - 38",  245, 86);
-        g.drawString("level 38 - 40",  245, 109);
-        g.drawString("level 40 - 55",  245, 132);
-        g.drawString("level 55 - 70",  245, 155);
-        g.drawString("level 70 - 80",  245, 179);
-        g.drawString("level 80 - 99",  245, 202);
-
 
         g.drawString("Food:", 20, 240);
         g.setFont(font2);
         g.drawString("Lobster", 102, 240);
         g.drawString("Tuna",    188, 240);
 
-        g.setColor(color4);
-        switch(optionMode){
-            case 0:
-                g.fillRect(24, 24, 16, 16);
-                break;
-            case 1:
-                g.fillRect(24, 48, 16, 16);
-                break;
-            case 2:
-                g.fillRect(24, 72, 16, 16);
-                break;
-            case 3:
-                g.fillRect(24, 95, 16, 16);
-                break;
-            case 4:
-                g.fillRect(24, 118, 16, 16);
-                break;
-            case 5:
-                g.fillRect(24, 141, 16, 16);
-                break;
-            case 6:
-                g.fillRect(24, 164, 16, 16);
-                break;
-            case 7:
-                g.fillRect(24, 187, 16, 16);
-                break;
+        for( MenuOption opt : thiefMenuOptions ) {
+            opt.drawOption(g);
         }
+
+        g.setColor(color4);
         switch(optionFood){
             case 0:
                 g.fillRect(81, 227, 16, 16);
@@ -621,6 +569,45 @@ public class OSThiever extends PollingScript<ClientContext> implements PaintList
     public void mouseExited(final MouseEvent m){
 
     }
+}
 
+class MenuOption {
+    private final Color color2 = new Color(255, 255, 255);
+    private final Color color4 = new Color(152, 2, 208);
+    private final Font font1 = new Font("Arial", 1, 16);
+    public Point checkboxLocation = new Point (0,0);
+    public String name, levelRange;
+    public boolean selected;
+    public int option;
+    public OSThiever.thief style;
 
+    public MenuOption(final int option, final String name, final int lvlRangeMin, final int lvlRangeMax, final OSThiever.thief style, boolean selected) {
+        this.name = name;
+        this.levelRange = "Level "  + lvlRangeMin + " - " + lvlRangeMax;
+        this.selected = selected;
+        this.option = option;
+        this.style = style;
+        this.checkboxLocation = new Point(20, 20 + (24 * option));
+    }
+
+    public void drawOption(Graphics g) {
+        g.setColor(color2);
+        g.setFont(font1);
+        g.drawString(this.name,       46,  35 +(this.option * 24));
+        g.drawString(this.levelRange, 242, 35 +(this.option * 24));
+        g.drawRect(this.checkboxLocation.x, this.checkboxLocation.y,  17, 17);
+        if(this.selected) {
+            g.setColor(color4);
+            g.fillRect(21, 21 + (this.option * 24), 16, 16);
+        }
+    }
+
+    public OSThiever.thief getStyle() { return this.style; }
+
+    public boolean wasClicked(final Point click) {
+        if (click.getX() <= 37 && click.getX() >= 20 && click.getY() <= (this.checkboxLocation.y + 17) && click.getY() >= this.checkboxLocation.y) {
+            return true;
+        }
+        return false;
+    }
 }
