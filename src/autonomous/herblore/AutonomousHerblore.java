@@ -21,15 +21,23 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.text.DecimalFormat;
+import java.util.concurrent.Callable;
 
 import org.powerbot.script.*;
+import org.powerbot.script.rt6.*;
 import org.powerbot.script.rt6.ClientContext;
+import org.powerbot.script.rt6.GeItem;
 
 
 @Script.Manifest(name = "Autonomous Herblore", description = "Makes potions or cleans herbs.", properties =
         "author=Autonomous; topic=1301191; client=6;")
 
-public class autonomousHerblore extends PollingScript<ClientContext> implements MessageListener, PaintListener {
+public class AutonomousHerblore extends PollingScript<ClientContext> implements MessageListener, PaintListener {
+
+    private boolean cleaned = false;
+    private boolean made = false;
+    private boolean enoughSupplies = true;
 
     private long startTime = System.currentTimeMillis();
     private long milliseconds;
@@ -53,17 +61,27 @@ public class autonomousHerblore extends PollingScript<ClientContext> implements 
     private int hours;
     private int firstItemCount;
     private int lastItemCount;
+    private int cleanedHr = 0;
+    private int moneyMade = 0;
+    private int potionPrice = 0;
+    private int ingredientsCost = 0;
+    private int ingredientSavings = 0;
+
+    private double profitHr = 0;
 
     org.powerbot.script.Random rand = new org.powerbot.script.Random();
 
-    private boolean cleaned = false;
-    private boolean made = false;
-    private boolean enoughSupplies = true;
+    private String stateString;
+
+    private Font font = new Font("Courier New", 1, 10);
+
+    private BufferedImage img = null;
 
     @Override
     public void poll() {
 
         final State state = state();
+        stateString = state().toString();
 
         switch (state) {
 
@@ -113,8 +131,6 @@ public class autonomousHerblore extends PollingScript<ClientContext> implements 
                     }
                 }
                 Condition.sleep(1000);
-                potionID = ctx.backpack.itemAt(0).id();
-
                 break;
 
             }
@@ -132,7 +148,6 @@ public class autonomousHerblore extends PollingScript<ClientContext> implements 
                     }
                 }
                 Condition.sleep(1500);
-                cleanID = ctx.backpack.itemAt(0).id();
                 break;
             }
 
@@ -187,7 +202,6 @@ public class autonomousHerblore extends PollingScript<ClientContext> implements 
             System.out.println("Stopping.");
             return State.STOP;
         }
-
     }
 
     private enum State {
@@ -199,6 +213,18 @@ public class autonomousHerblore extends PollingScript<ClientContext> implements 
         final String msg = e.text().toLowerCase();
         if (e.source().isEmpty() && msg.contains("you mix the")) {
             potsMade++;
+            potionID = ctx.backpack.itemAt(0).id();
+            if (potsMade < 3){
+                img = downloadImage("http://i67.tinypic.com/o0ufbq.png");
+                try {
+                    potionPrice = getPrice(potionID);
+                    ingredientsCost = (getPrice(firstHalfID)+ getPrice(secondHalfID));
+                    ingredientSavings = getPrice(ingredientID);
+
+                } catch (Exception g){
+                    g.printStackTrace();
+                }
+            }
         }
         if (e.source().isEmpty() && msg.contains("you mix such a ")){
             extraPots++;
@@ -208,86 +234,63 @@ public class autonomousHerblore extends PollingScript<ClientContext> implements 
         }
         if (e.source().isEmpty() && msg.contains("you clean")){
             cleanedHerbs++;
+            cleanID = ctx.backpack.itemAt(0).id();
+            if (cleanedHerbs < 3){
+                img = downloadImage("http://i67.tinypic.com/vywrjl.png");
+
+                try {
+                    ingredientsCost = (getPrice(cleanID) - getPrice(grimyID));
+
+                } catch (Exception f){
+                    f.printStackTrace();
+                }
+            }
         }
         if (e.source().isEmpty() && msg.contains("item could not be found")){
             enoughSupplies = false;
         }
+        totalPots = potsMade + extraPots;
     }
 
     @Override
     public void repaint(Graphics g) {
         try {
-            BufferedImage img = null;
+            if (img != null){
+                double hoursPercent = ((double)seconds/3600) + ((double)minutes/60) + (double)hours;
+                int xpHr = (int)((ctx.skills.experience(15) - startXp)/hoursPercent)/1000;
 
-            Font font = new Font("Courier New", 1, 10);
-
-            double hoursPercent = ((double)seconds/3600) + ((double)minutes/60) + (double)hours;
-
-            int profitHr = 0;
-            int cleanedHr = 0;
-            int moneyMade = 0;
-            int xpHr = (int)((ctx.skills.experience(15) - startXp)/hoursPercent)/1000;
-
-
-
-            String time = String.format("%02d:%02d:%02d", hours, minutes, seconds);
-
-            if (potsMade > 0){
-
-                totalPots = potsMade + extraPots;
-                System.out.println("Potions Total: " + totalPots*getPrice(potionID));
-                System.out.println("Ingredients Price: " + (potsMade*(getPrice(firstHalfID)+ getPrice(secondHalfID))));
-                System.out.println("Saved Ingredients Money Saved: " + (savedIngredient*(getPrice(ingredientID))));
-
-                moneyMade = (totalPots*getPrice(potionID)) - (potsMade*(getPrice(firstHalfID)+ getPrice(secondHalfID))
-                ) + (savedIngredient*(getPrice(ingredientID)));
-
-                System.out.println("Profit Total: " + moneyMade);
+                String time = String.format("%02d:%02d:%02d", hours, minutes, seconds);
 
                 profitHr = (int)(moneyMade/hoursPercent)/1000;
-
-                img = downloadImage("http://i67.tinypic.com/o0ufbq.png");
+                cleanedHr = (int)(cleanedHerbs/hoursPercent);
 
                 g.setFont(font);
                 g.drawImage(img, 0, 314, 280, 75, null);
                 g.drawString(time, 43, 346);
-                g.drawString(Integer.toString(totalPots), 211, 346);
-                g.drawString(Integer.toString(savedIngredient), 227, 362);
+                g.drawString(stateString, 50, 377);
                 g.drawString(xpHr + "k", 50, 361);
 
-                if (profitHr > 999){
-                    double millsHr = (double)profitHr/1000;
-                    g.drawString(millsHr + "m", 180, 377);
+                if (potsMade > 0){
+                    moneyMade = (totalPots*potionPrice) - (potsMade*ingredientsCost)
+                            + (savedIngredient*ingredientSavings);
+
+                    g.drawString(Integer.toString(totalPots), 211, 346);
+                    g.drawString(Integer.toString(savedIngredient), 227, 362);
                 }
-                else {
-                    g.drawString(profitHr + "k", 180, 377);
+                else if (cleanedHerbs > 0){
+                    moneyMade = cleanedHerbs*ingredientsCost;
+
+                    g.drawString(Integer.toString(cleanedHerbs), 214, 345);
+                    g.drawString(Integer.toString(cleanedHr), 203, 362);
                 }
-                g.drawString(state().toString(), 50, 377);
-            }
-            else if (cleanedHerbs > 0){
-                moneyMade = cleanedHerbs*(getPrice(cleanID) - getPrice(grimyID));
-                profitHr = (int)(moneyMade/hoursPercent)/1000;
-                cleanedHr = (int)(cleanedHerbs/hoursPercent);
-
-                img = downloadImage("http://i67.tinypic.com/vywrjl.png");
-
-                g.setFont(font);
-                g.drawImage(img, 0, 314, 280, 75, null);
-                g.drawString(time, 45, 346);
-                g.drawString(Integer.toString(cleanedHerbs), 214, 345);
-                g.drawString(Integer.toString(cleanedHr), 203, 362);
-                g.drawString(xpHr + "k", 51, 363);
-
                 if (profitHr > 999){
                     profitHr = profitHr/1000;
-                    g.drawString(profitHr + "m", 180, 377);
+                    g.drawString(String.format("%.2fm", profitHr), 180, 377);
                 }
                 else {
-                    g.drawString(profitHr + "k", 180, 377);
+                    g.drawString((int)profitHr + "k", 180, 377);
                 }
-                g.drawString(state().toString(), 50, 377);
             }
-
         }catch(Exception e){
             e.printStackTrace();
         }
