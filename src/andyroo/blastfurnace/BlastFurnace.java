@@ -2,6 +2,7 @@ package andyroo.blastfurnace;
 
 import andyroo.blastfurnace.ui.BlastFurnaceForm;
 import andyroo.util.Antiban;
+import org.powerbot.bot.Con;
 import org.powerbot.script.*;
 import org.powerbot.script.rt4.*;
 import org.powerbot.script.rt4.ClientContext;
@@ -18,16 +19,19 @@ import java.util.concurrent.Callable;
 
 @Script.Manifest(
         name = "Blast Furnace", properties = "author=andyroo; topic=1299183; client=4;",
-        description = "v1.3d - Blast furnace (Steel, Mithril, Adamantite only)"
+        description = "v1.4 - Blast furnace (Steel, Mithril, Adamantite only)"
 )
 
 /**
  * Changelog
  *
- * v 1.3d
- * adjusted bank and dispenser areas
- * fixed anti-idle triggering when bars were ready
- *
+ * v 1.4
+ * pays foreman
+ * keeps track of how many times foreman was paid
+ * fixed a bug where expectedPrimary did not update
+ * now initializes script properly when starting it from login screen
+ * reduced bounds of conveyor belt
+ * handles accidental reports
  */
 
 public class BlastFurnace extends PollingScript<ClientContext> implements PaintListener {
@@ -37,7 +41,7 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
      ********************************/
 
     private enum State {
-        RUN_TOGGLE, WITHDRAW, DEPOSIT, PUT_ORE, COLLECT, INVALID
+        RUN_TOGGLE, WITHDRAW, DEPOSIT, PUT_ORE, COLLECT, INVALID, PAY_FOREMAN
     }
 
     public enum BAR {
@@ -83,12 +87,13 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
     private static final int BELT_ID = 9100;
     private static final Tile BELT_TILE = new Tile(1942, 4967, 0);
     private static final Area BELT_AREA = new Area(new Tile(1942, 4967, 0), new Tile(1937, 4968, 0));
+    private static final int[] BELT_BOUNDS = {-24, 20, -248, -224, -24, 16};
 
     private static final int ADD_ORE_WIDGET = 219;
     private static final int ADD_ORE_COMPONENT = 0;
 
-    private static final int ORES_FULL_WIDGET = 229;
-    private static final int ORES_FULL_COMPONENT = 1;
+    private static final int BELT_BLOCKED_WIDGET = 229;
+    private static final int BELT_BLOCKED_COMPONENT = 1;
 
     private static final int BAR_WIDGET = 28;
     private static final int BAR_CLOSE_COMPONENT = 118;
@@ -97,9 +102,21 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
 
     private static final int BAR_DISPENSER_ID = 9096;
     private static final Tile DISPENSER_TILE = new Tile(1940, 4964, 0);
-    private static final Area DISPENSER_AREA = new Area(new Tile(1939, 4962, 0), new Tile(1941, 4965, 0));
+    private static final Area DISPENSER_AREA = new Area(new Tile(1939, 4962, 0), new Tile(1942, 4965, 0));
 
+    private static final int COIN_ID = 995;
+    private static final int FOREMAN_ID = 2923;
+    private static final int PAYMENT_COST = 2500;
+    private static final int PAYMENT_WIDGET = 219;
+    private static final int PAYMENT_COMPONENT = 0;
+    private static final int PAYMENT_COMPONENT2 = 1;
+    private static final long PAYMENT_INTERVAL = 10000 * 60 * 1000; // 10 min
+
+    private static final int WITHDRAW_FAIL_THRESHOLD = 5;
     private static final long IDLE_TIME_THRESHOLD = 1000 * 60 * 2;
+
+    private static final int REPORT_WIDGET = 553;
+    private static final int REPORT_CLOSE_COMPONENT = 11;
 
     private static final int GUI_X = 250;
     private static final int GUI_Y = 339;
@@ -113,8 +130,9 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
 
     private long startTime;
     private int startXP;
-    private int barsSmelted = 0;
-    private static String version = "1.3d";
+    private int barsSmelted;
+    private int paidCount;
+    private static String version = "1.4";
 
     private BarInfo barType;
 
@@ -131,8 +149,15 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
     private int energyThreshold;
     private int fullLoad;
 
+    private boolean paid; // dependable after first payment
+    private Timer foremanTimer;
+    private boolean foremanTimerRunning;
+
     private boolean waitingForBars;
     private Timer idleTimer;
+    private int withdrawFailCount;
+
+    private boolean scriptInit;
 
     /********************************
      ********************************/
@@ -156,25 +181,7 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
         graphics.drawString("Bars ready (expected): " + Integer.toString(barCount) + " (" + Integer.toString(expectedBarCount) + ")", x, y += 15);
     }
 
-    public void start() {
-        form = new BlastFurnaceForm();
-        form.setLocationRelativeTo(Frame.getFrames()[0]);
-
-        startXP = ctx.skills.experience(Constants.SKILLS_SMITHING);
-        startTime = System.currentTimeMillis();
-
-        while (!form.start) {
-            Condition.sleep(500);
-        }
-        barType = form.getBarType();
-
-        if (barType == null || !(barType.getBarType() == BAR.MITHRIL || barType.getBarType() == BAR.ADAMANTITE || barType.getBarType() == BAR.STEEL)) {
-            log.info("Invalid bar type");
-            log.info(barType.toString());
-            ctx.controller.stop();
-            return;
-        }
-
+    private void initialize() {
         ctx.camera.pitch(true);
         ctx.game.tab(Game.Tab.INVENTORY);
 
@@ -189,8 +196,46 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
         coalRemaining = -1;
         expectedCoalCount = coalCount;
         expectedPrimaryCount = primaryCount;
+        withdrawFailCount = 0;
 
-        fullLoad = 28;
+        if(ctx.skills.level(Constants.SKILLS_SMITHING) < 60) {
+            fullLoad = 27;
+            paid = true;
+            foremanTimerRunning = false;
+        }
+        else fullLoad = 28;
+
+        scriptInit = true;
+    }
+
+    public void start() {
+        form = new BlastFurnaceForm();
+        form.setLocationRelativeTo(Frame.getFrames()[0]);
+
+        startXP = ctx.skills.experience(Constants.SKILLS_SMITHING);
+        startTime = System.currentTimeMillis();
+        barsSmelted = 0;
+        paidCount = 0;
+
+        while (!form.start) {
+            Condition.sleep(500);
+        }
+        barType = form.getBarType();
+
+        if (barType == null
+                || !(barType.getBarType() == BAR.MITHRIL
+                || barType.getBarType() == BAR.ADAMANTITE
+                || barType.getBarType() == BAR.RUNITE
+                || barType.getBarType() == BAR.STEEL)) {
+            log.info("Invalid bar type");
+            log.info(barType.toString());
+            ctx.controller.stop();
+            return;
+        }
+
+        if(!ctx.game.loggedIn()) {
+            scriptInit = false;
+        }
     }
 
     public void stop() {
@@ -205,6 +250,7 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
         log.info("Time run: " + totalTime);
         log.info("Gained XP: " + Integer.toString(stopXP - startXP));
         log.info("Smelted " + barsSmelted + " bars");
+        log.info("Paid " + paidCount + " times");
 
         //https://www.powerbot.org/community/topic/1228458-saving-script-screenshots/
         final int width = ctx.game.dimensions().width, height = ctx.game.dimensions().height;
@@ -231,21 +277,42 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
             log.info("Failed to handle dialogue");
             return;
         }
+        handleReportWidget();
 
         State s = state();
 
         switch (s) {
+            case PAY_FOREMAN: {
+                if(payForeman()) {
+                    paidCount++;
+                    paid = true;
+                    foremanTimer = new Timer();
+                    foremanTimer.schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            foremanTimerRunning = false;
+                            paid = false;
+                        }
+                    }, PAYMENT_INTERVAL);
+                    foremanTimerRunning = true;
+                }
+            }
+            break;
+
             case WITHDRAW: {
                 if (openBank()) {
                     log.info("Opened bank");
                     if (withdrawOres() < fullLoad) {
                         if (primaryRemaining < fullLoad || coalRemaining < fullLoad) {    // change this for bronze/gold/silver/iron
                             log.info("Expected " + fullLoad + " ores, ran out of ores");
-                            ctx.controller.stop();
+                            withdrawFailCount++;
+                            log.info("Attempted " + withdrawFailCount + " times");
+                            if(withdrawFailCount >= WITHDRAW_FAIL_THRESHOLD)
+                                ctx.controller.stop();
                         }
                     }
                     else {
-                        System.out.println(ctx.inventory.select().count());
+                        withdrawFailCount = 0;
                     }
                 }
             }
@@ -267,12 +334,15 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
             break;
 
             case PUT_ORE: {
-                String recentOre = ctx.inventory.select().poll().name();
+                String recentOre = ctx.inventory.select().id(ORE_IDs).poll().name();
                 if (moveToConveyorBelt()) {
                     if (putOres()) {
                         if (recentOre.compareTo("Coal") == 0)
                             expectedCoalCount += fullLoad;
-                        else if (recentOre.compareTo("Mithril ore") == 0)
+                        else if (recentOre.compareTo("Iron ore") == 0 ||
+                                recentOre.compareTo("Mithril ore") == 0 ||
+                                recentOre.compareTo("Adamantite ore") == 0 ||
+                                recentOre.compareTo("Runite ore") == 0)
                             expectedPrimaryCount += fullLoad;
                     }
                 }
@@ -282,12 +352,12 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
             case DEPOSIT: {
                 if (openBank()) {
                     log.info("Opened bank");
-                    ctx.bank.depositInventory();
+                    ctx.bank.depositAllExcept(COIN_ID);
 
                     Condition.wait(new Callable<Boolean>() {
                         @Override
                         public Boolean call() throws Exception {
-                            return ctx.inventory.select().count() == 0;
+                            return ctx.inventory.select().count() <= 1; //
                         }
                     }, 250, 4);
                 }
@@ -316,6 +386,10 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
 
     private State state() {
 
+        if(!scriptInit && ctx.game.loggedIn()) {
+            initialize();
+        }
+
         if (form.isVisible()) {
             log.info("----INVALID----");
             return State.INVALID;
@@ -336,6 +410,11 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
         if (expectedBarCount > 0 || barCount > 0) {
             log.info("----COLLECT----");
             return State.COLLECT;
+        }
+
+        if(!paid) {
+            log.info("----PAY_FOREMAN----");
+            return State.PAY_FOREMAN;
         }
 
         if (ctx.inventory.select().id(ORE_IDs).count() == 0 &&
@@ -445,13 +524,13 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
      */
     private int withdrawOres() {
         if (ctx.inventory.select().count() > 0) {
-            ctx.bank.depositInventory();
+            ctx.bank.depositAllExcept(COIN_ID);
             if (!Condition.wait(new Callable<Boolean>() {
                 @Override
                 public Boolean call() throws Exception {
-                    return ctx.inventory.count() == 0;
+                    return ctx.inventory.count() <= 1;
                 }
-            }, 250, 4))
+            }, 250, 4)) // better: check if remaining item is coin
                 return -1;
         }
 
@@ -510,13 +589,15 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
                 }
             }, 250, 8);
 
+            log.info("debug line 580");
             return false;
         } else if (ctx.objects.select(6).id(BELT_ID).viewable().peek().valid()) {
             return true;
         } else {
             ctx.camera.pitch(true);
             ctx.camera.turnTo(BELT_TILE, 10);
-            return BELT_AREA.getRandomTile().matrix(ctx).click("Walk here");
+            BELT_AREA.getRandomTile().matrix(ctx).click("Walk here");
+            return false;
         }
     }
 
@@ -530,7 +611,16 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
     private boolean putOres() {
         final Component putOreWidget = ctx.widgets.component(ADD_ORE_WIDGET, ADD_ORE_COMPONENT).component(1);
 
-        if (!putOreWidget.valid()) {
+        if(ctx.widgets.component(BELT_BLOCKED_WIDGET, BELT_BLOCKED_COMPONENT).visible()) {
+            if(ctx.skills.level(Constants.SKILLS_SMITHING) < 60 && foremanTimerRunning == false) {
+                paid = false;
+            }
+            else {
+                log.info("Furnace full; take bars");
+                expectedPrimaryCount = fullLoad;
+            }
+        }
+        else if (!putOreWidget.valid()) {
             if (Condition.wait(new Callable<Boolean>() { // wait until walking
                 @Override
                 public Boolean call() throws Exception {
@@ -538,7 +628,7 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
                 }
             }, 250, 4)) { // if not walking
                 // fails if a random is on top of conveyor
-                //ctx.objects.peek().bounds(BELT_BOUNDS);
+                ctx.objects.peek().bounds(BELT_BOUNDS);
                 if (ctx.objects.peek().click("Put-ore-on", Game.Crosshair.ACTION) || ctx.objects.peek().interact(false, "Put-ore-on")) {
                     log.info("Click conveyor belt");
                     Condition.wait(new Callable<Boolean>() {
@@ -546,17 +636,14 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
                         public Boolean call() throws Exception {
                             return putOreWidget.valid();
                         }
-                    }, 250, 10);
+                    }, 250, 10); // debug here
                 } else {
                     ctx.camera.turnTo(ctx.objects.peek(), 20); // redundant?
                     log.info("No conveyor belt");
                 }
             }
         }
-        else if(ctx.widgets.component(ORES_FULL_WIDGET, ORES_FULL_COMPONENT).visible()) {
-            log.info("Furnace full; take bars");
-            expectedPrimaryCount = fullLoad;
-        }
+
         else {
             log.info("Add ore to furnace");
 
@@ -683,6 +770,44 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
         return false;
     }
 
+
+    private boolean payForeman() {
+        if(ctx.bank.opened())
+            ctx.bank.close();
+        if(ctx.inventory.select().id(COIN_ID).peek().stackSize() >= 2500) {
+            if(ctx.npcs.select().id(FOREMAN_ID).peek().inViewport()) {
+                ctx.npcs.select().poll().interact("Pay");
+            }
+            else {
+                ctx.movement.step(ctx.npcs.peek());
+                Condition.wait(new Callable<Boolean>() {
+                    @Override
+                    public Boolean call() throws Exception {
+                        return ctx.npcs.poll().tile().distanceTo(ctx.players.local()) < 3;
+                    }
+                }, 250, 4);
+                return false;
+            }
+            return Condition.wait(new Callable<Boolean>() {
+                @Override
+                public Boolean call() throws Exception {
+                    return ctx.widgets.component(PAYMENT_WIDGET, PAYMENT_COMPONENT).component(PAYMENT_COMPONENT2).click();
+                }
+            }, 250, 4);
+        }
+        else {
+            log.info("Going to withdraw coins");
+            if(openBank()) {
+                if(ctx.inventory.select().count() == 28) {
+                    ctx.bank.depositInventory();
+                }
+                ctx.bank.withdraw(COIN_ID, Bank.Amount.ALL); // all but one?
+            }
+        }
+        return false;
+    }
+
+
     private void resetIdleTimer() {
         waitingForBars = false;
         log.info("Cancel idle timer");
@@ -707,6 +832,10 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
             }, 250, 4);
         }
         return true;
+    }
+
+    private void handleReportWidget() {
+
     }
 
     /**
