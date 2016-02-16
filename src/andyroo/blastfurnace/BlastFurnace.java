@@ -19,19 +19,15 @@ import java.util.concurrent.Callable;
 
 @Script.Manifest(
         name = "Blast Furnace", properties = "author=andyroo; topic=1299183; client=4;",
-        description = "v1.4 - Blast furnace (Steel, Mithril, Adamantite only)"
+        description = "v1.4a - Blast furnace (Steel, Mithril, Adamantite only)"
 )
 
 /**
  * Changelog
  *
- * v 1.4
- * pays foreman
- * keeps track of how many times foreman was paid
- * fixed a bug where expectedPrimary did not update
- * now initializes script properly when starting it from login screen
- * reduced bounds of conveyor belt
- * handles accidental reports
+ * v 1.4a
+ * fixed a bug with foreman payment after 10 minutes
+ *
  */
 
 public class BlastFurnace extends PollingScript<ClientContext> implements PaintListener {
@@ -110,7 +106,7 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
     private static final int PAYMENT_WIDGET = 219;
     private static final int PAYMENT_COMPONENT = 0;
     private static final int PAYMENT_COMPONENT2 = 1;
-    private static final long PAYMENT_INTERVAL = 10000 * 60 * 1000; // 10 min
+    private static final long PAYMENT_INTERVAL = 10 * 60 * 1000; // 10 min
 
     private static final int WITHDRAW_FAIL_THRESHOLD = 5;
     private static final long IDLE_TIME_THRESHOLD = 1000 * 60 * 2;
@@ -132,7 +128,7 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
     private int startXP;
     private int barsSmelted;
     private int paidCount;
-    private static String version = "1.4";
+    private static String version = "1.4a";
 
     private BarInfo barType;
 
@@ -284,12 +280,14 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
         switch (s) {
             case PAY_FOREMAN: {
                 if(payForeman()) {
+                    log.info("Paid foreman");
                     paidCount++;
                     paid = true;
                     foremanTimer = new Timer();
                     foremanTimer.schedule(new TimerTask() {
                         @Override
                         public void run() {
+                            log.info("10 min timer for foreman");
                             foremanTimerRunning = false;
                             paid = false;
                         }
