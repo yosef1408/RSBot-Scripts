@@ -28,7 +28,7 @@ import java.util.concurrent.Callable;
  * v 1.4c
  * fixed attempting to pay foreman when lvl 60+
  * fixed a bug while collecting that should be handled by idle timer
- *
+ * added a check for coins subtracted to confirm payment
  */
 
 public class BlastFurnace extends PollingScript<ClientContext> implements PaintListener {
@@ -790,12 +790,22 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
                 }, 250, 4);
                 return false;
             }
-            return Condition.wait(new Callable<Boolean>() {
+
+            final int beforeCoins = ctx.inventory.poll().stackSize();
+            if(Condition.wait(new Callable<Boolean>() {
                 @Override
                 public Boolean call() throws Exception {
                     return ctx.widgets.component(PAYMENT_WIDGET, PAYMENT_COMPONENT).component(PAYMENT_COMPONENT2).click();
                 }
-            }, 250, 4);
+            }, 250, 4)) {
+                return Condition.wait(new Callable<Boolean>() {
+                    @Override
+                    public Boolean call() throws Exception {
+                        //log.info("Coins not subtracted");
+                        return ctx.inventory.select().id(COIN_ID).poll().stackSize() == beforeCoins - PAYMENT_COST;
+                    }
+                }, 250, 4);
+            }
         }
         else {
             log.info("Going to withdraw coins");
