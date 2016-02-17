@@ -27,6 +27,7 @@ import java.util.concurrent.Callable;
  *
  * v 1.4c
  * fixed attempting to pay foreman when lvl 60+
+ * fixed a bug while collecting that should be handled by idle timer
  *
  */
 
@@ -728,7 +729,7 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
         } else {  // wait for bars to be ready
 
             // start a timer to check whether still idle
-            if (!waitingForBars && primaryCount() < fullLoad && coalCount() < fullLoad * barType.getRatio() && barCount() < fullLoad) {
+            if (!waitingForBars && (primaryCount() < fullLoad || coalCount() < fullLoad * barType.getRatio()) && barCount() < fullLoad) {
                 log.info("Anti-idle timer start");
                 waitingForBars = true;
                 idleTimer = new Timer();
