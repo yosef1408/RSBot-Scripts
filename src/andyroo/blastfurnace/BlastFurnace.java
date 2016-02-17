@@ -19,14 +19,16 @@ import java.util.concurrent.Callable;
 
 @Script.Manifest(
         name = "Blast Furnace", properties = "author=andyroo; topic=1299183; client=4;",
-        description = "v1.4a - Blast furnace (Steel, Mithril, Adamantite only)"
+        description = "v1.4b - Blast furnace (Steel, Mithril, Adamantite only)"
 )
 
 /**
  * Changelog
  *
- * v 1.4a
- * fixed a bug with foreman payment after 10 minutes
+ * v 1.4b
+ * removed black background and change text color to black on gui
+ * implemented report widget handler for real this time
+ * fixed a bug where script failed to click foreman
  *
  */
 
@@ -128,7 +130,7 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
     private int startXP;
     private int barsSmelted;
     private int paidCount;
-    private static String version = "1.4a";
+    private static String version = "1.4b";
 
     private BarInfo barType;
 
@@ -163,9 +165,9 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
     public void repaint(Graphics graphics) {
         int x = GUI_X;
         int y = GUI_Y;
+//        graphics.setColor(new Color(0, 0, 0));
+//        graphics.fillRect(x, y, GUI_WIDTH - GUI_X, GUI_HEIGHT);
         graphics.setColor(new Color(0, 0, 0));
-        graphics.fillRect(x, y, GUI_WIDTH - GUI_X, GUI_HEIGHT);
-        graphics.setColor(new Color(255, 255, 255));
         x += 10;
         graphics.drawString("Version: " + version, x, y += 15);
         graphics.drawString(getTimeElapsed(System.currentTimeMillis() - startTime), x, y += 15);
@@ -587,7 +589,7 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
                 }
             }, 250, 8);
 
-            log.info("debug line 580");
+            log.info("debug line 592");
             return false;
         } else if (ctx.objects.select(6).id(BELT_ID).viewable().peek().valid()) {
             return true;
@@ -772,9 +774,10 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
     private boolean payForeman() {
         if(ctx.bank.opened())
             ctx.bank.close();
-        if(ctx.inventory.select().id(COIN_ID).peek().stackSize() >= 2500) {
+        if(ctx.inventory.select().id(COIN_ID).peek().stackSize() >= PAYMENT_COST) {
             if(ctx.npcs.select().id(FOREMAN_ID).peek().inViewport()) {
-                ctx.npcs.select().poll().interact("Pay");
+                log.info("Click on foreman");
+                ctx.npcs.poll().interact("Pay");
             }
             else {
                 ctx.movement.step(ctx.npcs.peek());
@@ -833,7 +836,7 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
     }
 
     private void handleReportWidget() {
-
+        ctx.widgets.component(REPORT_WIDGET, REPORT_CLOSE_COMPONENT).click();
     }
 
     /**
