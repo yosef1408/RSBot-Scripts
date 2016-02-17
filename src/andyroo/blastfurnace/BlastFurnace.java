@@ -19,16 +19,14 @@ import java.util.concurrent.Callable;
 
 @Script.Manifest(
         name = "Blast Furnace", properties = "author=andyroo; topic=1299183; client=4;",
-        description = "v1.4b - Blast furnace (Steel, Mithril, Adamantite only)"
+        description = "v1.4c - Blast furnace (Steel, Mithril, Adamantite only)"
 )
 
 /**
  * Changelog
  *
- * v 1.4b
- * removed black background and change text color to black on gui
- * implemented report widget handler for real this time
- * fixed a bug where script failed to click foreman
+ * v 1.4c
+ * fixed attempting to pay foreman when lvl 60+
  *
  */
 
@@ -131,7 +129,7 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
     private int startXP;
     private int barsSmelted;
     private int paidCount;
-    private static String version = "1.4b";
+    private static String version = "1.4c";
 
     private BarInfo barType;
 
@@ -199,10 +197,10 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
 
         if(ctx.skills.level(Constants.SKILLS_SMITHING) < 60) {
             fullLoad = 27;
-            paid = true;
             foremanTimerRunning = false;
         }
         else fullLoad = 28;
+        paid = true;
 
         scriptInit = true;
     }
