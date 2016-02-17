@@ -114,6 +114,7 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
     private static final long IDLE_TIME_THRESHOLD = 1000 * 60 * 2;
 
     private static final int REPORT_WIDGET = 553;
+    private static final int REPORT_COMPONENT = 1;
     private static final int REPORT_CLOSE_COMPONENT = 11;
 
     private static final int GUI_X = 250;
@@ -275,6 +276,7 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
             log.info("Failed to handle dialogue");
             return;
         }
+
         handleReportWidget();
 
         State s = state();
@@ -836,7 +838,7 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
     }
 
     private void handleReportWidget() {
-        ctx.widgets.component(REPORT_WIDGET, REPORT_CLOSE_COMPONENT).click();
+        ctx.widgets.component(REPORT_WIDGET, REPORT_COMPONENT).component(REPORT_CLOSE_COMPONENT).click();
     }
 
     /**
