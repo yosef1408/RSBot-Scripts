@@ -29,6 +29,8 @@ import java.util.concurrent.Callable;
  * fixed attempting to pay foreman when lvl 60+
  * fixed a bug while collecting that should be handled by idle timer
  * added a check for coins subtracted to confirm payment
+ * now checks the exact amount of bars collected (assumed full load before)
+ *
  */
 
 public class BlastFurnace extends PollingScript<ClientContext> implements PaintListener {
@@ -321,12 +323,13 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
 
             case COLLECT: {
                 moveToDispenser();
-                if (collectBars()) {
+                int numCollected = collectBars();
+                if (numCollected > 0) {
                     log.info("Took bars");
 
                     if (waitingForBars)
                         resetIdleTimer();
-                    barsSmelted += expectedBarCount;
+                    barsSmelted += numCollected;
                     expectedCoalCount = coalCount();
                     expectedPrimaryCount = primaryCount();
                     expectedBarCount = barCount();
@@ -418,13 +421,13 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
             return State.PAY_FOREMAN;
         }
 
-        if (ctx.inventory.select().id(ORE_IDs).count() == 0 &&
+        if (ctx.inventory.select().id(ORE_IDs).count() < fullLoad &&
                 (expectedCoalCount < fullLoad * barType.getRatio() || expectedPrimaryCount < fullLoad)) {
             log.info("----WITHDRAW----");
             return State.WITHDRAW;
         }
 
-        if (ctx.inventory.select().id(ORE_IDs).count() > 0) {
+        if (ctx.inventory.select().id(ORE_IDs).count() >= fullLoad) {
             log.info("----PUT_ORE----");
             return State.PUT_ORE;
         }
@@ -700,22 +703,24 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
     /**
      * @return
      */
-    private boolean collectBars() {
+    private int collectBars() {
         final GameObject barDispenser = ctx.objects.select(10).id(BAR_DISPENSER_ID).peek();
         final Component barWidget = ctx.widgets.component(BAR_WIDGET, barType.getWidgetComponent());
 
         if (barDispenser.valid() && barDispenser.inViewport()) {
             if (barWidget.visible()) {
                 log.info("Bar widget");
+                final int prevBarCount = barCount();
 
                 barWidget.click();
 
-                return Condition.wait(new Callable<Boolean>() {
+                if(Condition.wait(new Callable<Boolean>() {
                     @Override
                     public Boolean call() throws Exception {
-                        return barCount() == 0 && ctx.inventory.select().id(BAR_IDs).count() == fullLoad;
+                        return barCount() == 0 && ctx.inventory.select().id(BAR_IDs).count() == prevBarCount;
                     }
-                }, 250, 4);
+                }, 250, 4) == true)
+                    return prevBarCount;
             } else if (barDispenser.click("Take", Game.Crosshair.ACTION) || barDispenser.interact(false, "Take")) {
                 log.info("Use dispenser");
 
@@ -768,7 +773,7 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
             }, 500, 8);
         }
 
-        return false;
+        return 0;
     }
 
 
