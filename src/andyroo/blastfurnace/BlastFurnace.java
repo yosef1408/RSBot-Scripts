@@ -19,16 +19,17 @@ import java.util.concurrent.Callable;
 
 @Script.Manifest(
         name = "Blast Furnace", properties = "author=andyroo; topic=1299183; client=4;",
-        description = "v1.4b - Blast furnace (Steel, Mithril, Adamantite only)"
+        description = "v1.4c - Blast furnace (Steel, Mithril, Adamantite only)"
 )
 
 /**
  * Changelog
  *
- * v 1.4b
- * removed black background and change text color to black on gui
- * implemented report widget handler for real this time
- * fixed a bug where script failed to click foreman
+ * v 1.4c
+ * fixed attempting to pay foreman when lvl 60+
+ * fixed a bug while collecting that should be handled by idle timer
+ * added a check for coins subtracted to confirm payment
+ * now checks the exact amount of bars collected (assumed full load before)
  *
  */
 
@@ -131,7 +132,7 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
     private int startXP;
     private int barsSmelted;
     private int paidCount;
-    private static String version = "1.4b";
+    private static String version = "1.4c";
 
     private BarInfo barType;
 
@@ -199,10 +200,10 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
 
         if(ctx.skills.level(Constants.SKILLS_SMITHING) < 60) {
             fullLoad = 27;
-            paid = true;
             foremanTimerRunning = false;
         }
         else fullLoad = 28;
+        paid = true;
 
         scriptInit = true;
     }
@@ -322,12 +323,13 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
 
             case COLLECT: {
                 moveToDispenser();
-                if (collectBars()) {
+                int numCollected = collectBars();
+                if (numCollected > 0) {
                     log.info("Took bars");
 
                     if (waitingForBars)
                         resetIdleTimer();
-                    barsSmelted += expectedBarCount;
+                    barsSmelted += numCollected;
                     expectedCoalCount = coalCount();
                     expectedPrimaryCount = primaryCount();
                     expectedBarCount = barCount();
@@ -419,13 +421,13 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
             return State.PAY_FOREMAN;
         }
 
-        if (ctx.inventory.select().id(ORE_IDs).count() == 0 &&
+        if (ctx.inventory.select().id(ORE_IDs).count() < fullLoad &&
                 (expectedCoalCount < fullLoad * barType.getRatio() || expectedPrimaryCount < fullLoad)) {
             log.info("----WITHDRAW----");
             return State.WITHDRAW;
         }
 
-        if (ctx.inventory.select().id(ORE_IDs).count() > 0) {
+        if (ctx.inventory.select().id(ORE_IDs).count() >= fullLoad) {
             log.info("----PUT_ORE----");
             return State.PUT_ORE;
         }
@@ -701,22 +703,24 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
     /**
      * @return
      */
-    private boolean collectBars() {
+    private int collectBars() {
         final GameObject barDispenser = ctx.objects.select(10).id(BAR_DISPENSER_ID).peek();
         final Component barWidget = ctx.widgets.component(BAR_WIDGET, barType.getWidgetComponent());
 
         if (barDispenser.valid() && barDispenser.inViewport()) {
             if (barWidget.visible()) {
                 log.info("Bar widget");
+                final int prevBarCount = barCount();
 
                 barWidget.click();
 
-                return Condition.wait(new Callable<Boolean>() {
+                if(Condition.wait(new Callable<Boolean>() {
                     @Override
                     public Boolean call() throws Exception {
-                        return barCount() == 0 && ctx.inventory.select().id(BAR_IDs).count() == fullLoad;
+                        return barCount() == 0 && ctx.inventory.select().id(BAR_IDs).count() == prevBarCount;
                     }
-                }, 250, 4);
+                }, 250, 4) == true)
+                    return prevBarCount;
             } else if (barDispenser.click("Take", Game.Crosshair.ACTION) || barDispenser.interact(false, "Take")) {
                 log.info("Use dispenser");
 
@@ -730,7 +734,7 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
         } else {  // wait for bars to be ready
 
             // start a timer to check whether still idle
-            if (!waitingForBars && primaryCount() < fullLoad && coalCount() < fullLoad * barType.getRatio() && barCount() < fullLoad) {
+            if (!waitingForBars && (primaryCount() < fullLoad || coalCount() < fullLoad * barType.getRatio()) && barCount() < fullLoad) {
                 log.info("Anti-idle timer start");
                 waitingForBars = true;
                 idleTimer = new Timer();
@@ -769,7 +773,7 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
             }, 500, 8);
         }
 
-        return false;
+        return 0;
     }
 
 
@@ -791,12 +795,22 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
                 }, 250, 4);
                 return false;
             }
-            return Condition.wait(new Callable<Boolean>() {
+
+            final int beforeCoins = ctx.inventory.poll().stackSize();
+            if(Condition.wait(new Callable<Boolean>() {
                 @Override
                 public Boolean call() throws Exception {
                     return ctx.widgets.component(PAYMENT_WIDGET, PAYMENT_COMPONENT).component(PAYMENT_COMPONENT2).click();
                 }
-            }, 250, 4);
+            }, 250, 4)) {
+                return Condition.wait(new Callable<Boolean>() {
+                    @Override
+                    public Boolean call() throws Exception {
+                        //log.info("Coins not subtracted");
+                        return ctx.inventory.select().id(COIN_ID).poll().stackSize() == beforeCoins - PAYMENT_COST;
+                    }
+                }, 250, 4);
+            }
         }
         else {
             log.info("Going to withdraw coins");
