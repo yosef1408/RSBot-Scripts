@@ -19,21 +19,19 @@ import java.util.concurrent.Callable;
 
 @Script.Manifest(
         name = "Blast Furnace", properties = "author=andyroo; topic=1299183; client=4;",
-        description = "v1.4c - Blast furnace (Steel, Mithril, Adamantite only)"
+        description = "v1.4d - Blast furnace (Steel, Mithril, Adamantite only)"
 )
 
 /**
  * Changelog
  *
- * v 1.4c
- * fixed attempting to pay foreman when lvl 60+
- * fixed a bug while collecting that should be handled by idle timer
- * added a check for coins subtracted to confirm payment
- * now checks the exact amount of bars collected (assumed full load before)
+ * v 1.4d
+ * fixed a bug that repeatedly opens bank when attempting withdraw coins
  *
  */
 
 public class BlastFurnace extends PollingScript<ClientContext> implements PaintListener {
+    private static String version = "1.4d";
 
     /********************************
      * CONSTANTS
@@ -132,7 +130,6 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
     private int startXP;
     private int barsSmelted;
     private int paidCount;
-    private static String version = "1.4c";
 
     private BarInfo barType;
 
@@ -593,7 +590,7 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
                 }
             }, 250, 8);
 
-            log.info("debug line 592");
+            log.info("debug line 596");
             return false;
         } else if (ctx.objects.select(6).id(BELT_ID).viewable().peek().valid()) {
             return true;
@@ -778,10 +775,11 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
 
 
     private boolean payForeman() {
-        if(ctx.bank.opened())
-            ctx.bank.close();
         if(ctx.inventory.select().id(COIN_ID).peek().stackSize() >= PAYMENT_COST) {
             if(ctx.npcs.select().id(FOREMAN_ID).peek().inViewport()) {
+                if(ctx.bank.opened())
+                    ctx.bank.close();
+
                 log.info("Click on foreman");
                 ctx.npcs.poll().interact("Pay");
             }
@@ -815,7 +813,9 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
         else {
             log.info("Going to withdraw coins");
             if(openBank()) {
+                System.out.println(ctx.inventory.select().count());
                 if(ctx.inventory.select().count() == 28) {
+                    log.info("Deposit");
                     ctx.bank.depositInventory();
                 }
                 ctx.bank.withdraw(COIN_ID, Bank.Amount.ALL); // all but one?
