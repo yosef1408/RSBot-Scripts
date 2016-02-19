@@ -21,13 +21,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
-import java.text.DecimalFormat;
-import java.util.concurrent.Callable;
 
 import org.powerbot.script.*;
-import org.powerbot.script.rt6.*;
 import org.powerbot.script.rt6.ClientContext;
-import org.powerbot.script.rt6.GeItem;
 
 
 @Script.Manifest(name = "Autonomous Herblore", description = "Makes potions or cleans herbs.", properties =
@@ -66,6 +62,7 @@ public class AutonomousHerblore extends PollingScript<ClientContext> implements 
     private int potionPrice = 0;
     private int ingredientsCost = 0;
     private int ingredientSavings = 0;
+    private int vialCount = 0;
 
     private double profitHr = 0;
 
@@ -85,11 +82,29 @@ public class AutonomousHerblore extends PollingScript<ClientContext> implements 
 
         switch (state) {
 
-            case BANKING: {
+            case ANTIBAN: {
+                ctx.camera.turnTo(ctx.npcs.select().id(16014).poll());
+                Condition.sleep(20000);
+                break;
+            }
 
+            case BANKING: {
+                ctx.camera.turnTo(ctx.bank.nearest());
                 if (!ctx.bank.opened()){
                     ctx.bank.open();
                     Condition.sleep(1000);
+                }
+                vialCount = ctx.bank.select().id(227).count();
+                if (rand.nextInt(1, 2) == 1){
+                    if (ctx.widgets.component(762, 43).click()) {
+                        cleaned = false;
+                        made = false;
+                    }
+                }else {
+                    if (ctx.input.sendln("1")) {
+                        cleaned = false;
+                        made = false;
+                    }
                 }
                 if (ctx.widgets.component(762, 43).click()) {
                     cleaned = false;
@@ -99,6 +114,7 @@ public class AutonomousHerblore extends PollingScript<ClientContext> implements 
                 break;
             }
             case MAKING: {
+                ctx.camera.turnTo(ctx.bank.nearest());
 
                 firstHalfID = ctx.backpack.itemAt(0).id();
                 secondHalfID = ctx.backpack.itemAt(27).id();
@@ -112,6 +128,7 @@ public class AutonomousHerblore extends PollingScript<ClientContext> implements 
                 }
 
                 if (ctx.objects.select(10).id(89770).poll().inViewport()){
+                    ctx.camera.turnTo(ctx.objects.select(10).id(89770).poll());
                     ctx.objects.select().id(89770).peek().interact("Mix Potions");
                 }
                 else {
@@ -157,13 +174,20 @@ public class AutonomousHerblore extends PollingScript<ClientContext> implements 
             }
 
             case GRABBING: {
-
+                /* Working on this.
+                if (ctx.objects.select(10).id(89770).poll().inViewport()){
+                    if (ctx.objects.select().id(89770).peek().interact("Take Vials")){
+                        ctx.input.sendln("27");
+                    }
+                }
                 break;
+                */
             }
 
             case STOP: {
                 ctx.controller.stop();
             }
+
         }
     }
 
@@ -184,6 +208,10 @@ public class AutonomousHerblore extends PollingScript<ClientContext> implements 
             System.out.println("Waiting.");
             return State.WAITING;
         }
+        else if(rand.nextInt(0, 1000) > 990){
+            System.out.println("Antiban");
+            return State.ANTIBAN;
+        }
         else if (!made && ctx.players.local().animation() == -1 && lastItemCount == 14 && firstItemCount == 14){
             System.out.println("Making");
             return State.MAKING;
@@ -195,17 +223,18 @@ public class AutonomousHerblore extends PollingScript<ClientContext> implements 
         }
         else if (enoughSupplies == true && ctx.backpack.select().id(secondHalfID).count() == 0 || enoughSupplies == true && ctx.backpack
                 .select().id
-                (grimyID).count() == 0){
+                (grimyID).count() == 0 || ctx.backpack.select().id(227).count() == 27){
             System.out.println("Banking");
             return State.BANKING;
-        } else {
+        }
+        else{
             System.out.println("Stopping.");
             return State.STOP;
         }
     }
 
     private enum State {
-        BANKING, MAKING, STOP, WAITING, CLEANING, GRABBING
+        BANKING, MAKING, STOP, WAITING, CLEANING, GRABBING, ANTIBAN
     }
 
     @Override
@@ -226,13 +255,13 @@ public class AutonomousHerblore extends PollingScript<ClientContext> implements 
                 }
             }
         }
-        if (e.source().isEmpty() && msg.contains("you mix such a ")){
+        else if (e.source().isEmpty() && msg.contains("you mix such a ")){
             extraPots++;
         }
-        if (e.source().isEmpty() && msg.contains("save an ingredient")){
+        else if (e.source().isEmpty() && msg.contains("save an ingredient")){
             savedIngredient++;
         }
-        if (e.source().isEmpty() && msg.contains("you clean")){
+        else if (e.source().isEmpty() && msg.contains("you clean")){
             cleanedHerbs++;
             cleanID = ctx.backpack.itemAt(0).id();
             if (cleanedHerbs < 3){
@@ -246,7 +275,7 @@ public class AutonomousHerblore extends PollingScript<ClientContext> implements 
                 }
             }
         }
-        if (e.source().isEmpty() && msg.contains("item could not be found")){
+        else if (e.source().isEmpty() && msg.contains("item could not be found")){
             enoughSupplies = false;
         }
         totalPots = potsMade + extraPots;
