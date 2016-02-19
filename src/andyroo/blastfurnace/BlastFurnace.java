@@ -522,6 +522,10 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
      *
      * @return number of ores withdrawn, -1 if failed
      */
+
+    /*
+    IMPROVE THIS
+     */
     private int withdrawOres() {
         if (ctx.inventory.select().count() > 0) {
             ctx.bank.depositAllExcept(COIN_ID);
