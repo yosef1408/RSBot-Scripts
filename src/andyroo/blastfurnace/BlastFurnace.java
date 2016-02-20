@@ -18,21 +18,19 @@ import java.util.concurrent.Callable;
 
 @Script.Manifest(
         name = "Blast Furnace", properties = "author=andyroo; topic=1299183; client=4;",
-        description = "v1.4d - Blast furnace (Steel, Mithril, Adamantite only)"
+        description = "v1.4e - Blast furnace (Steel, Mithril, Adamantite only)"
 )
 
 /**
  * Changelog
  *
- * v 1.4d
- * fixed a bug that repeatedly opens bank when attempting withdraw coins
- * removed useless setBarType function
- * code formatting
+ * v 1.4e
+ * fixed screenshot at script stop
  *
  */
 
 public class BlastFurnace extends PollingScript<ClientContext> implements PaintListener {
-    private static String version = "1.4d";
+    private static String version = "1.4e";
 
     /********************************
      * CONSTANTS
@@ -165,7 +163,6 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
     public void repaint(Graphics graphics) {
         int x = GUI_X;
         int y = GUI_Y;
-//        graphics.setColor(new Color(0, 0, 0));
 //        graphics.fillRect(x, y, GUI_WIDTH - GUI_X, GUI_HEIGHT);
         graphics.setColor(new Color(0, 0, 0));
         x += 10;
@@ -177,6 +174,7 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
         graphics.drawString("Coal in furnace (expected): " + Integer.toString(coalCount) + " (" + Integer.toString(expectedCoalCount) + ")", x, y += 15);
         graphics.drawString("Primary in furnace (expected): " + Integer.toString(primaryCount) + " (" + Integer.toString(expectedPrimaryCount) + ")", x, y += 15);
         graphics.drawString("Bars ready (expected): " + Integer.toString(barCount) + " (" + Integer.toString(expectedBarCount) + ")", x, y += 15);
+
     }
 
     private void initialize() {
@@ -252,7 +250,10 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
         //https://www.powerbot.org/community/topic/1228458-saving-script-screenshots/
         final int width = ctx.game.dimensions().width, height = ctx.game.dimensions().height;
         BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-        repaint(img.createGraphics());
+        img.createGraphics();
+        img.getGraphics().setColor(Color.WHITE);
+        img.getGraphics().fillRect(GUI_X, GUI_Y, GUI_WIDTH, GUI_HEIGHT);
+        repaint(img.getGraphics());
         img = img.getSubimage(GUI_X, GUI_Y, GUI_WIDTH, GUI_HEIGHT);
         System.out.print(getStorageDirectory().toString());
         final File screenshot = new File(getStorageDirectory(), String.valueOf(System.currentTimeMillis()).concat(".png"));
