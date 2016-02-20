@@ -17,7 +17,7 @@ import java.util.concurrent.Callable;
 
 
 @Script.Manifest(
-        name = "Blast Furnace", properties = "author=andyroo; topic=1299183; client=4;",
+        name = "Blast Furnace", properties = "author=andyroo; topic=1302574; client=4;",
         description = "v1.4e - Blast furnace (Steel, Mithril, Adamantite only)"
 )
 
@@ -26,6 +26,7 @@ import java.util.concurrent.Callable;
  *
  * v 1.4e
  * fixed screenshot at script stop
+ * fixed bug where script attempted to click bank chest while bar widget was open
  *
  */
 
@@ -476,6 +477,7 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
         GameObject bankChest = ctx.objects.select(15).id(BANK_CHEST_ID).poll();
 
         if (bankChest.inViewport()) {
+            ctx.widgets.component(BAR_WIDGET, BAR_CLOSE_COMPONENT).click();
             if (bankChest.click("Use", Game.Crosshair.ACTION)) {
                 return Condition.wait(new Callable<Boolean>() {
                     @Override
@@ -617,7 +619,7 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
         final Component putOreWidget = ctx.widgets.component(ADD_ORE_WIDGET, ADD_ORE_COMPONENT).component(1);
 
         if (ctx.widgets.component(BELT_BLOCKED_WIDGET, BELT_BLOCKED_COMPONENT).visible()) {
-            if (ctx.skills.level(Constants.SKILLS_SMITHING) < 60 && foremanTimerRunning == false) {
+            if (ctx.skills.level(Constants.SKILLS_SMITHING) < 60 && !foremanTimerRunning) {
                 paid = false;
             } else {
                 log.info("Furnace full; take bars");
@@ -811,7 +813,6 @@ public class BlastFurnace extends PollingScript<ClientContext> implements PaintL
         } else {
             log.info("Going to withdraw coins");
             if (openBank()) {
-                System.out.println(ctx.inventory.select().count());
                 if (ctx.inventory.select().count() == 28) {
                     log.info("Deposit");
                     ctx.bank.depositInventory();

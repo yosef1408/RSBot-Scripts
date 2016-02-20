@@ -47,7 +47,7 @@ public class BarInfo {
     public BarInfo(BlastFurnace.BAR barType) {
         this.barType = barType;
 
-        if(barType == BlastFurnace.BAR.STEEL) {
+        if (barType == BlastFurnace.BAR.STEEL) {
             ratio = 1;
             primary = BlastFurnace.ORE.IRON;
             oreVarpbit = ORE_INFO_VARPBIT1;
@@ -56,7 +56,7 @@ public class BarInfo {
             primaryShift = IRON_SHIFT;
             widgetComponent = STEEL_BAR_COMPONENT;
         }
-        if(barType == BlastFurnace.BAR.MITHRIL) {
+        if (barType == BlastFurnace.BAR.MITHRIL) {
             ratio = 2;
             primary = BlastFurnace.ORE.MITHRIL;
             oreVarpbit = ORE_INFO_VARPBIT1;
@@ -65,7 +65,7 @@ public class BarInfo {
             primaryShift = MITHRIL_SHIFT;
             widgetComponent = MITHRIL_BAR_COMPONENT;
         }
-        if(barType == BlastFurnace.BAR.ADAMANTITE) {
+        if (barType == BlastFurnace.BAR.ADAMANTITE) {
             ratio = 3;
             primary = BlastFurnace.ORE.ADAMANTITE;
             oreVarpbit = ORE_INFO_VARPBIT2;
@@ -74,7 +74,7 @@ public class BarInfo {
             primaryShift = ADAMANTITE_SHIFT;
             widgetComponent = ADAMANTITE_BAR_COMPONENT;
         }
-        if(barType == BlastFurnace.BAR.RUNITE) {
+        if (barType == BlastFurnace.BAR.RUNITE) {
             ratio = 4;
             primary = BlastFurnace.ORE.RUNITE;
             oreVarpbit = ORE_INFO_VARPBIT2;
