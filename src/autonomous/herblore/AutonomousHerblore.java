@@ -38,31 +38,10 @@ public class AutonomousHerblore extends PollingScript<ClientContext> implements 
     private long startTime = System.currentTimeMillis();
     private long milliseconds;
 
-    private int potsMade = 0;
-    private int extraPots = 0;
-    private int totalPots = 0;
-    private int savedIngredient = 0;
-    private int cleanedHerbs = 0;
-    private int potionID = 0;
-    private int ingredientID = 0;
-    private int cleanID = 0;
-    private int grimyID = 0;
-    private int firstHalf = 0;
-    private int secondHalf = 0;
-    private int firstHalfID = 0;
-    private int secondHalfID = 0;
+    private int potsMade, extraPots, totalPots, savedIngredient, cleanedHerbs, potionID, ingredientID, cleanID, grimyID,
+            firstHalf, secondHalf, firstHalfID, secondHalfID, seconds, minutes, hours, firstItemCount, lastItemCount,
+            cleanedHr, moneyMade, potionPrice, ingredientsCost, ingredientSavings, vialCount;
     private int startXp = ctx.skills.experience(15);
-    private int seconds;
-    private int minutes;
-    private int hours;
-    private int firstItemCount;
-    private int lastItemCount;
-    private int cleanedHr = 0;
-    private int moneyMade = 0;
-    private int potionPrice = 0;
-    private int ingredientsCost = 0;
-    private int ingredientSavings = 0;
-    private int vialCount = 0;
 
     private double profitHr = 0;
 
@@ -83,38 +62,30 @@ public class AutonomousHerblore extends PollingScript<ClientContext> implements 
         switch (state) {
 
             case ANTIBAN: {
-                ctx.camera.turnTo(ctx.npcs.select().id(16014).poll());
-                Condition.sleep(20000);
+                //Working on this
                 break;
             }
 
             case BANKING: {
-                ctx.camera.turnTo(ctx.bank.nearest());
+
                 if (!ctx.bank.opened()){
+                    if (rand.nextInt(1, 5) > 3){
+                        ctx.camera.turnTo(ctx.bank.nearest());
+                    }
                     ctx.bank.open();
                     Condition.sleep(1000);
                 }
                 vialCount = ctx.bank.select().id(227).count();
-                if (rand.nextInt(1, 2) == 1){
-                    if (ctx.widgets.component(762, 43).click()) {
-                        cleaned = false;
-                        made = false;
-                    }
-                }else {
-                    if (ctx.input.sendln("1")) {
-                        cleaned = false;
-                        made = false;
-                    }
-                }
+
                 if (ctx.widgets.component(762, 43).click()) {
                     cleaned = false;
                     made = false;
                 }
+
                 Condition.sleep(1500);
                 break;
             }
             case MAKING: {
-                ctx.camera.turnTo(ctx.bank.nearest());
 
                 firstHalfID = ctx.backpack.itemAt(0).id();
                 secondHalfID = ctx.backpack.itemAt(27).id();
@@ -128,8 +99,12 @@ public class AutonomousHerblore extends PollingScript<ClientContext> implements 
                 }
 
                 if (ctx.objects.select(10).id(89770).poll().inViewport()){
-                    ctx.camera.turnTo(ctx.objects.select(10).id(89770).poll());
-                    ctx.objects.select().id(89770).peek().interact("Mix Potions");
+                    if (rand.nextInt(1, 5) > 3){
+                        ctx.camera.turnTo(ctx.objects.select(10).id(89770).poll());
+                        ctx.objects.select().id(89770).peek().click("Mix Potions");
+                    }else{
+                        ctx.objects.select().id(89770).peek().interact("Mix Potions");
+                    }
                 }
                 else {
                     firstHalf = rand.nextInt(0, 13);
@@ -182,6 +157,7 @@ public class AutonomousHerblore extends PollingScript<ClientContext> implements 
                 }
                 break;
                 */
+                break;
             }
 
             case STOP: {
@@ -192,11 +168,6 @@ public class AutonomousHerblore extends PollingScript<ClientContext> implements 
     }
 
     private State state() {
-
-        milliseconds = System.currentTimeMillis();
-        seconds = ((int)milliseconds - (int)startTime)/1000%60;
-        minutes = ((int)milliseconds - (int)startTime)/1000/60%60;
-        hours = ((int)milliseconds - (int)startTime)/1000/60/60;
 
         lastItemCount = ctx.backpack.select().id(ctx.backpack.itemAt(27).id()).count();
         firstItemCount = ctx.backpack.select().id(ctx.backpack.itemAt(0).id()).count();
@@ -229,6 +200,9 @@ public class AutonomousHerblore extends PollingScript<ClientContext> implements 
         }
         else{
             System.out.println("Stopping.");
+            if (ctx.game.logout(false)) {
+                ctx.controller.stop();
+            }
             return State.STOP;
         }
     }
@@ -283,6 +257,11 @@ public class AutonomousHerblore extends PollingScript<ClientContext> implements 
 
     @Override
     public void repaint(Graphics g) {
+        milliseconds = System.currentTimeMillis();
+        seconds = ((int)milliseconds - (int)startTime)/1000%60;
+        minutes = ((int)milliseconds - (int)startTime)/1000/60%60;
+        hours = ((int)milliseconds - (int)startTime)/1000/60/60;
+
         try {
             if (img != null){
                 double hoursPercent = ((double)seconds/3600) + ((double)minutes/60) + (double)hours;
