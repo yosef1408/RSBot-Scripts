@@ -1,4 +1,4 @@
-package OutrageChickenSlayer;
+package outragehost.chicken;
 
 import org.powerbot.script.ClientAccessor;
 import org.powerbot.script.ClientContext;

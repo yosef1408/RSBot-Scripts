@@ -1,4 +1,4 @@
-package OutrageChickenSlayer;
+package outragehost.chicken;
 
 import org.powerbot.script.Condition;
 import org.powerbot.script.Random;

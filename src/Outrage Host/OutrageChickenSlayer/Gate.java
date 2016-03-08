@@ -1,4 +1,4 @@
-package OutrageChickenSlayer;
+package outragehost.chicken;
 
 import org.powerbot.script.rt6.ClientContext;
 import org.powerbot.script.rt6.GameObject;

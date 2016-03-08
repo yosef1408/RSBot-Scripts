@@ -1,4 +1,4 @@
-package OutrageChickenSlayer;
+package outragehost.chicken;
 
 import org.powerbot.script.PaintListener;
 import org.powerbot.script.PollingScript;
