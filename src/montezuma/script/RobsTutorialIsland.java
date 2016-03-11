@@ -36,7 +36,7 @@ import org.powerbot.script.rt4.Npc;
 @Script.Manifest(
 		name = "Rob's Tutorial Island", 
 		description = "Run through tutorial island quickly",
-		properties="author=Montezuma; topic=1304853"
+		properties="author=Montezuma; topic=1304853; client=4"
 		)
 
 public class RobsTutorialIsland extends PollingScript<ClientContext> implements PaintListener {
