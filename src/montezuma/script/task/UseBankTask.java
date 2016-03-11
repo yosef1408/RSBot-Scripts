@@ -5,12 +5,6 @@ import java.awt.Graphics;
 import org.powerbot.script.rt4.ClientContext;
 import org.powerbot.script.rt4.GameObject;
 
-/**
- * Chop a tree based on the name of a GameObject "Tree"
- * 
- * @author Robby
- *
- */
 public class UseBankTask extends Task<ClientContext> {
 
 	private GameObject booth;
@@ -35,9 +29,7 @@ public class UseBankTask extends Task<ClientContext> {
 		booth = ctx.objects.nearest().poll();
 
 		if (booth.inViewport()) {
-			
-			System.out.println(ctx.chat.canContinue() + " " + ctx.chat.chatting());
-			
+						
 			if(ctx.chat.canContinue()) {
 				ctx.chat.clickContinue();
 			} else if (ctx.chat.chatting()) {

@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import javax.swing.JOptionPane;
+
 import org.powerbot.script.Condition;
 import org.powerbot.script.PaintListener;
 import org.powerbot.script.PollingScript;
@@ -36,7 +38,7 @@ import org.powerbot.script.rt4.Npc;
 @Script.Manifest(
 		name = "Rob's Tutorial Island", 
 		description = "Run through tutorial island quickly",
-		properties="author=Montezuma; topic=1304853; client=4;"
+		properties="author=Montezuma; topic=1304853"
 		)
 
 public class RobsTutorialIsland extends PollingScript<ClientContext> implements PaintListener {
@@ -62,6 +64,14 @@ public class RobsTutorialIsland extends PollingScript<ClientContext> implements 
 	
 	@Override
 	public void start() {
+		ScriptState.ironmanMode = JOptionPane.showConfirmDialog(null, "Activate Ironman Mode?", "Rob's Tutorial Island",
+		        JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
+		
+		if(ScriptState.ironmanMode) {
+			String[] ironmanModeTypes = {"Standard", "Ultimate"};
+			ScriptState.ironmanModeType = (String) JOptionPane.showInputDialog(null, "Which type of Ironman Mode?", "Rob's Tutorial Island", JOptionPane.QUESTION_MESSAGE, null, ironmanModeTypes, "Standard");
+		}
+		  
 		System.out.println("Script Started!");
 		currentState = null;
 	}
@@ -518,7 +528,6 @@ public class RobsTutorialIsland extends PollingScript<ClientContext> implements 
 				tasks.clear();
 				changeCurrent(pollState);
 				if (ctx.widgets.widget(345).valid()) {
-					System.out.println("Closing");
 					ctx.widgets.component(345, 1).component(3).click();
 				}
 				tasks.add(new OpenDoorTask(ctx, "Door", new Tile(3124, 3124, 0), doorToFinanceBounds));
@@ -609,6 +618,16 @@ public class RobsTutorialIsland extends PollingScript<ClientContext> implements 
 			ctx.game.tab(Tab.MAGIC);
 			if (ctx.widgets.widget(231).valid()) {
 				ctx.widgets.component(231, 2).click();
+			}
+			break;
+		case TALK_TO_ADAM:
+			if (currentState != pollState) {
+				tasks.clear();
+				changeCurrent(pollState);
+				tasks.add(new TalkToGuideTask(ctx, "Adam"));
+			}
+			if(ctx.widgets.component(219, 0).component(2).visible()) {
+				ctx.widgets.component(219, 0).component(2).click();
 			}
 			break;
 		case FINISHED:

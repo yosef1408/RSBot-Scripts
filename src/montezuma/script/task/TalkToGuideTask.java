@@ -7,12 +7,8 @@ import org.powerbot.script.Random;
 import org.powerbot.script.rt4.ClientContext;
 import org.powerbot.script.rt4.Npc;
 
-/**
- * Chop a tree based on the name of a GameObject "Tree"
- * 
- * @author Robby
- *
- */
+import montezuma.script.ScriptState;
+
 public class TalkToGuideTask extends Task<ClientContext> {
 
 	public String guideName;
@@ -43,6 +39,23 @@ public class TalkToGuideTask extends Task<ClientContext> {
 				ctx.chat.clickContinue(false);
 			} else if (ctx.chat.chatting()) {
 				ctx.chat.select().text("Yes.").poll().select();
+				
+				if(ctx.widgets.component(219, 0).component(2).visible()) {
+					ctx.widgets.component(219, 0).component(2).click();
+				}
+			} else if(ctx.widgets.widget(215).valid()) {
+				if(ctx.widgets.component(215, 18).visible() && ScriptState.ironmanModeType.equals("Standard")) {
+					//standard
+					ctx.widgets.component(215, 18).click();
+				}
+				
+				if(ctx.widgets.component(215, 22).visible() && ScriptState.ironmanModeType.equals("Ultimate")) {
+					//ultimate
+					ctx.widgets.component(215, 22).click();
+				}
+				
+				ctx.widgets.component(215, 2).component(3).click();
+				ScriptState.ironmanMode = false;
 			} else {
 				guide.interact("Talk-To");
 			}

@@ -5,12 +5,6 @@ import java.awt.Graphics;
 import org.powerbot.script.rt4.ClientContext;
 import org.powerbot.script.rt4.GameObject;
 
-/**
- * Chop a tree based on the name of a GameObject "Tree"
- * 
- * @author Robby
- *
- */
 public class VisitPollTask extends Task<ClientContext> {
 
 	private GameObject poll;
