@@ -23,15 +23,16 @@ public class Chicken extends Task<ClientContext> {
         if (ctx.players.local().idle()) {
             if (chicken.inViewport()) {
                 Fighter.displayStatus = ("Attacking Chicken");
-                chicken.hover();
-                chicken.interact("Attack");
-                Condition.sleep(rnd.nextInt(1500, 2500));
+                chicken.interact("Attack", "Chicken");
+                Condition.sleep(rnd.nextInt(1998, 2105));
                 Fighter.killed = Fighter.killed + 1;
                 Fighter.totalKilled = Fighter.totalKilled + 1;
                 Fighter.chickensKilled = "Chickens killed: " + Fighter.totalKilled;
                 System.out.println("Chickens killed: " + Fighter.totalKilled);
             } else {
-                ctx.camera.turnTo(chicken);
+                if (chicken.valid()) {
+                    ctx.camera.turnTo(chicken);
+                }
             }
         }
     }
