@@ -1,7 +1,7 @@
-package GrandExchangeAlcher;
+package is0lates.GrandExchangeAlcher;
 
 import java.util.EventListener;
-import GrandExchangeAlcher.GeEvent;
+import is0lates.GrandExchangeAlcher.GeEvent;
 
 public interface GeListener extends EventListener {
 

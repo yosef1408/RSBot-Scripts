@@ -1,13 +1,13 @@
-package GrandExchangeAlcher.org.jsoup.select;
+package is0lates.GrandExchangeAlcher.org.jsoup.select;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import GrandExchangeAlcher.org.jsoup.helper.StringUtil;
-import GrandExchangeAlcher.org.jsoup.helper.Validate;
-import GrandExchangeAlcher.org.jsoup.parser.TokenQueue;
+import is0lates.GrandExchangeAlcher.org.jsoup.helper.StringUtil;
+import is0lates.GrandExchangeAlcher.org.jsoup.helper.Validate;
+import is0lates.GrandExchangeAlcher.org.jsoup.parser.TokenQueue;
 
 /**
  * Parses a CSS selector into an Evaluator tree.

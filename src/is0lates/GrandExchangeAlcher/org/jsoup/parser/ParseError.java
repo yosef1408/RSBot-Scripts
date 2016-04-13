@@ -1,4 +1,4 @@
-package GrandExchangeAlcher.org.jsoup.parser;
+package is0lates.GrandExchangeAlcher.org.jsoup.parser;
 
 /**
  * A Parse Error records an error in the input HTML that occurs in either the tokenisation or the tree building phase.

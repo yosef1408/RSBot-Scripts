@@ -1,4 +1,4 @@
-package GrandExchangeAlcher;
+package is0lates.GrandExchangeAlcher;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;

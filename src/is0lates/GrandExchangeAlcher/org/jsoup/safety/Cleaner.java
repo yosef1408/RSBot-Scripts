@@ -1,10 +1,10 @@
-package GrandExchangeAlcher.org.jsoup.safety;
+package is0lates.GrandExchangeAlcher.org.jsoup.safety;
 
-import GrandExchangeAlcher.org.jsoup.helper.Validate;
-import GrandExchangeAlcher.org.jsoup.nodes.*;
-import GrandExchangeAlcher.org.jsoup.parser.Tag;
-import GrandExchangeAlcher.org.jsoup.select.NodeTraversor;
-import GrandExchangeAlcher.org.jsoup.select.NodeVisitor;
+import is0lates.GrandExchangeAlcher.org.jsoup.helper.Validate;
+import is0lates.GrandExchangeAlcher.org.jsoup.nodes.*;
+import is0lates.GrandExchangeAlcher.org.jsoup.parser.Tag;
+import is0lates.GrandExchangeAlcher.org.jsoup.select.NodeTraversor;
+import is0lates.GrandExchangeAlcher.org.jsoup.select.NodeVisitor;
 
 
 /**

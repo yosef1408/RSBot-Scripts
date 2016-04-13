@@ -1,7 +1,7 @@
-package GrandExchangeAlcher.org.jsoup.select;
+package is0lates.GrandExchangeAlcher.org.jsoup.select;
 
-import GrandExchangeAlcher.org.jsoup.nodes.Element;
-import GrandExchangeAlcher.org.jsoup.nodes.Node;
+import is0lates.GrandExchangeAlcher.org.jsoup.nodes.Element;
+import is0lates.GrandExchangeAlcher.org.jsoup.nodes.Node;
 
 /**
  * Collects a list of elements that match the supplied criteria.

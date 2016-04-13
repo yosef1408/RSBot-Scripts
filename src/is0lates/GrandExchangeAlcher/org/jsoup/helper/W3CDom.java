@@ -1,8 +1,8 @@
-package GrandExchangeAlcher.org.jsoup.helper;
+package is0lates.GrandExchangeAlcher.org.jsoup.helper;
 
-import GrandExchangeAlcher.org.jsoup.nodes.Attribute;
-import GrandExchangeAlcher.org.jsoup.select.NodeTraversor;
-import GrandExchangeAlcher.org.jsoup.select.NodeVisitor;
+import is0lates.GrandExchangeAlcher.org.jsoup.nodes.Attribute;
+import is0lates.GrandExchangeAlcher.org.jsoup.select.NodeTraversor;
+import is0lates.GrandExchangeAlcher.org.jsoup.select.NodeVisitor;
 import org.w3c.dom.Comment;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -19,7 +19,7 @@ import java.io.StringWriter;
 import javax.xml.transform.TransformerException;
 
 /**
- * Helper class to transform a {@link GrandExchangeAlcher.org.jsoup.nodes.Document} to a {@link Document org.w3c.dom.Document},
+ * Helper class to transform a {@link is0lates.GrandExchangeAlcher.org.jsoup.nodes.Document} to a {@link Document org.w3c.dom.Document},
  * for integration with toolsets that use the W3C DOM.
  * <p>
  * This class is currently <b>experimental</b>, please provide feedback on utility and any problems experienced.
@@ -33,7 +33,7 @@ public class W3CDom {
      * @param in jsoup doc
      * @return w3c doc
      */
-    public Document fromJsoup(GrandExchangeAlcher.org.jsoup.nodes.Document in) {
+    public Document fromJsoup(is0lates.GrandExchangeAlcher.org.jsoup.nodes.Document in) {
         Validate.notNull(in);
         DocumentBuilder builder;
         try {
@@ -51,13 +51,13 @@ public class W3CDom {
      * before converting.
      * @param in jsoup doc
      * @param out w3c doc
-     * @see GrandExchangeAlcher.org.jsoup.helper.W3CDom#fromJsoup(GrandExchangeAlcher.org.jsoup.nodes.Document)
+     * @see is0lates.GrandExchangeAlcher.org.jsoup.helper.W3CDom#fromJsoup(is0lates.GrandExchangeAlcher.org.jsoup.nodes.Document)
      */
-    public void convert(GrandExchangeAlcher.org.jsoup.nodes.Document in, Document out) {
+    public void convert(is0lates.GrandExchangeAlcher.org.jsoup.nodes.Document in, Document out) {
         if (!StringUtil.isBlank(in.location()))
             out.setDocumentURI(in.location());
 
-        GrandExchangeAlcher.org.jsoup.nodes.Element rootEl = in.child(0); // skip the #root node
+        is0lates.GrandExchangeAlcher.org.jsoup.nodes.Element rootEl = in.child(0); // skip the #root node
         NodeTraversor traversor = new NodeTraversor(new W3CBuilder(out));
         traversor.traverse(rootEl);
     }
@@ -73,9 +73,9 @@ public class W3CDom {
             this.doc = doc;
         }
 
-        public void head(GrandExchangeAlcher.org.jsoup.nodes.Node source, int depth) {
-            if (source instanceof GrandExchangeAlcher.org.jsoup.nodes.Element) {
-                GrandExchangeAlcher.org.jsoup.nodes.Element sourceEl = (GrandExchangeAlcher.org.jsoup.nodes.Element) source;
+        public void head(is0lates.GrandExchangeAlcher.org.jsoup.nodes.Node source, int depth) {
+            if (source instanceof is0lates.GrandExchangeAlcher.org.jsoup.nodes.Element) {
+                is0lates.GrandExchangeAlcher.org.jsoup.nodes.Element sourceEl = (is0lates.GrandExchangeAlcher.org.jsoup.nodes.Element) source;
                 Element el = doc.createElement(sourceEl.tagName());
                 copyAttributes(sourceEl, el);
                 if (dest == null) { // sets up the root
@@ -84,16 +84,16 @@ public class W3CDom {
                     dest.appendChild(el);
                 }
                 dest = el; // descend
-            } else if (source instanceof GrandExchangeAlcher.org.jsoup.nodes.TextNode) {
-                GrandExchangeAlcher.org.jsoup.nodes.TextNode sourceText = (GrandExchangeAlcher.org.jsoup.nodes.TextNode) source;
+            } else if (source instanceof is0lates.GrandExchangeAlcher.org.jsoup.nodes.TextNode) {
+                is0lates.GrandExchangeAlcher.org.jsoup.nodes.TextNode sourceText = (is0lates.GrandExchangeAlcher.org.jsoup.nodes.TextNode) source;
                 Text text = doc.createTextNode(sourceText.getWholeText());
                 dest.appendChild(text);
-            } else if (source instanceof GrandExchangeAlcher.org.jsoup.nodes.Comment) {
-                GrandExchangeAlcher.org.jsoup.nodes.Comment sourceComment = (GrandExchangeAlcher.org.jsoup.nodes.Comment) source;
+            } else if (source instanceof is0lates.GrandExchangeAlcher.org.jsoup.nodes.Comment) {
+                is0lates.GrandExchangeAlcher.org.jsoup.nodes.Comment sourceComment = (is0lates.GrandExchangeAlcher.org.jsoup.nodes.Comment) source;
                 Comment comment = doc.createComment(sourceComment.getData());
                 dest.appendChild(comment);
-            } else if (source instanceof GrandExchangeAlcher.org.jsoup.nodes.DataNode) {
-                GrandExchangeAlcher.org.jsoup.nodes.DataNode sourceData = (GrandExchangeAlcher.org.jsoup.nodes.DataNode) source;
+            } else if (source instanceof is0lates.GrandExchangeAlcher.org.jsoup.nodes.DataNode) {
+                is0lates.GrandExchangeAlcher.org.jsoup.nodes.DataNode sourceData = (is0lates.GrandExchangeAlcher.org.jsoup.nodes.DataNode) source;
                 Text node = doc.createTextNode(sourceData.getWholeData());
                 dest.appendChild(node);
             } else {
@@ -101,13 +101,13 @@ public class W3CDom {
             }
         }
 
-        public void tail(GrandExchangeAlcher.org.jsoup.nodes.Node source, int depth) {
-            if (source instanceof GrandExchangeAlcher.org.jsoup.nodes.Element && dest.getParentNode() instanceof Element) {
+        public void tail(is0lates.GrandExchangeAlcher.org.jsoup.nodes.Node source, int depth) {
+            if (source instanceof is0lates.GrandExchangeAlcher.org.jsoup.nodes.Element && dest.getParentNode() instanceof Element) {
                 dest = (Element) dest.getParentNode(); // undescend. cromulent.
             }
         }
 
-        private void copyAttributes(GrandExchangeAlcher.org.jsoup.nodes.Node source, Element el) {
+        private void copyAttributes(is0lates.GrandExchangeAlcher.org.jsoup.nodes.Node source, Element el) {
             for (Attribute attribute : source.attributes()) {
                 el.setAttribute(attribute.getKey(), attribute.getValue());
             }

@@ -1,10 +1,10 @@
-package GrandExchangeAlcher;
+package is0lates.GrandExchangeAlcher;
 
-import GrandExchangeAlcher.model.AlchItem;
-import GrandExchangeAlcher.org.jsoup.Jsoup;
-import GrandExchangeAlcher.org.jsoup.nodes.Document;
-import GrandExchangeAlcher.org.jsoup.nodes.Element;
-import GrandExchangeAlcher.org.jsoup.select.Elements;
+import is0lates.GrandExchangeAlcher.model.AlchItem;
+import is0lates.GrandExchangeAlcher.org.jsoup.Jsoup;
+import is0lates.GrandExchangeAlcher.org.jsoup.nodes.Document;
+import is0lates.GrandExchangeAlcher.org.jsoup.nodes.Element;
+import is0lates.GrandExchangeAlcher.org.jsoup.select.Elements;
 import org.powerbot.script.*;
 import org.powerbot.script.GeItem;
 import org.powerbot.script.rt6.ClientContext;
@@ -18,7 +18,7 @@ import java.util.Iterator;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
-@Script.Manifest(name = "Grand Exchange Alcher",description = "Alchs for money at Grand Exchange", properties = "topic=https://www.powerbot.org/community/topic/1307713-grand-exchange-alcher/; author=Is0lates; ")
+@Script.Manifest(name = "Grand Exchange Alcher",description = "Buys and alchs items at the Grand Exchange for profit and Magic XP.", properties = "topic=1307713; author=Is0lates; ")
 public class GrandExchangeAlcher extends PollingScript<ClientContext> implements MessageListener, PaintListener, Stoppable {
 
     private static int NATURE_RUNE_ID = 561;

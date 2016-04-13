@@ -1,11 +1,11 @@
-package GrandExchangeAlcher.org.jsoup.helper;
+package is0lates.GrandExchangeAlcher.org.jsoup.helper;
 
-import GrandExchangeAlcher.org.jsoup.Connection;
-import GrandExchangeAlcher.org.jsoup.HttpStatusException;
-import GrandExchangeAlcher.org.jsoup.UnsupportedMimeTypeException;
-import GrandExchangeAlcher.org.jsoup.nodes.Document;
-import GrandExchangeAlcher.org.jsoup.parser.Parser;
-import GrandExchangeAlcher.org.jsoup.parser.TokenQueue;
+import is0lates.GrandExchangeAlcher.org.jsoup.Connection;
+import is0lates.GrandExchangeAlcher.org.jsoup.HttpStatusException;
+import is0lates.GrandExchangeAlcher.org.jsoup.UnsupportedMimeTypeException;
+import is0lates.GrandExchangeAlcher.org.jsoup.nodes.Document;
+import is0lates.GrandExchangeAlcher.org.jsoup.parser.Parser;
+import is0lates.GrandExchangeAlcher.org.jsoup.parser.TokenQueue;
 
 import javax.net.ssl.*;
 import java.io.*;

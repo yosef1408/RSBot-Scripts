@@ -1,9 +1,9 @@
-package GrandExchangeAlcher.org.jsoup.parser;
+package is0lates.GrandExchangeAlcher.org.jsoup.parser;
 
-import GrandExchangeAlcher.org.jsoup.helper.Validate;
-import GrandExchangeAlcher.org.jsoup.nodes.Attribute;
-import GrandExchangeAlcher.org.jsoup.nodes.Attributes;
-import GrandExchangeAlcher.org.jsoup.nodes.BooleanAttribute;
+import is0lates.GrandExchangeAlcher.org.jsoup.helper.Validate;
+import is0lates.GrandExchangeAlcher.org.jsoup.nodes.Attribute;
+import is0lates.GrandExchangeAlcher.org.jsoup.nodes.Attributes;
+import is0lates.GrandExchangeAlcher.org.jsoup.nodes.BooleanAttribute;
 
 /**
  * Parse tokens for the Tokeniser.

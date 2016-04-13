@@ -1,4 +1,4 @@
-package GrandExchangeAlcher;
+package is0lates.GrandExchangeAlcher;
 
 public class GeEvent {
 

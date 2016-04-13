@@ -1,7 +1,7 @@
-package GrandExchangeAlcher.org.jsoup.parser;
+package is0lates.GrandExchangeAlcher.org.jsoup.parser;
 
-import GrandExchangeAlcher.org.jsoup.helper.StringUtil;
-import GrandExchangeAlcher.org.jsoup.helper.Validate;
+import is0lates.GrandExchangeAlcher.org.jsoup.helper.StringUtil;
+import is0lates.GrandExchangeAlcher.org.jsoup.helper.Validate;
 
 /**
  * A character queue with parsing helpers.

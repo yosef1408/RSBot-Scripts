@@ -1,4 +1,4 @@
-package GrandExchangeAlcher.org.jsoup.helper;
+package is0lates.GrandExchangeAlcher.org.jsoup.helper;
 
 import java.net.MalformedURLException;
 import java.net.URL;

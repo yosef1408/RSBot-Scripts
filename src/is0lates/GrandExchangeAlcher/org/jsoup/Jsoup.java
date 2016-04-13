@@ -1,11 +1,11 @@
-package GrandExchangeAlcher.org.jsoup;
+package is0lates.GrandExchangeAlcher.org.jsoup;
 
-import GrandExchangeAlcher.org.jsoup.nodes.Document;
-import GrandExchangeAlcher.org.jsoup.parser.Parser;
-import GrandExchangeAlcher.org.jsoup.safety.Cleaner;
-import GrandExchangeAlcher.org.jsoup.safety.Whitelist;
-import GrandExchangeAlcher.org.jsoup.helper.DataUtil;
-import GrandExchangeAlcher.org.jsoup.helper.HttpConnection;
+import is0lates.GrandExchangeAlcher.org.jsoup.nodes.Document;
+import is0lates.GrandExchangeAlcher.org.jsoup.parser.Parser;
+import is0lates.GrandExchangeAlcher.org.jsoup.safety.Cleaner;
+import is0lates.GrandExchangeAlcher.org.jsoup.safety.Whitelist;
+import is0lates.GrandExchangeAlcher.org.jsoup.helper.DataUtil;
+import is0lates.GrandExchangeAlcher.org.jsoup.helper.HttpConnection;
 
 import java.io.File;
 import java.io.IOException;

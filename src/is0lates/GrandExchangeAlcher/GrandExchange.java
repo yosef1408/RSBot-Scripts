@@ -1,9 +1,9 @@
-package GrandExchangeAlcher;
+package is0lates.GrandExchangeAlcher;
 
 import java.util.*;
 import java.util.concurrent.Callable;
 
-import GrandExchangeAlcher.GeEvent;
+import is0lates.GrandExchangeAlcher.GeEvent;
 import org.powerbot.script.Condition;
 import org.powerbot.script.MessageEvent;
 import org.powerbot.script.MessageListener;

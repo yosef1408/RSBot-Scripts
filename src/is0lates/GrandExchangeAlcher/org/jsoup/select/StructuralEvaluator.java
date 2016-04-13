@@ -1,6 +1,6 @@
-package GrandExchangeAlcher.org.jsoup.select;
+package is0lates.GrandExchangeAlcher.org.jsoup.select;
 
-import GrandExchangeAlcher.org.jsoup.nodes.Element;
+import is0lates.GrandExchangeAlcher.org.jsoup.nodes.Element;
 
 /**
  * Base structural evaluator.

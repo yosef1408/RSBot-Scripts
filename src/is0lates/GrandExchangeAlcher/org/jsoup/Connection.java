@@ -1,8 +1,8 @@
-package GrandExchangeAlcher.org.jsoup;
+package is0lates.GrandExchangeAlcher.org.jsoup;
 
-import GrandExchangeAlcher.org.jsoup.nodes.Document;
-import GrandExchangeAlcher.org.jsoup.parser.HtmlTreeBuilder;
-import GrandExchangeAlcher.org.jsoup.parser.Parser;
+import is0lates.GrandExchangeAlcher.org.jsoup.nodes.Document;
+import is0lates.GrandExchangeAlcher.org.jsoup.parser.HtmlTreeBuilder;
+import is0lates.GrandExchangeAlcher.org.jsoup.parser.Parser;
 
 import java.io.IOException;
 import java.io.InputStream;

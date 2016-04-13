@@ -1,6 +1,6 @@
-package GrandExchangeAlcher.org.jsoup.nodes;
+package is0lates.GrandExchangeAlcher.org.jsoup.nodes;
 
-import GrandExchangeAlcher.org.jsoup.helper.Validate;
+import is0lates.GrandExchangeAlcher.org.jsoup.helper.Validate;
 
 import java.util.*;
 

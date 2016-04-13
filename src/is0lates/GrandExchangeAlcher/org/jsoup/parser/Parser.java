@@ -1,8 +1,8 @@
-package GrandExchangeAlcher.org.jsoup.parser;
+package is0lates.GrandExchangeAlcher.org.jsoup.parser;
 
-import GrandExchangeAlcher.org.jsoup.nodes.Document;
-import GrandExchangeAlcher.org.jsoup.nodes.Element;
-import GrandExchangeAlcher.org.jsoup.nodes.Node;
+import is0lates.GrandExchangeAlcher.org.jsoup.nodes.Document;
+import is0lates.GrandExchangeAlcher.org.jsoup.nodes.Element;
+import is0lates.GrandExchangeAlcher.org.jsoup.nodes.Node;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package GrandExchangeAlcher.org.jsoup.parser;
+package is0lates.GrandExchangeAlcher.org.jsoup.parser;
 
 import java.util.ArrayList;
 

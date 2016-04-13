@@ -1,4 +1,4 @@
-package GrandExchangeAlcher.org.jsoup;
+package is0lates.GrandExchangeAlcher.org.jsoup;
 
 import java.io.IOException;
 

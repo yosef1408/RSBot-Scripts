@@ -1,4 +1,4 @@
-package GrandExchangeAlcher.model;
+package is0lates.GrandExchangeAlcher.model;
 
 import org.powerbot.script.GeItem;
 

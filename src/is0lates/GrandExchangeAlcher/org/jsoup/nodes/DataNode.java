@@ -1,4 +1,4 @@
-package GrandExchangeAlcher.org.jsoup.nodes;
+package is0lates.GrandExchangeAlcher.org.jsoup.nodes;
 
 /**
  A data node, for contents of style, script tags etc, where contents should not show in text().

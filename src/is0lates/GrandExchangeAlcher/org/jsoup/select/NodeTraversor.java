@@ -1,6 +1,6 @@
-package GrandExchangeAlcher.org.jsoup.select;
+package is0lates.GrandExchangeAlcher.org.jsoup.select;
 
-import GrandExchangeAlcher.org.jsoup.nodes.Node;
+import is0lates.GrandExchangeAlcher.org.jsoup.nodes.Node;
 
 /**
  * Depth-first node traversor. Use to iterate through all nodes under and including the specified root node.

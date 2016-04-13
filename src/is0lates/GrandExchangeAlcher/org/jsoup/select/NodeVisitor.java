@@ -1,6 +1,6 @@
-package GrandExchangeAlcher.org.jsoup.select;
+package is0lates.GrandExchangeAlcher.org.jsoup.select;
 
-import GrandExchangeAlcher.org.jsoup.nodes.Node;
+import is0lates.GrandExchangeAlcher.org.jsoup.nodes.Node;
 
 /**
  * Node visitor interface. Provide an implementing class to {@link NodeTraversor} to iterate through nodes.

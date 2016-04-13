@@ -1,4 +1,4 @@
-package GrandExchangeAlcher.org.jsoup.helper;
+package is0lates.GrandExchangeAlcher.org.jsoup.helper;
 
 /**
  * Simple validation methods. Designed for jsoup internal use

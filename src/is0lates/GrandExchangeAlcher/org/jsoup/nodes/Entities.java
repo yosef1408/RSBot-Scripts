@@ -1,7 +1,7 @@
-package GrandExchangeAlcher.org.jsoup.nodes;
+package is0lates.GrandExchangeAlcher.org.jsoup.nodes;
 
-import GrandExchangeAlcher.org.jsoup.helper.StringUtil;
-import GrandExchangeAlcher.org.jsoup.parser.Parser;
+import is0lates.GrandExchangeAlcher.org.jsoup.helper.StringUtil;
+import is0lates.GrandExchangeAlcher.org.jsoup.parser.Parser;
 
 import java.io.IOException;
 import java.io.InputStream;

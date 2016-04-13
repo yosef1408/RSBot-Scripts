@@ -1,9 +1,9 @@
-package GrandExchangeAlcher.org.jsoup.parser;
+package is0lates.GrandExchangeAlcher.org.jsoup.parser;
 
-import GrandExchangeAlcher.org.jsoup.helper.Validate;
-import GrandExchangeAlcher.org.jsoup.nodes.Attributes;
-import GrandExchangeAlcher.org.jsoup.nodes.Document;
-import GrandExchangeAlcher.org.jsoup.nodes.Element;
+import is0lates.GrandExchangeAlcher.org.jsoup.helper.Validate;
+import is0lates.GrandExchangeAlcher.org.jsoup.nodes.Attributes;
+import is0lates.GrandExchangeAlcher.org.jsoup.nodes.Document;
+import is0lates.GrandExchangeAlcher.org.jsoup.nodes.Element;
 
 import java.util.ArrayList;
 

@@ -1,4 +1,4 @@
-package GrandExchangeAlcher.org.jsoup.nodes;
+package is0lates.GrandExchangeAlcher.org.jsoup.nodes;
 
 /**
  * A boolean attribute that is written out without any value.

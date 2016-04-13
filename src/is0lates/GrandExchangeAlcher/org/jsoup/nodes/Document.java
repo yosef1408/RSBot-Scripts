@@ -1,9 +1,9 @@
-package GrandExchangeAlcher.org.jsoup.nodes;
+package is0lates.GrandExchangeAlcher.org.jsoup.nodes;
 
-import GrandExchangeAlcher.org.jsoup.helper.StringUtil;
-import GrandExchangeAlcher.org.jsoup.helper.Validate;
-import GrandExchangeAlcher.org.jsoup.parser.Tag;
-import GrandExchangeAlcher.org.jsoup.select.Elements;
+import is0lates.GrandExchangeAlcher.org.jsoup.helper.StringUtil;
+import is0lates.GrandExchangeAlcher.org.jsoup.helper.Validate;
+import is0lates.GrandExchangeAlcher.org.jsoup.parser.Tag;
+import is0lates.GrandExchangeAlcher.org.jsoup.select.Elements;
 
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;

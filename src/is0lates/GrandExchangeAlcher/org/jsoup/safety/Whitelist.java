@@ -1,14 +1,14 @@
-package GrandExchangeAlcher.org.jsoup.safety;
+package is0lates.GrandExchangeAlcher.org.jsoup.safety;
 
 /*
     Thank you to Ryan Grove (wonko.com) for the Ruby HTML cleaner http://github.com/rgrove/sanitize/, which inspired
     this whitelist configuration, and the initial defaults.
  */
 
-import GrandExchangeAlcher.org.jsoup.helper.Validate;
-import GrandExchangeAlcher.org.jsoup.nodes.Attribute;
-import GrandExchangeAlcher.org.jsoup.nodes.Attributes;
-import GrandExchangeAlcher.org.jsoup.nodes.Element;
+import is0lates.GrandExchangeAlcher.org.jsoup.helper.Validate;
+import is0lates.GrandExchangeAlcher.org.jsoup.nodes.Attribute;
+import is0lates.GrandExchangeAlcher.org.jsoup.nodes.Attributes;
+import is0lates.GrandExchangeAlcher.org.jsoup.nodes.Element;
 
 import java.util.HashMap;
 import java.util.HashSet;
