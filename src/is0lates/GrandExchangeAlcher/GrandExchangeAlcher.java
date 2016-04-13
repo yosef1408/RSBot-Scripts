@@ -355,9 +355,9 @@ public class GrandExchangeAlcher extends PollingScript<ClientContext> implements
         long minutes = TimeUnit.MILLISECONDS.toMinutes(duration) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(duration));
         long seconds = TimeUnit.MILLISECONDS.toSeconds(duration) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(duration));
         if (days == 0) {
-            res = (hours + ":" + minutes + ":" + seconds);
+            res = String.format("%02d:%02d:%02d", hours, minutes, seconds);
         } else {
-            res = (days + ":" + hours + ":" + minutes + ":" + seconds);
+            res = String.format("%02d:%02d:%02d:%02d", days, hours, minutes, seconds);
         }
         return res;
     }
