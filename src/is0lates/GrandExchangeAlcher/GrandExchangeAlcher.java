@@ -92,7 +92,7 @@ public class GrandExchangeAlcher extends PollingScript<ClientContext> implements
 
     private void fetchItemId(AlchItem alchItem) {
         currentAlchItemId = -1;
-        status = "Fetching item id for " + alchItem.name;
+        status = "Fetching item ID for " + alchItem.name;
         final String content = downloadString("http://runescape.wikia.com/wiki/Exchange:" + alchItem.name.trim().replace(" ", "_").replace(",", "%27"));
         Document doc = Jsoup.parse(content);
         String id = doc.select("span#GEDBID").first().text();
@@ -132,7 +132,7 @@ public class GrandExchangeAlcher extends PollingScript<ClientContext> implements
         int openOrders = 0;
         for (int s = 0; s < (isMember() ? 7 : 3); s++) {
             String orderType = ctx.widgets.component(grandExchange.WIDGET, GrandExchange.FIRST_SLOT_COMPONENT + (s)).component(1).text();
-            if (orderType == "Buy" || orderType == "Sell") {
+            if (orderType.equals("Buy") || orderType.equals("Sell")) {
                 openOrders++;
             }
         }
@@ -307,12 +307,14 @@ public class GrandExchangeAlcher extends PollingScript<ClientContext> implements
                             currentAlchItemIndex = 0;
                         }
                         currentAlchItem = alchItemList.get(currentAlchItemIndex);
+                        waitForOrders = 0;
                         Condition.sleep(2000);
                         return;
                     }
                 }
             }
         } else {
+            waitForOrders = 0;
             if(grandExchange.opened()) {
                 escape();
             }
@@ -387,48 +389,60 @@ public class GrandExchangeAlcher extends PollingScript<ClientContext> implements
         }
 
         if(currentAlchItem != null && !status.equals("Alching")) {
-            graphics.drawString("Next buy item", 5, 90);
-            graphics.drawString("(#" + currentAlchItem.id + ") " + currentAlchItem.name, 100, 90);
+            graphics.drawString("Next buy item:", 5, 90);
+            graphics.drawString("(#" + currentAlchItem.id + ") " + currentAlchItem.name, 125, 90);
 
-            graphics.drawString("Alch price", 5, 105);
-            graphics.drawString("" + currentAlchItem.alchPrice, 100, 105);
+            graphics.drawString("Alch price:", 5, 105);
+            graphics.drawString("" + currentAlchItem.alchPrice, 65, 105);
 
-            graphics.drawString("Buy price", 5, 120);
-            graphics.drawString("" + ((currentAlchItem.alchPrice - minProfit) - buyNatureRunePrice), 100, 120);
+            graphics.drawString("Limit:", 5, 120);
+            graphics.drawString("" + currentAlchItem.limit, 65, 120);
 
-            graphics.drawString("Nat price", 5, 135);
-            graphics.drawString("" + buyNatureRunePrice, 100, 135);
+            graphics.drawString("Buy price:", 125, 105);
+            graphics.drawString("" + ((currentAlchItem.alchPrice - minProfit) - buyNatureRunePrice), 190, 105);
 
-            graphics.drawString("Calc Profit", 200, 105);
-            graphics.drawString("" + (currentAlchItem.alchPrice-((currentAlchItem.alchPrice - minProfit))), 300, 105);
+            graphics.drawString("Nat price:", 125, 120);
+            graphics.drawString("" + buyNatureRunePrice, 190, 120);
 
-            graphics.drawString("Guide Profit", 200, 120);
-            graphics.drawString("" + currentAlchItem.profit, 300, 120);
+            graphics.drawString("Calc Profit:", 125, 135);
+            graphics.drawString("" + (currentAlchItem.alchPrice-((currentAlchItem.alchPrice - minProfit))), 190, 135);
 
-            graphics.drawString("Limit", 200, 135);
-            graphics.drawString("" + currentAlchItem.limit, 300, 135);
+            graphics.drawString("Guide price:", 255, 105);
+            graphics.drawString("" + (currentAlchItem.price), 320, 105);
+
+            graphics.drawString("Guide Profit:", 255, 120);
+            graphics.drawString("" + currentAlchItem.profit, 320, 120);
+
+            graphics.drawString("Guide Max:", 255, 135);
+            graphics.drawString("" + currentAlchItem.maxProfit, 320, 135);
 
         }else if(lastAlchItem != null && status.equals("Alching")) {
-            graphics.drawString("Alching item", 5, 90);
-            graphics.drawString("(#" + lastAlchItem.id + ") " + lastAlchItem.name, 100, 90);
+            graphics.drawString("Alching item:", 5, 90);
+            graphics.drawString("(#" + lastAlchItem.id + ") " + lastAlchItem.name, 70, 90);
 
-            graphics.drawString("Alch price", 5, 105);
-            graphics.drawString("" + lastAlchItem.alchPrice, 100, 105);
+            graphics.drawString("Alch price:", 5, 105);
+            graphics.drawString("" + lastAlchItem.alchPrice, 65, 105);
 
-            graphics.drawString("Buy price", 5, 120);
-            graphics.drawString("" + (lastAlchItem.alchPrice - 100 - buyNatureRunePrice), 100, 120);
+            graphics.drawString("Limit:", 5, 120);
+            graphics.drawString("" + lastAlchItem.limit, 65, 120);
 
-            graphics.drawString("Nat price", 5, 135);
-            graphics.drawString("" + buyNatureRunePrice, 100, 135);
+            graphics.drawString("Buy price:", 125, 105);
+            graphics.drawString("" + ((lastAlchItem.alchPrice - minProfit) - buyNatureRunePrice), 190, 105);
 
-            graphics.drawString("Calc Profit", 200, 105);
-            graphics.drawString("" + (lastAlchItem.alchPrice-((lastAlchItem.alchPrice - minProfit))), 300, 105);
+            graphics.drawString("Nat price:", 125, 120);
+            graphics.drawString("" + buyNatureRunePrice, 190, 120);
 
-            graphics.drawString("Guide Profit", 200, 120);
-            graphics.drawString("" + lastAlchItem.profit, 300, 120);
+            graphics.drawString("Calc Profit:", 125, 135);
+            graphics.drawString("" + (lastAlchItem.alchPrice-((lastAlchItem.alchPrice - minProfit))), 190, 135);
 
-            graphics.drawString("Limit", 200, 135);
-            graphics.drawString("" + lastAlchItem.limit, 300, 135);
+            graphics.drawString("Guide price:", 255, 105);
+            graphics.drawString("" + (lastAlchItem.price), 320, 105);
+
+            graphics.drawString("Guide Profit:", 255, 120);
+            graphics.drawString("" + lastAlchItem.profit, 320, 120);
+
+            graphics.drawString("Guide Max:", 255, 135);
+            graphics.drawString("" + lastAlchItem.maxProfit, 320, 135);
         }
     }
 }
