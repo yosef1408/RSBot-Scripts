@@ -9,6 +9,8 @@ import org.powerbot.script.*;
 import org.powerbot.script.GeItem;
 import org.powerbot.script.rt6.ClientContext;
 import org.powerbot.script.rt6.Component;
+import org.powerbot.script.rt6.Hud;
+import org.powerbot.script.rt6.Item;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -21,10 +23,11 @@ import java.util.concurrent.TimeUnit;
 @Script.Manifest(name = "Grand Exchange Alcher",description = "Buys and alchs items at the Grand Exchange for profit and Magic XP.", properties = "topic=1307713; author=Is0lates; ")
 public class GrandExchangeAlcher extends PollingScript<ClientContext> implements MessageListener, PaintListener, Stoppable {
 
+    private static boolean started = false;
     private static int NATURE_RUNE_ID = 561;
     private static int natureRunePrice;
     private static String status = "Starting";
-    private static ArrayList<AlchItem> alchItemList;
+    private static ArrayList<AlchItem> alchItemList = new ArrayList<AlchItem>();
     private static AlchItem currentAlchItem;
     private static int currentAlchItemIndex = 0;
     private static int currentAlchItemId;
@@ -51,10 +54,9 @@ public class GrandExchangeAlcher extends PollingScript<ClientContext> implements
     }
 
     private void fetchAlchItems() {
-        alchItemList = new ArrayList<AlchItem>();
         final String content = downloadString("http://runescape.wikia.com/wiki/RuneScape:Grand_Exchange_Market_Watch/Alchemy");
         Document doc = Jsoup.parse(content);
-        Elements rows = doc.select("div#mw-content-text table tbody tr");
+        Elements rows = doc.select("div#mw-content-text table").first().select("tbody tr");
         for (Element row : rows) {
             if(row.select("td").isEmpty()) {
                 continue;
@@ -88,6 +90,7 @@ public class GrandExchangeAlcher extends PollingScript<ClientContext> implements
                 return x4.compareTo(x3);
             }
         });
+        started = true;
     }
 
     private void fetchItemId(AlchItem alchItem) {
@@ -103,6 +106,7 @@ public class GrandExchangeAlcher extends PollingScript<ClientContext> implements
             status += ".";
             Condition.sleep(500);
         }
+
     }
 
     private AlchItem getAlchItemById(int id) {
@@ -187,151 +191,161 @@ public class GrandExchangeAlcher extends PollingScript<ClientContext> implements
         Condition.sleep(1000);
     }
 
+    int loop = 0;
     public void poll() {
-        if(startXp == -1) {
-            startXp = ctx.skills.experience(6);
-        }
-
-        if(currentAlchItem == null) {
-            currentAlchItem = alchItemList.get(currentAlchItemIndex);
-        }
-
-        if(ctx.widgets.component(grandExchange.WIDGET, 15).visible()) {
-            Condition.wait(new Callable<Boolean>() {
-                public Boolean call() {
-                    return ctx.widgets.component(grandExchange.WIDGET, 15).click();
-                }
-            }, 1000, 5);
-            Condition.sleep(1000);
-            return;
-        }
-        if(ctx.widgets.component(grandExchange.WIDGET, GrandExchange.CONFIRM_COMPONENT).visible() ||
-                ctx.widgets.component(grandExchange.WIDGET, 70).visible() ||
-                ctx.widgets.component(1433,0).visible() ||
-                ctx.bank.opened()) {
-            status = "Stuck on screen. Escaping.";
-            escape();
-            return;
-        }
-
-        if(ctx.backpack.select().id(561).count() == 0) {
-            status = "No nature runes, buying nature runes";
-            if(!grandExchange.opened()) {
-                Condition.wait(new Callable<Boolean>() {
-                    public Boolean call() {
-                        return grandExchange.open();
-                    }
-                }, 1000, 5);
-                return;
-            } else {
-                if(countAvailableOrders() == 0) {
-                    abortOrder();
-                    Condition.sleep(1000);
-                    return;
-                }
-                if(Condition.wait(new Callable<Boolean>() {
-                    @Override
-                    public Boolean call() {
-                        int coins = ctx.backpack.moneyPouchCount();
-                        int divider = isMember() ? 7 : 3;
-                        int amount;
-                        if (divider == 0) {
-                            amount = 0;
-                        } else {
-                            amount = Integer.parseInt(Double.toString(Math.floor((coins < 1 ? 1 : coins) / (buyNatureRunePrice< 1 ? 1 : buyNatureRunePrice) / divider)).replace(".0", ""));
-                        }
-                        return grandExchange.buy(NATURE_RUNE_ID, amount, buyNatureRunePrice);
-                    }
-                })) {
-                    Condition.sleep(2000);
-                    Condition.wait(new Callable<Boolean>() {
-                        @Override
-                        public Boolean call() {
-                            return grandExchange.collectToInventory();
-                        }
-                    }, 100, 30);
-                    return;
+        if(started) {
+            if (loop == 0) {
+                if (startXp == -1) {
+                    startXp = ctx.skills.experience(6);
                 }
             }
-        }
-        else if(ctx.backpack.select().count() == 1) {
-            status = "No items to alch, buying items";
-            if(!grandExchange.opened()) {
+            loop++;
+
+            if(!ctx.hud.opened(Hud.Window.BACKPACK)) {
+                status = "Opening Backpack.";
+                ctx.hud.open(Hud.Window.BACKPACK);
+            }
+
+            if (currentAlchItem == null) {
+                currentAlchItem = alchItemList.get(currentAlchItemIndex);
+            }
+
+            if (ctx.widgets.component(grandExchange.WIDGET, 15).visible()) {
                 Condition.wait(new Callable<Boolean>() {
-                    @Override
                     public Boolean call() {
-                        return grandExchange.open();
+                        return ctx.widgets.component(grandExchange.WIDGET, 15).click();
                     }
-                }, 100,30);
+                }, 1000, 5);
+                Condition.sleep(1000);
                 return;
-            } else {
-                if(countAvailableOrders() == 0) {
-                    waitForOrders++;
-                    if(countOrdersHaveProgress() > 0) {
+            }
+            if (ctx.widgets.component(grandExchange.WIDGET, GrandExchange.CONFIRM_COMPONENT).visible() ||
+                    ctx.widgets.component(grandExchange.WIDGET, 70).visible() ||
+                    ctx.widgets.component(1433, 0).visible() ||
+                    ctx.bank.opened()) {
+                status = "Stuck on screen. Escaping.";
+                escape();
+                return;
+            }
+
+            if (ctx.backpack.select().id(561).count() == 0) {
+                status = "No nature runes, buying nature runes.";
+                if (!grandExchange.opened()) {
+                    Condition.wait(new Callable<Boolean>() {
+                        public Boolean call() {
+                            return grandExchange.open();
+                        }
+                    }, 1000, 5);
+                    return;
+                } else {
+                    if (countAvailableOrders() == 0) {
+                        abortOrder();
+                        Condition.sleep(1000);
+                        return;
+                    }
+                    if (Condition.wait(new Callable<Boolean>() {
+                        @Override
+                        public Boolean call() {
+                            int coins = ctx.backpack.moneyPouchCount();
+                            int divider = isMember() ? 7 : 3;
+                            int amount;
+                            if (divider == 0) {
+                                amount = 0;
+                            } else {
+                                amount = Integer.parseInt(Double.toString(Math.floor((coins < 1 ? 1 : coins) / (buyNatureRunePrice < 1 ? 1 : buyNatureRunePrice) / divider)).replace(".0", ""));
+                            }
+                            return grandExchange.buy(NATURE_RUNE_ID, amount, buyNatureRunePrice);
+                        }
+                    })) {
+                        Condition.sleep(2000);
                         Condition.wait(new Callable<Boolean>() {
                             @Override
                             public Boolean call() {
                                 return grandExchange.collectToInventory();
                             }
                         }, 100, 30);
-                    }
-                    Condition.sleep(1000);
-                    if(waitForOrders > 4) {
-                        status = "Aborting order";
-                        if(Condition.wait(new Callable<Boolean>() {
-                            @Override
-                            public Boolean call() {
-                                return abortOrder();
-                            }
-                        })) {
-                            Condition.sleep(1000);
-                            waitForOrders = 0;
-                        }
-                    }
-                    return;
-                } else {
-                    status = "Buying item " + currentAlchItem.name;
-                    if(Condition.wait(new Callable<Boolean>() {
-                        @Override
-                        public Boolean call() {
-                            int divider = countAvailableOrders() < 1 ? 1 : countAvailableOrders();
-                            int coins = ctx.backpack.moneyPouchCount();
-                            int price = ((currentAlchItem.alchPrice - minProfit) - buyNatureRunePrice < 1 ? 1 : (currentAlchItem.alchPrice - minProfit) - buyNatureRunePrice);
-                            int canByAmount = (coins < 1 ? 1 : coins) / price / divider;
-                            int amount = Integer.parseInt(Double.toString(Math.floor(canByAmount > currentAlchItem.limit ? currentAlchItem.limit : canByAmount)).replace(".0", ""));
-                            return grandExchange.buy(currentAlchItem.id, amount, price);
-                        }
-                    })) {
-                        currentAlchItemIndex++;
-                        if(currentAlchItemIndex >= alchItemList.size()) {
-                            currentAlchItemIndex = 0;
-                        }
-                        currentAlchItem = alchItemList.get(currentAlchItemIndex);
-                        waitForOrders = 0;
-                        Condition.sleep(2000);
+                        Condition.sleep(1000);
                         return;
                     }
                 }
-            }
-        } else {
-            waitForOrders = 0;
-            if(grandExchange.opened()) {
-                escape();
-            }
-            status = "Alching";
-            for(int i = 0; i < 28; i++) {
-                Component component = ctx.widgets.component(1473,5).component(i);
-                if(component.itemId() > 0 && component.itemId() != NATURE_RUNE_ID) {
-                    lastAlchItem = getAlchItemById(component.itemId());
-                    ctx.input.send("1");
-                    component.click();
+            } else if (ctx.backpack.select().count() == 1) {
+                status = "No items to alch, buying items.";
+                if (!grandExchange.opened()) {
                     Condition.wait(new Callable<Boolean>() {
                         @Override
                         public Boolean call() {
-                            return !(ctx.players.local().animation() == 24458 || ctx.players.local().animation() == 17099);
+                            return grandExchange.open();
                         }
-                    },10,100);
-                    break;
+                    }, 100, 30);
+                    return;
+                } else {
+                    if (countAvailableOrders() == 0) {
+                        waitForOrders++;
+                        if (countOrdersHaveProgress() > 0) {
+                            Condition.wait(new Callable<Boolean>() {
+                                @Override
+                                public Boolean call() {
+                                    return grandExchange.collectToInventory();
+                                }
+                            }, 100, 30);
+                        }
+                        Condition.sleep(1000);
+                        if (waitForOrders > 4) {
+                            status = "Aborting order.";
+                            if (Condition.wait(new Callable<Boolean>() {
+                                @Override
+                                public Boolean call() {
+                                    return abortOrder();
+                                }
+                            })) {
+                                Condition.sleep(1000);
+                                waitForOrders = 0;
+                            }
+                        }
+                        return;
+                    } else {
+                        status = "Buying item " + currentAlchItem.name + ".";
+                        if (Condition.wait(new Callable<Boolean>() {
+                            @Override
+                            public Boolean call() {
+                                int divider = countAvailableOrders() < 1 ? 1 : countAvailableOrders();
+                                int coins = ctx.backpack.moneyPouchCount();
+                                int price = ((currentAlchItem.alchPrice - minProfit) - buyNatureRunePrice < 1 ? 1 : (currentAlchItem.alchPrice - minProfit) - buyNatureRunePrice);
+                                int canByAmount = (coins < 1 ? 1 : coins) / price / divider;
+                                int amount = Integer.parseInt(Double.toString(Math.floor(canByAmount > currentAlchItem.limit ? currentAlchItem.limit : canByAmount)).replace(".0", ""));
+                                return grandExchange.buy(currentAlchItem.id, amount, price);
+                            }
+                        })) {
+                            currentAlchItemIndex++;
+                            if (currentAlchItemIndex >= alchItemList.size()) {
+                                currentAlchItemIndex = 0;
+                            }
+                            currentAlchItem = alchItemList.get(currentAlchItemIndex);
+                            waitForOrders = 0;
+                            Condition.sleep(2000);
+                            return;
+                        }
+                    }
+                }
+            } else {
+                waitForOrders = 0;
+                if (grandExchange.opened()) {
+                    escape();
+                }
+                status = "Alching.";
+                for(Item item : ctx.backpack.items()) {
+                    if(item.id() > 0 && item.id() != NATURE_RUNE_ID) {
+                        ctx.input.send("1");
+                        item.click();
+                        lastAlchItem = getAlchItemById(item.id());
+                        Condition.wait(new Callable<Boolean>() {
+                            @Override
+                            public Boolean call() {
+                                return !(ctx.players.local().animation() == 24458 || ctx.players.local().animation() == 17099);
+                            }
+                        }, 1, 2000);
+                        break;
+                    }
                 }
             }
         }
@@ -339,13 +353,14 @@ public class GrandExchangeAlcher extends PollingScript<ClientContext> implements
 
     public void messaged(MessageEvent messageEvent) {
         if(messageEvent.text().contains("coins have been added to your money pouch.") && messageEvent.source().equals("")) {
-            if(status.equals("Alching")) {
+            if(status.equals("Alching.")) {
                 totalAlchs++;
+                System.out.println(messageEvent);
                 int alchGp = Integer.parseInt(messageEvent.text().replace("coins have been added to your money pouch.","").replace(",","").trim());
-                int alchPrice = (lastAlchItem.alchPrice - 100);
+                int alchPrice = (lastAlchItem.alchPrice - minProfit);
                 int alchProfit = alchGp-alchPrice;
-                totalGp = totalGp + alchProfit;
-                totalGuideGp = totalGuideGp + lastAlchItem.profit;
+                totalGp += alchProfit;
+                totalGuideGp += lastAlchItem.profit;
             }
         }
     }
@@ -383,66 +398,68 @@ public class GrandExchangeAlcher extends PollingScript<ClientContext> implements
         graphics.drawString("Profit: " + totalGp + " ~ " +totalGuideGp, 105, 53);
         graphics.drawString("Profit/h: " + (int)((3600000D*totalGp) / (System.currentTimeMillis() - startTime)) + " ~ " + (int)((3600000D*totalGuideGp) / (System.currentTimeMillis() - startTime)), 105, 68);
 
-        if(startXp != -1) {
-            graphics.drawString("XP gained: " + (ctx.skills.experience(6) - startXp), 266, 53);
-            graphics.drawString("XP/h: " + (int)((3600000D*(ctx.skills.experience(6) - startXp)) / (System.currentTimeMillis() - startTime)), 266, 68);
-        }
+        if(started) {
+            if (startXp != -1) {
+                graphics.drawString("XP gained: " + (ctx.skills.experience(6) - startXp), 266, 53);
+                graphics.drawString("XP/h: " + (int) ((3600000D * (ctx.skills.experience(6) - startXp)) / (System.currentTimeMillis() - startTime)), 266, 68);
+            }
 
-        if(currentAlchItem != null && !status.equals("Alching")) {
-            graphics.drawString("Next buy item:", 5, 90);
-            graphics.drawString("(#" + currentAlchItem.id + ") " + currentAlchItem.name, 125, 90);
+            if (currentAlchItem != null && !status.equals("Alching.")) {
+                graphics.drawString("Next buy item:", 5, 90);
+                graphics.drawString("(#" + currentAlchItem.id + ") " + currentAlchItem.name, 70, 90);
 
-            graphics.drawString("Alch price:", 5, 105);
-            graphics.drawString("" + currentAlchItem.alchPrice, 65, 105);
+                graphics.drawString("Alch price:", 5, 105);
+                graphics.drawString("" + currentAlchItem.alchPrice, 65, 105);
 
-            graphics.drawString("Limit:", 5, 120);
-            graphics.drawString("" + currentAlchItem.limit, 65, 120);
+                graphics.drawString("Limit:", 5, 120);
+                graphics.drawString("" + currentAlchItem.limit, 65, 120);
 
-            graphics.drawString("Buy price:", 125, 105);
-            graphics.drawString("" + ((currentAlchItem.alchPrice - minProfit) - buyNatureRunePrice), 190, 105);
+                graphics.drawString("Buy price:", 125, 105);
+                graphics.drawString("" + ((currentAlchItem.alchPrice - minProfit) - buyNatureRunePrice), 190, 105);
 
-            graphics.drawString("Nat price:", 125, 120);
-            graphics.drawString("" + buyNatureRunePrice, 190, 120);
+                graphics.drawString("Nat price:", 125, 120);
+                graphics.drawString("" + buyNatureRunePrice, 190, 120);
 
-            graphics.drawString("Calc Profit:", 125, 135);
-            graphics.drawString("" + (currentAlchItem.alchPrice-((currentAlchItem.alchPrice - minProfit))), 190, 135);
+                graphics.drawString("Calc Profit:", 125, 135);
+                graphics.drawString("" + (currentAlchItem.alchPrice - ((currentAlchItem.alchPrice - minProfit))), 190, 135);
 
-            graphics.drawString("Guide price:", 255, 105);
-            graphics.drawString("" + (currentAlchItem.price), 320, 105);
+                graphics.drawString("Guide price:", 255, 105);
+                graphics.drawString("" + (currentAlchItem.price), 320, 105);
 
-            graphics.drawString("Guide Profit:", 255, 120);
-            graphics.drawString("" + currentAlchItem.profit, 320, 120);
+                graphics.drawString("Guide Profit:", 255, 120);
+                graphics.drawString("" + currentAlchItem.profit, 320, 120);
 
-            graphics.drawString("Guide Max:", 255, 135);
-            graphics.drawString("" + currentAlchItem.maxProfit, 320, 135);
+                graphics.drawString("Guide Max:", 255, 135);
+                graphics.drawString("" + currentAlchItem.maxProfit, 320, 135);
 
-        }else if(lastAlchItem != null && status.equals("Alching")) {
-            graphics.drawString("Alching item:", 5, 90);
-            graphics.drawString("(#" + lastAlchItem.id + ") " + lastAlchItem.name, 70, 90);
+            } else if (lastAlchItem != null && status.equals("Alching.")) {
+                graphics.drawString("Alching item:", 5, 90);
+                graphics.drawString("(#" + lastAlchItem.id + ") " + lastAlchItem.name, 70, 90);
 
-            graphics.drawString("Alch price:", 5, 105);
-            graphics.drawString("" + lastAlchItem.alchPrice, 65, 105);
+                graphics.drawString("Alch price:", 5, 105);
+                graphics.drawString("" + lastAlchItem.alchPrice, 65, 105);
 
-            graphics.drawString("Limit:", 5, 120);
-            graphics.drawString("" + lastAlchItem.limit, 65, 120);
+                graphics.drawString("Limit:", 5, 120);
+                graphics.drawString("" + lastAlchItem.limit, 65, 120);
 
-            graphics.drawString("Buy price:", 125, 105);
-            graphics.drawString("" + ((lastAlchItem.alchPrice - minProfit) - buyNatureRunePrice), 190, 105);
+                graphics.drawString("Buy price:", 125, 105);
+                graphics.drawString("" + ((lastAlchItem.alchPrice - minProfit) - buyNatureRunePrice), 190, 105);
 
-            graphics.drawString("Nat price:", 125, 120);
-            graphics.drawString("" + buyNatureRunePrice, 190, 120);
+                graphics.drawString("Nat price:", 125, 120);
+                graphics.drawString("" + buyNatureRunePrice, 190, 120);
 
-            graphics.drawString("Calc Profit:", 125, 135);
-            graphics.drawString("" + (lastAlchItem.alchPrice-((lastAlchItem.alchPrice - minProfit))), 190, 135);
+                graphics.drawString("Calc Profit:", 125, 135);
+                graphics.drawString("" + (lastAlchItem.alchPrice - ((lastAlchItem.alchPrice - minProfit))), 190, 135);
 
-            graphics.drawString("Guide price:", 255, 105);
-            graphics.drawString("" + (lastAlchItem.price), 320, 105);
+                graphics.drawString("Guide price:", 255, 105);
+                graphics.drawString("" + (lastAlchItem.price), 320, 105);
 
-            graphics.drawString("Guide Profit:", 255, 120);
-            graphics.drawString("" + lastAlchItem.profit, 320, 120);
+                graphics.drawString("Guide Profit:", 255, 120);
+                graphics.drawString("" + lastAlchItem.profit, 320, 120);
 
-            graphics.drawString("Guide Max:", 255, 135);
-            graphics.drawString("" + lastAlchItem.maxProfit, 320, 135);
+                graphics.drawString("Guide Max:", 255, 135);
+                graphics.drawString("" + lastAlchItem.maxProfit, 320, 135);
+            }
         }
     }
 }
