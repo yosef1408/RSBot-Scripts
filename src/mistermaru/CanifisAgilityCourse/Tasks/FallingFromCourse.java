@@ -1,6 +1,8 @@
 package mistermaru.CanifisAgilityCourse.Tasks;
 
 import mistermaru.CanifisAgilityCourse.Task;
+
+import org.powerbot.script.Condition;
 import org.powerbot.script.rt4.ClientContext;
 
 public class FallingFromCourse extends Task<ClientContext> {
@@ -20,6 +22,7 @@ public class FallingFromCourse extends Task<ClientContext> {
 	@Override
 	public void execute() {
 		timesFallen++;
+		Condition.sleep(2000);
 		if(ctx.players.local().health() < 10){
 			ctx.controller().stop();
 		}

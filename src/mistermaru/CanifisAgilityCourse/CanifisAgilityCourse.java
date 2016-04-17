@@ -6,13 +6,8 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
-
-import javax.imageio.ImageIO;
 
 import org.powerbot.script.PaintListener;
 import org.powerbot.script.PollingScript;
@@ -24,7 +19,7 @@ import mistermaru.CanifisAgilityCourse.Task;
 import mistermaru.CanifisAgilityCourse.Tasks.*;
 
 @Script.Manifest(
-		name = "CanifisAgilityCourse - v1.3", description = "Does the Canifis rooftop agility course.", 
+		name = "CanifisAgilityCourse - v1.5", description = "Does the Canifis rooftop agility course.", 
 		properties = "author = Mistermaru; topic=1308966; client=4"
 )
 
@@ -33,7 +28,6 @@ public class CanifisAgilityCourse extends PollingScript<ClientContext> implement
 	@SuppressWarnings("rawtypes")
 	public ArrayList<Task> taskList = new ArrayList<Task>();
 	private long initialTime = 0;
-	public static String status;
 	private int startExpAgility;
 	private int totalExpGained;
 	private int startLevelAgility;
@@ -53,7 +47,7 @@ public class CanifisAgilityCourse extends PollingScript<ClientContext> implement
 			ctx.game.tab(Game.Tab.OPTIONS);
 			ctx.widgets.component(261, 19).click();
 			ctx.game.tab(Game.Tab.INVENTORY);
-		}
+		}		
 		
 		ctx.camera.pitch(Random.nextInt(55, 99));
 		
@@ -107,7 +101,7 @@ public class CanifisAgilityCourse extends PollingScript<ClientContext> implement
 		g.drawString("Runtime: " + getHour() + ":" + getMin() + ":" + getSec(), 5, 336);
 		g.setFont(new Font("Verdana", 1, 14));
 		g.setColor(new Color(255,0,0, 165));
-		g.drawString("CanifisAgilityCourse v1.3, by Maru", 6, 236);
+		g.drawString("CanifisAgilityCourse v1.5, by Maru", 6, 236);
 		g.drawImage(AgilityImg, 265 , 286, null);
 	}	
 	

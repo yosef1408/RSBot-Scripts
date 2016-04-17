@@ -7,6 +7,8 @@ import org.powerbot.script.rt4.ClientContext;
 public class TakeMarkOfGrace extends Task<ClientContext> {
 	private int markOfGraceID = 11849;
 	private static int MOGTaken = 0;
+	private int MOGInInv = 0;
+	private int oldMOGInInv = 0;
 	
 	public TakeMarkOfGrace(ClientContext ctx) {
 		super(ctx);
@@ -21,12 +23,19 @@ public class TakeMarkOfGrace extends Task<ClientContext> {
 
 	@Override
 	public void execute() {
+		oldMOGInInv = ctx.inventory.select().id(markOfGraceID).count(true);
+		
 		ctx.groundItems.select().id(markOfGraceID).peek().interact("Take");
 		Condition.sleep(2000);
 		if(!ctx.groundItems.select().id(markOfGraceID).peek().interact("Take")){
 			ctx.groundItems.select().id(markOfGraceID).peek().click();
+		}	
+		
+		MOGInInv = ctx.inventory.select().id(markOfGraceID).count(true);
+		
+		if (oldMOGInInv + 1 == MOGInInv){
+			MOGTaken++;
 		}
-		MOGTaken++;
 	}
 
 	public static int getMOGTaken() {

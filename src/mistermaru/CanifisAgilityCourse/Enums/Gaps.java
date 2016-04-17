@@ -5,7 +5,7 @@ import org.powerbot.script.Tile;
 
 public enum Gaps {
 	
-	GAP1 (10820, new Area(new Tile(3505,3497,2), new Tile(3509, 3492, 2))),
+	GAP1 (10820, new Area(new Tile(3505,3499,2), new Tile(3509, 3490, 2))),
 	GAP2 (10821, new Area(new Tile(3503,3504,2), new Tile(3498, 3506, 2))),
 	GAP3 (10828, new Area(new Tile(3493,3505,2), new Tile(3487, 3499, 2))),
 	GAP4 (10822, new Area(new Tile(3475,3500,3), new Tile(3480, 3492, 3))),

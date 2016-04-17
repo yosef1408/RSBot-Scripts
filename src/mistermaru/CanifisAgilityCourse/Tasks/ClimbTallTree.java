@@ -31,13 +31,16 @@ public class ClimbTallTree extends Task<ClientContext>{
 		}
 		
 		GameObject tallTree = ctx.objects.nearest().poll();
-		ctx.camera.pitch(Random.nextInt(55, 99));
 		if(!tallTree.inViewport()){
+			ctx.camera.pitch(Random.nextInt(55, 99));
 			ctx.movement.step(new Tile(3506, 3487, 0));	
 			ctx.camera.turnTo(tallTree);
 		}
 		if(tallTree.inViewport() && ctx.players.local().speed() == 0 && ctx.players.local().animation() == -1){
-			tallTree.interact(true, "Climb");
+			
+			if(!tallTree.interact(true, "Climb")){
+				tallTree.interact(true, "Climb");
+			}
 		}
 	}	
 	

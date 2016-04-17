@@ -4,6 +4,8 @@ import java.util.concurrent.Callable;
 
 import org.powerbot.script.Area;
 import org.powerbot.script.Condition;
+import org.powerbot.script.Random;
+import org.powerbot.script.Tile;
 import org.powerbot.script.rt4.ClientContext;
 import org.powerbot.script.rt4.GameObject;
 import org.powerbot.script.rt4.Interactive;
@@ -34,7 +36,6 @@ public class JumpGap extends Task<ClientContext> {
 				return true;
 			}
 		}
-
 		return false;
 	}
 
@@ -44,22 +45,36 @@ public class JumpGap extends Task<ClientContext> {
 		ctx.camera.turnTo(gap);
 		if (!gap.inViewport()) {
 			ctx.camera.pitch(55);
-			if (gapID == Gaps.GAP5.getGapID()) {
-				ctx.movement.step(gap);
-			}		
 		}
 
-		if (gap.inViewport() && ctx.players.local().speed() == 0 && ctx.players.local().animation() == -1) {
-			gap.interact(true, "Jump");
-			Condition.wait(new Callable<Boolean>() {
+		if (ctx.players.local().speed() == 0 && ctx.players.local().animation() == -1) {
+			
+			if (gapID == Gaps.GAP5.getGapID() && !gap.inViewport()) {
+				ctx.movement.step(new Tile(3503, Random.nextInt(3476, 3475), 3));
+				Condition.wait(new Callable<Boolean>() {
 
-				@Override
-				public Boolean call() throws Exception {
-					return !roofArea.contains(ctx.players.local());
+					@Override
+					public Boolean call() throws Exception {
+						return ctx.players.local().tile().distanceTo(gap.tile()) <= 9;
+					}
+
+				});
+			}	
+			
+			if(gap.inViewport()){
+				if(!gap.interact(true, "Jump")){
+					gap.interact(true, "Jump");
 				}
+				Condition.wait(new Callable<Boolean>() {
 
-			});
-		}
+					@Override
+					public Boolean call() throws Exception {
+						return !roofArea.contains(ctx.players.local());
+					}
+
+				});
+			}
+			}
 		
 		if(gapID == Gaps.GAP6.getGapID()){
 			setLaps(getLaps() + 1);
