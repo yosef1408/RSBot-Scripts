@@ -32,8 +32,8 @@ public class GrandExchangeAlcherForm extends JFrame {
         this.ctx = ctx;
         this.grandExchangeAlcher = alcher;
 
-        setSize(450, 350);
-        setResizable(false);
+        setSize(200, 600);
+        setResizable(true);
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Grand Exchange Alcher");
 
@@ -50,12 +50,11 @@ public class GrandExchangeAlcherForm extends JFrame {
                 "2. Place High Alchemy in the first slot of your action bar.\n" +
                 "3. Have atleast 500k F2P or 1M P2P in your money pouch.\n" +
                 "4. Stand next to a Grand Exchange clerk.");
-        description.setSize(500,250);
 
 
 
         c.fill = GridBagConstraints.BOTH;
-        c.ipady = 33;
+        c.ipady = 25;
         c.gridwidth = 2;
         c.gridx = 0;
         c.gridy = 0;
