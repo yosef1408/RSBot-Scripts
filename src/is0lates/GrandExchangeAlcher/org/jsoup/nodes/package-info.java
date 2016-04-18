@@ -1,4 +1,4 @@
 /**
  HTML document structure nodes.
  */
-package GrandExchangeAlcher.org.jsoup.nodes;
+package is0lates.GrandExchangeAlcher.org.jsoup.nodes;
