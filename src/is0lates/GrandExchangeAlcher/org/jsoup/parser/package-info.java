@@ -1,4 +1,4 @@
 /**
  Contains the HTML parser, tag specifications, and HTML tokeniser.
  */
-package GrandExchangeAlcher.org.jsoup.parser;
+package is0lates.GrandExchangeAlcher.org.jsoup.parser;
