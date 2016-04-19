@@ -15,6 +15,7 @@ import org.powerbot.script.Random;
 import org.powerbot.script.Script;
 import org.powerbot.script.rt4.ClientContext;
 import org.powerbot.script.rt4.Game;
+
 import mistermaru.CanifisAgilityCourse.Task;
 import mistermaru.CanifisAgilityCourse.Tasks.*;
 
@@ -23,9 +24,8 @@ import mistermaru.CanifisAgilityCourse.Tasks.*;
 		properties = "author = Mistermaru; topic=1308966; client=4"
 )
 
-public class CanifisAgilityCourse extends PollingScript<ClientContext> implements PaintListener {
+public class CanifisAgilityCourse extends PollingScript<ClientContext> implements PaintListener{
 
-	@SuppressWarnings("rawtypes")
 	public ArrayList<Task> taskList = new ArrayList<Task>();
 	private long initialTime = 0;
 	private int startExpAgility;
@@ -34,6 +34,9 @@ public class CanifisAgilityCourse extends PollingScript<ClientContext> implement
 	private int totalLevelsGained;
 	private BufferedImage AgilityImg;
 	  
+	public CanifisAgilityCourse(){
+	}
+	
 	@Override
 	public void start(){
 		taskList.addAll(Arrays.asList(new TakeMarkOfGrace(ctx),
@@ -60,7 +63,7 @@ public class CanifisAgilityCourse extends PollingScript<ClientContext> implement
 
 	@Override
 	public void poll() {
-		for(@SuppressWarnings("rawtypes") Task task: taskList){
+		for(Task task: taskList){
 			if(task.activate()){
 				task.execute();
 			}
@@ -99,6 +102,8 @@ public class CanifisAgilityCourse extends PollingScript<ClientContext> implement
         g.drawString("Mark Of Grace taken: " + TakeMarkOfGrace.getMOGTaken(), 5, 302);
         g.drawString("Times fallen: " + FallingFromCourse.getTimesFallen(), 5, 314);
 		g.drawString("Runtime: " + getHour() + ":" + getMin() + ":" + getSec(), 5, 336);
+		g.drawString("" + runtime(getRuntime()), 5, 45);
+
 		g.setFont(new Font("Verdana", 1, 14));
 		g.setColor(new Color(255,0,0, 165));
 		g.drawString("CanifisAgilityCourse v1.5, by Maru", 6, 236);
@@ -127,5 +132,28 @@ public class CanifisAgilityCourse extends PollingScript<ClientContext> implement
 		double runTime = (double) (System.currentTimeMillis() - initialTime) / 3600000;
 		return runTime;
 	}
+	
+
+public String runtime(final long time) {
+
+        final long total_secs = time / 1000;
+
+        final long total_mins = total_secs / 60;
+
+        final long total_hrs = total_mins / 60;
+
+        final long total_days = total_hrs / 24;
+
+        final int secs = (int) total_secs % 60;
+
+        final int mins = (int) total_mins % 60;
+
+        final int hrs = (int) total_hrs % 24;
+
+        final int days = (int) total_days;
+
+        return String.format("%02d:%02d:%02d:%02d", days, hrs, mins, secs);
+
+    }
 
 }
