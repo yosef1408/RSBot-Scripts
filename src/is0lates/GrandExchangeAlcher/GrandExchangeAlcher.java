@@ -1,11 +1,9 @@
 package is0lates.GrandExchangeAlcher;
 
 import is0lates.GrandExchangeAlcher.model.AlchItem;
-import jdk.nashorn.internal.parser.JSONParser;
 import org.powerbot.script.*;
 import org.powerbot.script.GeItem;
 import org.powerbot.script.rt6.ClientContext;
-import org.powerbot.script.rt6.Component;
 import org.powerbot.script.rt6.Hud;
 import org.powerbot.script.rt6.Item;
 
