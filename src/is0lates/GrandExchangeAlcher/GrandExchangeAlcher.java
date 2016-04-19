@@ -1,14 +1,9 @@
 package is0lates.GrandExchangeAlcher;
 
 import is0lates.GrandExchangeAlcher.model.AlchItem;
-import is0lates.GrandExchangeAlcher.org.jsoup.Jsoup;
-import is0lates.GrandExchangeAlcher.org.jsoup.nodes.Document;
-import is0lates.GrandExchangeAlcher.org.jsoup.nodes.Element;
-import is0lates.GrandExchangeAlcher.org.jsoup.select.Elements;
 import org.powerbot.script.*;
 import org.powerbot.script.GeItem;
 import org.powerbot.script.rt6.ClientContext;
-import org.powerbot.script.rt6.Component;
 import org.powerbot.script.rt6.Hud;
 import org.powerbot.script.rt6.Item;
 
@@ -16,7 +11,6 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
@@ -54,30 +48,21 @@ public class GrandExchangeAlcher extends PollingScript<ClientContext> implements
     }
 
     private void fetchAlchItems() {
-        final String content = downloadString("http://runescape.wikia.com/wiki/RuneScape:Grand_Exchange_Market_Watch/Alchemy");
-        Document doc = Jsoup.parse(content);
-        Elements rows = doc.select("div#mw-content-text table").first().select("tbody tr");
-        for (Element row : rows) {
-            if(row.select("td").isEmpty()) {
-                continue;
-            }
-            try {
-                AlchItem alchItem = new AlchItem();
-                alchItem.name = row.select("td").get(1).select("a").text();
-                alchItem.price = Integer.parseInt(row.select("td").get(2).text().replace(",", ""));
-                alchItem.alchPrice = Integer.parseInt(row.select("td").get(3).text().replace(",", ""));
-                alchItem.profit = Integer.parseInt(row.select("td").get(4).text());
-                alchItem.maxProfit = Integer.parseInt(row.select("td").get(7).text().replace(",", ""));
-                alchItem.limit = Integer.parseInt(row.select("td").get(6).text().replace(",", ""));
-                alchItem.members = row.select("td").get(8).select("a").attr("title").contains("Members");
-                if((!isMember() || f2pItemsOnly) && alchItem.members == true ) {
-                    continue;
-                }
-                alchItemList.add(alchItem);
-                fetchItemId(alchItem);
-            } catch (Exception e) {
-                status = "Some items could not be parsed";
-            }
+        status = "Fetching items...";
+        final String content = downloadString("http://198.23.59.64/grandExchangeAlcher/");
+        String[] rows = content.split("\n");
+        for(String row : rows) {
+            String[] item = row.split(",");
+            AlchItem alchItem = new AlchItem();
+            alchItem.id = Integer.parseInt(item[0]);
+            alchItem.name = item[1];
+            alchItem.price = Integer.parseInt(item[2]);
+            alchItem.alchPrice = Integer.parseInt(item[3]);
+            alchItem.profit = Integer.parseInt(item[4]);
+            alchItem.maxProfit = Integer.parseInt(item[5]);
+            alchItem.limit = Integer.parseInt(item[6]);
+            alchItem.members = Integer.parseInt(item[7]) == 1;
+            alchItemList.add(alchItem);
         }
         Collections.sort(alchItemList, new Comparator<AlchItem>() {
             @Override public int compare(AlchItem i1, AlchItem i2) {
@@ -91,22 +76,6 @@ public class GrandExchangeAlcher extends PollingScript<ClientContext> implements
             }
         });
         started = true;
-    }
-
-    private void fetchItemId(AlchItem alchItem) {
-        currentAlchItemId = -1;
-        status = "Fetching item ID for " + alchItem.name;
-        final String content = downloadString("http://runescape.wikia.com/wiki/Exchange:" + alchItem.name.trim().replace(" ", "_").replace(",", "%27"));
-        Document doc = Jsoup.parse(content);
-        String id = doc.select("span#GEDBID").first().text();
-        currentAlchItemId = Integer.parseInt(id);
-        alchItemList.get(alchItemList.indexOf(alchItem)).id = Integer.parseInt(id);
-        status = "Fetching item ID for " + alchItem.name + " : " + currentAlchItemId;
-        while (currentAlchItemId < 0) {
-            status += ".";
-            Condition.sleep(500);
-        }
-
     }
 
     private AlchItem getAlchItemById(int id) {
@@ -355,7 +324,6 @@ public class GrandExchangeAlcher extends PollingScript<ClientContext> implements
         if(messageEvent.text().contains("coins have been added to your money pouch.") && messageEvent.source().equals("")) {
             if(status.equals("Alching.")) {
                 totalAlchs++;
-                System.out.println(messageEvent);
                 int alchGp = Integer.parseInt(messageEvent.text().replace("coins have been added to your money pouch.","").replace(",","").trim());
                 int alchPrice = (lastAlchItem.alchPrice - minProfit);
                 int alchProfit = alchGp-alchPrice;
