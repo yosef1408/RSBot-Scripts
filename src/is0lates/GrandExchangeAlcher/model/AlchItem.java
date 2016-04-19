@@ -11,5 +11,4 @@ public class AlchItem {
     public int maxProfit;
     public int limit;
     public boolean members;
-    public GeItem geItem;
 }

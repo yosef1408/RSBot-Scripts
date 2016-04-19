@@ -24,7 +24,6 @@ public class GrandExchangeAlcher extends PollingScript<ClientContext> implements
     private static ArrayList<AlchItem> alchItemList = new ArrayList<AlchItem>();
     private static AlchItem currentAlchItem;
     private static int currentAlchItemIndex = 0;
-    private static int currentAlchItemId;
     private static boolean isStopping = false;
     private static final long startTime = System.currentTimeMillis();
     private static int startXp = -1;
