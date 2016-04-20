@@ -60,7 +60,10 @@ public class GrandExchangeAlcher extends PollingScript<ClientContext> implements
             alchItem.profit = Integer.parseInt(item[4]);
             alchItem.maxProfit = Integer.parseInt(item[6]);
             alchItem.limit = Integer.parseInt(item[5]);
-            alchItem.members = Integer.parseInt(item[7]) == 1;
+            alchItem.members = item[7].equals("1");
+            if((f2pItemsOnly || !isMember()) && alchItem.members) {
+                continue;
+            }
             alchItemList.add(alchItem);
         }
         Collections.sort(alchItemList, new Comparator<AlchItem>() {
