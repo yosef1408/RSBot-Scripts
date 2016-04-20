@@ -58,8 +58,8 @@ public class GrandExchangeAlcher extends PollingScript<ClientContext> implements
             alchItem.price = Integer.parseInt(item[2]);
             alchItem.alchPrice = Integer.parseInt(item[3]);
             alchItem.profit = Integer.parseInt(item[4]);
-            alchItem.maxProfit = Integer.parseInt(item[5]);
-            alchItem.limit = Integer.parseInt(item[6]);
+            alchItem.maxProfit = Integer.parseInt(item[6]);
+            alchItem.limit = Integer.parseInt(item[5]);
             alchItem.members = Integer.parseInt(item[7]) == 1;
             alchItemList.add(alchItem);
         }
@@ -102,7 +102,7 @@ public class GrandExchangeAlcher extends PollingScript<ClientContext> implements
 
     private int countOpenOrders() {
         int openOrders = 0;
-        for (int s = 0; s < (isMember() ? 7 : 3); s++) {
+        for (int s = 0; s < (isMember() ? 8 : 3); s++) {
             String orderType = ctx.widgets.component(grandExchange.WIDGET, GrandExchange.FIRST_SLOT_COMPONENT + (s)).component(1).text();
             if (orderType.equals("Buy") || orderType.equals("Sell")) {
                 openOrders++;
@@ -112,14 +112,14 @@ public class GrandExchangeAlcher extends PollingScript<ClientContext> implements
     }
 
     private int countAvailableOrders() {
-        return (isMember() ? 7 : 3) - countOpenOrders();
+        return (isMember() ? 8 : 3) - countOpenOrders();
     }
 
     private boolean abortOrder() {
         return Condition.wait(new Callable<Boolean>() {
             @Override
             public Boolean call() {
-                int s = (int) (Math.random() * (isMember() ? 7 : 3));
+                int s = (int) (Math.random() * (isMember() ? 8 : 3));
                 return ctx.widgets.component(GrandExchange.WIDGET, GrandExchange.FIRST_SLOT_COMPONENT + s).click();
             }
         },1000,5) &&
@@ -140,7 +140,7 @@ public class GrandExchangeAlcher extends PollingScript<ClientContext> implements
 
     private int countOrdersHaveProgress() {
         int count = 0;
-        for(int i = 1; i <= (isMember() ? 7 : 3); i++) {
+        for(int i = 1; i <= (isMember() ? 8 : 3); i++) {
             if(grandExchange.getProgress(i) > 0) {
                 count++;
             }
@@ -215,7 +215,7 @@ public class GrandExchangeAlcher extends PollingScript<ClientContext> implements
                         @Override
                         public Boolean call() {
                             int coins = ctx.backpack.moneyPouchCount();
-                            int divider = isMember() ? 7 : 3;
+                            int divider = isMember() ? 8 : 3;
                             int amount;
                             if (divider == 0) {
                                 amount = 0;
