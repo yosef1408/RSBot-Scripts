@@ -102,7 +102,6 @@ public class CanifisAgilityCourse extends PollingScript<ClientContext> implement
         g.drawString("Mark Of Grace taken: " + TakeMarkOfGrace.getMOGTaken(), 5, 302);
         g.drawString("Times fallen: " + FallingFromCourse.getTimesFallen(), 5, 314);
 		g.drawString("Runtime: " + getHour() + ":" + getMin() + ":" + getSec(), 5, 336);
-		g.drawString("" + runtime(getRuntime()), 5, 45);
 
 		g.setFont(new Font("Verdana", 1, 14));
 		g.setColor(new Color(255,0,0, 165));
@@ -132,28 +131,5 @@ public class CanifisAgilityCourse extends PollingScript<ClientContext> implement
 		double runTime = (double) (System.currentTimeMillis() - initialTime) / 3600000;
 		return runTime;
 	}
-	
-
-public String runtime(final long time) {
-
-        final long total_secs = time / 1000;
-
-        final long total_mins = total_secs / 60;
-
-        final long total_hrs = total_mins / 60;
-
-        final long total_days = total_hrs / 24;
-
-        final int secs = (int) total_secs % 60;
-
-        final int mins = (int) total_mins % 60;
-
-        final int hrs = (int) total_hrs % 24;
-
-        final int days = (int) total_days;
-
-        return String.format("%02d:%02d:%02d:%02d", days, hrs, mins, secs);
-
-    }
 
 }

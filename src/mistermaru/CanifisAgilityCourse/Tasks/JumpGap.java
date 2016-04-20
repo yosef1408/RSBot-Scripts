@@ -20,6 +20,7 @@ public class JumpGap extends Task<ClientContext> {
 	private int gapID;
 	private Area roofArea;
 	private static int laps = 0;
+	private GameObject gap;
 
 	public JumpGap(ClientContext ctx) {
 		super(ctx);
@@ -41,7 +42,7 @@ public class JumpGap extends Task<ClientContext> {
 
 	@Override
 	public void execute() {
-		GameObject gap = ctx.objects.nearest().poll();
+		gap = ctx.objects.nearest().poll();
 		ctx.camera.turnTo(gap);
 		if (!gap.inViewport()) {
 			ctx.camera.pitch(55);
