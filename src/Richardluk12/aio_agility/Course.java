@@ -14,9 +14,11 @@ public class Course {
     public Obstacle[] actions;
     public boolean failed_ca;
     public int current_action;
+    public int level;
 
-    public Course(String _name, Tile _map, Obstacle... _obstacle){
+    public Course(String _name, Tile _map, int _level, Obstacle... _obstacle){
         this.name = _name;
+        this.level = _level;
         this.mapBase = _map;
         this.actions = _obstacle;
         this.current_action = 0;

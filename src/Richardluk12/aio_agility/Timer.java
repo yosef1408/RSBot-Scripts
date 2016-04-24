@@ -1,5 +1,6 @@
 package Richardluk12.aio_agility;
 
+
 /**
  * Created by Rich on 4/15/2016.
  */
@@ -41,14 +42,14 @@ public class Timer {
         return end;
     }
 
-    public static String format(final long time) {
+    public String format(final long time) {
         final StringBuilder t = new StringBuilder();
         final long total_secs = time / 1000;
         final long total_mins = total_secs / 60;
         final long total_hrs = total_mins / 60;
         final int secs = (int) total_secs % 60;
         final int mins = (int) total_mins % 60;
-        final int hrs = (int) total_hrs % 60;
+        final int hrs = (int) total_hrs;
         if (hrs < 10) {
             t.append("0");
         }
