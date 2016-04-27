@@ -1,6 +1,6 @@
 package Richardluk12.aio_agility;
 
-import org.powerbot.script.*;
+import org.powerbot.script.Tile;
 
 /**
  * Created by Rich on 4/19/2016.
@@ -13,6 +13,7 @@ public class Obstacle {
     public int[] bounds;
     public Tile[] location;
     public FAIL canFail;
+    public boolean completed, failed, doing;
 
     public Obstacle(String _action, String _name, int _id, int[] _bounds, FAIL _canFail, Tile... _location){
         this.action = _action;
@@ -21,6 +22,9 @@ public class Obstacle {
         this.bounds = _bounds;
         this.canFail = _canFail;
         this.location = _location;
+        this.completed = false;
+        this.failed = false;
+        this.doing = false;
     }
 
     public boolean compare(Tile tile){
@@ -32,11 +36,4 @@ public class Obstacle {
         return false;
     }
 
-    public String getLocations(){
-        String olocation = "";
-        for(Tile otile : this.location){
-            olocation += otile.toString() + "\n";
-        }
-        return olocation;
-    }
 }
