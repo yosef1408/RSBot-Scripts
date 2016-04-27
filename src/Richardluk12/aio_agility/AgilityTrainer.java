@@ -18,7 +18,7 @@ import static org.powerbot.script.rt6.Constants.SKILLS_AGILITY;
         description="Trains Agility at any location",
         properties="author=Richardluk12;" +
                 "topic=1309370;" +
-                "version=2.00")
+                "version=2.01")
 
 public class AgilityTrainer extends PollingScript<ClientContext> implements MessageListener,PaintListener {
 
@@ -173,10 +173,18 @@ public class AgilityTrainer extends PollingScript<ClientContext> implements Mess
 
     @Override
     public void messaged(MessageEvent e) {
+        final String msg = e.text().toLowerCase();
+        if(msg.contains("can't") || msg.contains("cannot")){
+            current_course.current_action++;
+            if (current_course.current_action >= current_course.actions.length) {
+                current_course.current_action = 0;
+            }
+            current_course.actions[current_course.current_action].doing = false;
+        }
         if(!current_course.actions[current_course.current_action].canFail.failable){
             return;
         }
-        final String msg = e.text().toLowerCase();
+
         if(e.source().isEmpty()){
             if(msg.contains(current_course.actions[current_course.current_action].canFail.successMessage)){
                 current_course.actions[current_course.current_action].completed = true;
@@ -198,6 +206,9 @@ public class AgilityTrainer extends PollingScript<ClientContext> implements Mess
 
         g.setColor(Color.WHITE);
 
+        if(current_course != null) {
+            if(current_course.current_action < 0) current_course.current_action = 0;
+        }
         if(!t.isRunning()){
             current_course.actions[current_course.current_action].doing = false;
         }
@@ -205,6 +216,7 @@ public class AgilityTrainer extends PollingScript<ClientContext> implements Mess
         if(myStats.experience(SKILLS_AGILITY) - current_xp != 0){
             if(current_course != null) {
                 current_course.actions[current_course.current_action].doing = false;
+                current_course.actions[current_course.current_action].failed = false;
                 current_course.current_action++;
                 if (current_course.current_action >= current_course.actions.length) {
                     current_course.current_action = 0;
@@ -221,7 +233,7 @@ public class AgilityTrainer extends PollingScript<ClientContext> implements Mess
              time_til_next = (long) ( ((double) xp_left / (double) XPHr) * 3600000D);
         }
         if(current_course != null) {
-            g.drawString("AIOAgility 2.00", 10, 20);
+            g.drawString("AIOAgility 2.01", 10, 20);
             g.drawString(String.format("Course: %s", current_course.name), 10, 40);
             g.drawString(String.format("Action: %s", current_course.actions[current_course.current_action].oname), 10, 60);
             g.drawString(String.format("Experience(%,d): %,d (%,d xp/hr)", myStats.level(SKILLS_AGILITY), totalXP, XPHr), 10, 80);
@@ -242,8 +254,12 @@ public class AgilityTrainer extends PollingScript<ClientContext> implements Mess
         if(ctx.players.local().speed() > 0 || ctx.players.local().inMotion() || (ctx.players.local().animation() != REST_ANIMATION && ctx.players.local().animation() != -1) || current_course == null){
             return;
         }
+        if(ctx.players.local().healthPercent() < 30 || (ctx.players.local().animation() == REST_ANIMATION && ctx.players.local().healthPercent() < 80)
+                && !current_course.actions[current_course.current_action].oname.equals("Cliffside")){
 
-        if(ctx.players.local().healthPercent() < 25 || (ctx.players.local().animation() == REST_ANIMATION && ctx.players.local().healthPercent() < 80)){
+            if(!ctx.hud.opened(Hud.Window.BACKPACK)){
+                ctx.hud.open(Hud.Window.BACKPACK);
+            }
             Item food = ctx.backpack.select().id(FOOD_ID).first().poll();
             if (food.valid()) {
                 food.click();
@@ -258,7 +274,7 @@ public class AgilityTrainer extends PollingScript<ClientContext> implements Mess
             return;
 
         }
-        if(ctx.players.local().tile().equals(new Tile(2532, 3546, 0)) && current_course.actions[current_course.current_action].oname == "Ladder") {
+        if(ctx.players.local().tile().equals(new Tile(2532, 3546, 0)) && current_course.actions[current_course.current_action].oname.equals("Ladder")) {
             current_course.actions[current_course.current_action].doing = false;
             current_course.current_action++;
         }
@@ -266,6 +282,9 @@ public class AgilityTrainer extends PollingScript<ClientContext> implements Mess
         if(current_course.actions[current_course.current_action].doing){
             return;
         }
+
+        current_course.current_action = current_course.checkAction(current_course.current_action, ctx.players.local().tile());
+
 
         if(failed_bo.contains(ctx.players.local().tile())) {
             ctx.movement.step(new Tile(2541, 3546, 0));
@@ -276,13 +295,37 @@ public class AgilityTrainer extends PollingScript<ClientContext> implements Mess
                 }
             });
         } else if(ctx.players.local().tile().equals(new Tile(3005, 3962, 0))){
-            ctx.movement.step(new Tile(3005, 3953, 0));
+            if(ctx.movement.destination() == Tile.NIL){
+                if(current_course.actions[current_course.current_action].oname.equalsIgnoreCase("Ropeswing")) {
+                    ctx.movement.step(new Tile(3005, 3953, 0));
+                } else if(current_course.actions[current_course.current_action].oname.equalsIgnoreCase("Log Balance")){
+                    ctx.movement.step(new Tile(3000, 3951, 0));
+                }
+            }
             current_course.actions[current_course.current_action].failed = false;
             current_course.actions[current_course.current_action].doing = false;
         } else if(ctx.players.local().tile().equals(new Tile(2998, 10345, 0))) {
             ctx.movement.step(new Tile(3005, 10362, 0));
             current_course.actions[current_course.current_action].failed = true;
+        } else if(ctx.players.local().tile().distanceTo(new Tile(2952, 10312, 0)) <= 100){
+            ctx.movement.step(new Tile(3005, 10362, 0));
+
+            Obstacle Ladder = new Obstacle("Climb-up", "Ladder", 32015, BASE_BOUNDS, new FAIL(false),
+                    new Tile(3005, 3962, 0));
+            GameObject wilderness_ladder = ctx.objects.select().id(Ladder.oid).nearest().first().poll();
+
+            if(!wilderness_ladder.valid()){
+                return;
+            }
+            if (!wilderness_ladder.inViewport()) {
+                ctx.camera.turnTo(wilderness_ladder);
+            }
+            wilderness_ladder.bounds(Ladder.bounds);
+            wilderness_ladder.interact(Ladder.action, wilderness_ladder.name());
+            return;
+
         }
+
 
         if(current_course.actions[current_course.current_action].canFail.failable){
             if(current_course.actions[current_course.current_action].completed){
@@ -292,12 +335,10 @@ public class AgilityTrainer extends PollingScript<ClientContext> implements Mess
                 GameObject obstacle = ctx.objects.select().id(current_course.actions[current_course.current_action].canFail.failObstacle.oid).nearest().first().poll();
 
                 if(!obstacle.valid()){
-                    current_course.current_action = 0;
                     return;
                 }
-                if (!obstacle.inViewport()) {
-                    ctx.camera.turnTo(obstacle);
-                }
+
+                ctx.camera.turnTo(obstacle);
                 obstacle.bounds(current_course.actions[current_course.current_action].canFail.failObstacle.bounds);
                 obstacle.interact(current_course.actions[current_course.current_action].canFail.failObstacle.action, obstacle.name());
 
@@ -321,16 +362,12 @@ public class AgilityTrainer extends PollingScript<ClientContext> implements Mess
                 }
 
                 if(!obstacle.valid()){
-                    current_course.current_action = 0;
                     return;
                 }
-                if (!obstacle.inViewport()) {
-                    ctx.camera.turnTo(obstacle);
-                }
+                ctx.camera.turnTo(obstacle);
 
                 if(obstacle.name().equalsIgnoreCase("log balance") && current_course.name.equalsIgnoreCase("Wilderness")){
-                    ctx.camera.pitch(Random.nextInt(26, 32));
-                    ctx.camera.angle(Random.nextInt(207, 238));
+                    ctx.camera.pitch(Random.nextInt(30, 40));
                 }
 
                 obstacle.bounds(current_course.actions[current_course.current_action].bounds);
@@ -356,12 +393,9 @@ public class AgilityTrainer extends PollingScript<ClientContext> implements Mess
             }
 
             if(!obstacle.valid()){
-                current_course.current_action = 0;
                 return;
             }
-            if (!obstacle.inViewport()) {
-                ctx.camera.turnTo(obstacle);
-            }
+            ctx.camera.turnTo(obstacle);
             obstacle.bounds(current_course.actions[current_course.current_action].bounds);
             obstacle.interact(current_course.actions[current_course.current_action].action, obstacle.name());
 

@@ -1,5 +1,6 @@
 package Richardluk12.aio_agility;
 
+import org.powerbot.script.ClientContext;
 import org.powerbot.script.Tile;
 
 /**
@@ -25,6 +26,19 @@ public class Course {
         this.reset = _reset;
     }
 
+    public int checkAction(int action, Tile location){
+        int return_value = action;
+        for(int i = 0; i != this.actions.length; i++){
+            if(this.actions[i].compare(location)){
+                if(i+1 == this.actions.length) {
+                    return_value = 0;
+                } else {
+                    return_value = i+1;
+                }
+            }
+        }
+        return return_value;
+    }
 
     public void getAction(Tile location){
         for(int i = 0; i != this.actions.length; i++) {
