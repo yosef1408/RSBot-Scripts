@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
  * Created by chaoran on 5/10/16.
  */
 @Script.Manifest(
-        name = "Banana Filler", properties = "author=superchaoran; topic=998877; client=6;",
+        name = "Banana Filler", properties = "author=superchaoran; topic=1311553; client=6;",
         description = "Filling basket with bananas and make huge profit off it! 5*banana + basket -> banana(5)"
 )
 public class BananaFiller extends PollingScript<ClientContext> implements PaintListener {
@@ -53,7 +53,7 @@ public class BananaFiller extends PollingScript<ClientContext> implements PaintL
                 status = "Banker not valid";
             }
         }
-        
+
     }
 
     @Override
