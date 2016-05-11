@@ -34,17 +34,7 @@ public class BananaFiller extends PollingScript<ClientContext> implements PaintL
 
     @Override
     public void start() {
-//        for (final Item i : ctx.backpack.select()) {
-//            log.info(""+ i.id());
-//
-//        }
-//
-//        ctx.backpack.select().id(graniteIDs[0]).each(new Filter<Item>() {
-//            @Override
-//            public boolean accept(Item item) {
-//                return item.interact("Craft");
-//            }
-//        });
+
         log.info("Find nearest Banker");
         status = "Find nearest Banker";
         banker = ctx.npcs.select().name("Banker").nearest().poll();
@@ -63,6 +53,7 @@ public class BananaFiller extends PollingScript<ClientContext> implements PaintL
                 status = "Banker not valid";
             }
         }
+        
     }
 
     @Override
