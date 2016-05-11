@@ -174,7 +174,7 @@ public class BananaFiller extends PollingScript<ClientContext> implements PaintL
         graphics.drawString("Status: " + status, 5, 40);
         graphics.drawString("Total Craft: " + totalFills, 5, 53);
         graphics.drawString("Fills/h: " + (int)((3600000D*totalFills) / (System.currentTimeMillis() - startTime)), 5, 68);
-        graphics.drawString("Profit/Basket(5kg): " + unitProfit, 105, 53);
+        graphics.drawString("Profit/Basket(5): " + unitProfit, 105, 53);
         graphics.drawString("Total profit: " + unitProfit*totalFills, 105, 68);
         graphics.drawString("Profit/h: " + (int)((3600000D*(unitProfit*totalFills)) / (System.currentTimeMillis() - startTime)), 105, 83);
     }
