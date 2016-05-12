@@ -5,7 +5,6 @@ package superchaoran.GraniteSplitter.painter;
 public class Detail {
 
     private String name;
-
     private Object object;
 
     public Detail(String detail) {
