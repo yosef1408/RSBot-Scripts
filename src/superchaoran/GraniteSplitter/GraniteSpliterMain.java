@@ -24,7 +24,6 @@ import java.awt.*;
  * Created by chaoran on 5/12/16.
  */
 
-
 @Script.Manifest(name = "Granite Splitter Ultimate", description = "(0.5m/hour)May 14th,2016;V2;Money Making: Splites granite5kg or granite 2kg", properties = "version=2.00;topic=1311676;author=superchaoran;")
 public class GraniteSpliterMain extends Script<ClientContext> implements PaintListener, MessageListener {
     private JobContainer container = new JobContainer();
