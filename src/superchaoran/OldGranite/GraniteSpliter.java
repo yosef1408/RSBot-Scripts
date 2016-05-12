@@ -1,4 +1,4 @@
-package superchaoran.GraniteSplitter;
+package superchaoran.OldGranite;
 
 import org.powerbot.script.*;
 import org.powerbot.script.rt6.*;
