@@ -143,6 +143,10 @@ public class GUI extends JFrame implements ItemListener{
         repaint();
     }
 
+    public JLabel getLoadingJLabel(){
+        return this.loadingJLabel;
+    }
+
     public JPanel getContentPane(){
         return contentPane;
     }

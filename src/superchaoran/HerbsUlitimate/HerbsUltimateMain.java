@@ -5,10 +5,7 @@ import org.powerbot.script.MessageListener;
 import org.powerbot.script.PaintListener;
 import org.powerbot.script.rt6.ClientContext;
 import org.powerbot.script.rt6.GeItem;
-import superchaoran.HerbsUlitimate.constants.Herb;
-import superchaoran.HerbsUlitimate.constants.Method;
-import superchaoran.HerbsUlitimate.constants.MethodChosen;
-import superchaoran.HerbsUlitimate.constants.UnfPotion;
+import superchaoran.HerbsUlitimate.constants.*;
 import superchaoran.HerbsUlitimate.gui.GUI;
 import superchaoran.HerbsUlitimate.jobs.Bank;
 import superchaoran.HerbsUlitimate.jobs.CleanHerb;
@@ -46,29 +43,38 @@ public class HerbsUltimateMain extends Script<ClientContext> implements PaintLis
          * If the graphic files are loaded from the event dispatch thread, the GUI may be temporarily unresponsive.
          */
 
-        SwingWorker worker = new SwingWorker<Void, Void>() {
-
+        SwingWorker worker = new SwingWorker<Void, Void>(){
             @Override
             public Void doInBackground() {
-                gui.setLoadingJLabel("Loading complete. All price/profit are matching market.");
-                gui.getContentPane().repaint();
+                for (Ingredient i : Ingredient.values()){
+                    i.setPrice();
+                }
+
                 for (Herb i : Herb.values()){
-                    i.setGrimyPrice(new GeItem(i.getGrimyId()).price);
-                    i.setCleanPrice(new GeItem(i.getGrimyId()).price);
-                    i.getUnitProfit();
+                    i.setUnitProfit();
                 }
 
                 for (UnfPotion i : UnfPotion.values()){
-                    i.getUnitProfit();
+                    i.setUnitProfit();
+                }
+                try {
+                    while (gui == null) {
+                        Thread.sleep(200);
+                    }
+                    while (gui.getLoadingJLabel() == null) {
+                        Thread.sleep(200);
+                    }
+                }catch(InterruptedException e){
+                    e.printStackTrace();
                 }
                 gui.setLoadingJLabel("Loading complete. All price/profit are matching market.");
+                gui.getLoadingJLabel().setVisible(true);
                 gui.getContentPane().repaint();
+                gui.repaint();
                 return null;
             }
-
         };
-
-
+        worker.execute();
 
         container = new JobContainer();
         EventQueue.invokeLater(new Runnable() {
@@ -79,6 +85,7 @@ public class HerbsUltimateMain extends Script<ClientContext> implements PaintLis
 
             }
         });
+
     }
 
     @Override

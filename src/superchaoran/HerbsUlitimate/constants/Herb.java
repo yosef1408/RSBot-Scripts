@@ -39,17 +39,17 @@ public enum Herb implements Comparable<Herb>{
 
     /*lazy update*/
     public int getGrimyPrice(Herb herb) {
-        if(herb.grimyPrice == 0){
-            int temp = new GeItem(herb.getGrimyId()).price;
-            setGrimyPrice(temp);
-            return grimyPrice;
-        }
+//        if(herb.grimyPrice == 0){
+//            int temp = new GeItem(herb.getGrimyId()).price;
+//            setGrimyPrice(temp);
+//            return grimyPrice;
+//        }
         return grimyPrice;
     }
     public void setGrimyPrice(int price) {this.grimyPrice = price;}
 
     /*lazy update*/
-    public int getCleanPrice(Herb herb) {
+    public int getCleanPrice() {
         return cleanPrice;
     }
 
@@ -59,13 +59,13 @@ public enum Herb implements Comparable<Herb>{
     public void setItem(Item item) {this.item = item;}
 
     public int getUnitProfit(){
-        if(unitProfit==0) {
-            int profit = new GeItem(cleanId).price - new GeItem(grimyId).price;
-            setUnitProfit(profit);
-        }
         return unitProfit;
     }
-    public void setUnitProfit(int unitProfit){this.unitProfit = unitProfit;}
+    public void setUnitProfit(){
+        this.grimyPrice = new GeItem(grimyId).price;
+        this.cleanPrice = new GeItem(cleanId).price;
+        this.unitProfit = this.cleanPrice - this.grimyPrice;
+    }
     public int getNumberCleaned(){
         return numberCleaned;
     }

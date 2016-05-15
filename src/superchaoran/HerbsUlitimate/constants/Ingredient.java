@@ -1,5 +1,6 @@
 package superchaoran.HerbsUlitimate.constants;
 
+import org.powerbot.script.rt6.GeItem;
 import org.powerbot.script.rt6.Item;
 
 /**
@@ -19,7 +20,7 @@ public enum Ingredient {
 
     public int getId() {return this.id;}
     public int getPrice(){return this.price;}
-    public void setPrice(int price){this.price = price;}
+    public void setPrice(){this.price = new GeItem(id).price;;}
     public Item getItem(){
         return this.item;
     }
