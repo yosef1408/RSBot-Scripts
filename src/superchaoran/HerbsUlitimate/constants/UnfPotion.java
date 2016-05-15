@@ -15,6 +15,7 @@ public enum UnfPotion {
     private final int id;
     private final Herb herb;
     Ingredient ingredient = Ingredient.vialOfWater;
+    int unfPotionPrice;
     private int unitProfit;
     private int numberMade;
 
@@ -28,14 +29,17 @@ public enum UnfPotion {
     }
 
     public int getUnitProfit(){
-        if(unitProfit==0) {
-            int profit = new GeItem(id).price - new GeItem(herb.getCleanId()).price - new GeItem(ingredient.getId()).price;
-            setUnitProfit(profit);
-        }
         return unitProfit;
     }
-    public void setUnitProfit(int unitProfit){this.unitProfit = unitProfit;}
+    public void setUnitProfit(){
+        unfPotionPrice = new GeItem(id).price;
+        int profit = unfPotionPrice - herb.getCleanPrice() - ingredient.getPrice();
+        this.unitProfit = profit;
+    }
 
+    public void setUnfPotionPrice(int price) {
+        unfPotionPrice = price;
+    }
     public int getNumberMade(){return this.numberMade;}
     public void setNumberMade(int numberMade){this.numberMade = numberMade;}
 

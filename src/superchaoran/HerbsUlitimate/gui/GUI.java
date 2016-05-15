@@ -62,7 +62,7 @@ public class GUI extends JFrame implements ItemListener{
         contentPane.add(radioPanel, BorderLayout.LINE_START);
 
         herbJComboBox = new JComboBox<Herb>(Herb.values());
-        herbJComboBox.setBounds(65, 95, 150, 50);
+        herbJComboBox.setBounds(65, 95, 200, 50);
         contentPane.add(herbJComboBox);
         herbJComboBox.setVisible(false);
 
@@ -79,7 +79,7 @@ public class GUI extends JFrame implements ItemListener{
 
 
         unfPotionJComboBox = new JComboBox<UnfPotion>(UnfPotion.values());
-        unfPotionJComboBox.setBounds(65, 95, 150, 50);
+        unfPotionJComboBox.setBounds(65, 95, 200, 50);
         contentPane.add(unfPotionJComboBox);
         unfPotionJComboBox.setVisible(false);
 
@@ -141,6 +141,10 @@ public class GUI extends JFrame implements ItemListener{
     public void setLoadingJLabel(String text){
         this.loadingJLabel.setText(text);
         repaint();
+    }
+
+    public JLabel getLoadingJLabel(){
+        return this.loadingJLabel;
     }
 
     public JPanel getContentPane(){
