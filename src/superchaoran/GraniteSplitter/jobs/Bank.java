@@ -3,9 +3,11 @@ package superchaoran.GraniteSplitter.jobs;
 import org.powerbot.script.Condition;
 import org.powerbot.script.Locatable;
 import org.powerbot.script.rt6.ClientContext;
+import org.powerbot.script.rt6.Item;
 import superchaoran.GraniteSplitter.GraniteSpliterMain;
 import superchaoran.GraniteSplitter.constants.GraniteRaw;
 import superchaoran.GraniteSplitter.script.Job;
+import superchaoran.GraniteSplitter.utils.ImprovedBank;
 
 import java.util.concurrent.Callable;
 
@@ -13,11 +15,15 @@ public class Bank extends Job<GraniteSpliterMain, ClientContext> {
 
     private final int id;
     private final int withdrawSize;
+    private ImprovedBank improvedBank;
+    private Item item;
+
 
     public Bank(GraniteSpliterMain script, GraniteRaw graniteRaw) {
         super(script);
         this.id = graniteRaw.id();
         this.withdrawSize = graniteRaw.getWithdrawSize();
+        this.improvedBank = new ImprovedBank(ctx);
     }
 
     @Override
@@ -44,14 +50,17 @@ public class Bank extends Job<GraniteSpliterMain, ClientContext> {
                 }
                 if (!ctx.backpack.select().isEmpty())
                     ctx.bank.depositInventory();
-                if (ctx.bank.withdraw(id, withdrawSize)) {
+                if(item== null){
+                    item = ctx.bank.select().id(id).poll();
+                }
+                if (this.improvedBank.withdrawCustomized(item, withdrawSize, false)) {
                     Condition.wait(new Callable<Boolean>() {
                         @Override
                         public Boolean call() throws Exception {
                             return !activate();
                         }
                     });
-                    ctx.bank.close();
+                    this.improvedBank.closeBank();
                 }
             }
         } else {

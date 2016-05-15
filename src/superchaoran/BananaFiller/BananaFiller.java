@@ -13,8 +13,8 @@ import java.util.concurrent.TimeUnit;
  * Created by chaoran on 5/10/16.
  */
 @Script.Manifest(
-        name = "Banana Filler", properties = "author=superchaoran; topic=1311553; client=6;",
-        description = "Filling basket with bananas and make huge profit off it! 5*banana + basket -> banana(5)"
+        name = "Banana Filler", properties = "author=superchaoran; topic=1311553; client=6;version=2.00;",
+        description = "0.6m/hour;May 14th,2016;V2;Filling basket with bananas and make huge profit off it! 5*banana + basket -> banana(5)"
 )
 public class BananaFiller extends PollingScript<ClientContext> implements PaintListener {
 
@@ -29,6 +29,9 @@ public class BananaFiller extends PollingScript<ClientContext> implements PaintL
     private static GeItem banana5 = new GeItem(banana5ID);
     private static GeItem basket = new GeItem(basketID);
     private static int fillCount = 0;
+    private static Item basketItem;
+    private static Item bananaItem;
+    private static ImprovedBank improvedBank;
 
     private Npc banker;
 
@@ -53,6 +56,7 @@ public class BananaFiller extends PollingScript<ClientContext> implements PaintL
                 status = "Banker not valid";
             }
         }
+        improvedBank = new ImprovedBank(ctx);
 
     }
 
@@ -82,18 +86,32 @@ public class BananaFiller extends PollingScript<ClientContext> implements PaintL
 
                 log.info("Withdrawing...");
                 status = "Withdrawing...";
-                ctx.bank.withdraw(basketID, 5);
-                ctx.bank.withdraw(bananaID, 25);
 
-
-                log.info("Wait for bank close");
-                status = "Wait for bank close...";
-                Condition.wait(new Condition.Check() {
+                if(basketItem== null){
+                    basketItem = ctx.bank.select().id(basketID).poll();
+                }
+                improvedBank.withdrawCustomized(basketItem, 5, false);
+                if(bananaItem== null){
+                    bananaItem = ctx.bank.select().id(bananaID).poll();
+                }
+                improvedBank.withdrawCustomized(bananaItem, 25, false);
+                improvedBank.closeBank();
+                Condition.wait(new Callable<Boolean>() {
                     @Override
-                    public boolean poll() {
-                        return ctx.bank.close();
+                    public Boolean call() throws Exception {
+                        return state().equals(State.Fill);
                     }
-                }, 20, 50 * 3);
+                }, 20, 50*20);
+
+
+//                log.info("Wait for bank close");
+//                status = "Wait for bank close...";
+//                Condition.wait(new Condition.Check() {
+//                    @Override
+//                    public boolean poll() {
+//                        return ctx.bank.close();
+//                    }
+//                }, 20, 50 * 3);
 
                 break;
 
@@ -112,7 +130,7 @@ public class BananaFiller extends PollingScript<ClientContext> implements PaintL
                     @Override
                     public boolean accept(Item item) {
                         if(BananaFiller.fillCount++ <4)
-                            return item.interact("Fill");
+                            return item.click();
                         return false;
                     }
                 });

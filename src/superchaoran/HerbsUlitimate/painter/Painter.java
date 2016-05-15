@@ -1,7 +1,8 @@
-package superchaoran.GraniteSplitter.painter;
+package superchaoran.HerbsUlitimate.painter;
 
 import org.powerbot.script.rt6.ClientContext;
-import superchaoran.GraniteSplitter.script.Script;
+import superchaoran.HerbsUlitimate.script.Script;
+
 import java.awt.*;
 import java.text.DecimalFormat;
 
