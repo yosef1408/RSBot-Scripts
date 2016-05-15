@@ -30,7 +30,7 @@ public class GrandExchangeAlcherForm extends JFrame {
         this.ctx = ctx;
         this.grandExchangeAlcher = alcher;
 
-        setSize(200, 600);
+        setSize(600, 400);
         setResizable(true);
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Grand Exchange Alcher");
