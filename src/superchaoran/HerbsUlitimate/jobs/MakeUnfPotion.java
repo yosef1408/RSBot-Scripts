@@ -5,9 +5,9 @@ package superchaoran.HerbsUlitimate.jobs;
  */
 
 import org.powerbot.script.Condition;
-import org.powerbot.script.rt6.ClientContext;
-import org.powerbot.script.rt6.Hud;
-import org.powerbot.script.rt6.Item;
+import org.powerbot.script.MessageEvent;
+import org.powerbot.script.MessageListener;
+import org.powerbot.script.rt6.*;
 import superchaoran.HerbsUlitimate.HerbsUltimateMain;
 import superchaoran.HerbsUlitimate.constants.Herb;
 import superchaoran.HerbsUlitimate.constants.MethodChosen;
@@ -16,13 +16,14 @@ import superchaoran.HerbsUlitimate.script.Job;
 import java.util.ArrayList;
 import java.util.concurrent.Callable;
 
-public class MakeUnfPotion extends Job<HerbsUltimateMain, ClientContext> {
+public class MakeUnfPotion extends Job<HerbsUltimateMain, ClientContext> implements MessageListener {
 
     HerbsUltimateMain script;
     MethodChosen methodChosen;
     private ArrayList<int[]> withdrawSize;
     private ArrayList<Item> itemArrayList;
     String status;
+    int ortCount = 0;
 
     public MakeUnfPotion(HerbsUltimateMain script, MethodChosen methodChosen) {
         super(script);
@@ -52,6 +53,21 @@ public class MakeUnfPotion extends Job<HerbsUltimateMain, ClientContext> {
             ctx.hud.open(Hud.Window.BACKPACK);
         }
 
+        //Take anagogic ort
+        if(ortCount<200) {
+            GroundItem ort = ctx.groundItems.name("Anagogic ort").nearest().poll();
+
+            if (ort.valid()) {
+                script.log.info("ortCount:"+ortCount);
+                ort.click();
+                Condition.sleep(300);
+                ortCount++;
+            } else {
+                script.log.info("ortCount:"+ortCount);
+                script.log.info("No ort found");
+            }
+        }
+
         //cleaning herb
         script.log.info("mixing herb with water");
         status = "mixing herb with water";
@@ -78,5 +94,13 @@ public class MakeUnfPotion extends Job<HerbsUltimateMain, ClientContext> {
         }, 20, 50 * 15);
 
         methodChosen.getUnfPotion().setNumberMade(methodChosen.getUnfPotion().getNumberMade()+14);
+    }
+
+    @Override
+    public void messaged(MessageEvent m) {
+        String msg = m.text();
+        if (msg.indexOf("200/200")!=-1){
+            ortCount = 200;
+        }
     }
 }

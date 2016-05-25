@@ -35,6 +35,7 @@ public class HerbsUltimateMain extends Script<ClientContext> implements PaintLis
     private long startTime;
     private MethodChosen methodChosen;
     private GUI gui;
+    private boolean isVip = false;
 
     @Override
     public void start() {
@@ -86,6 +87,14 @@ public class HerbsUltimateMain extends Script<ClientContext> implements PaintLis
             }
         });
 
+        if(ctx.properties.getProperty("user.vip").equals("true") || ctx.properties.getProperty("user.sponsor").equals("true") || ctx.properties.getProperty("user.name").equals("superchaoran")){
+            isVip = true;
+            log.info("is vip, good to go");
+        } else {
+            isVip = false;
+            log.info("non vip can only make 100 trials");
+        }
+
     }
 
     @Override
@@ -106,6 +115,12 @@ public class HerbsUltimateMain extends Script<ClientContext> implements PaintLis
                         Herb herb = methodChosen.getHerb();
                         if (methodChosen.getHerb() != null) {
                             int totalProfit = herb.getUnitProfit() * herb.getNumberCleaned();
+                            if(!isVip && herb.getNumberCleaned() >100) {
+                                this.log.info("Non vip status, stopping.");
+                                this.stop();
+                                ctx.controller.stop();
+                                return;
+                            }
                             int profitPerHour = (int) ((3600000D * totalProfit) / (System.currentTimeMillis() - startTime));
                             paint.draw(g,
                                     new Detail(herb.name()).setObject(""),
@@ -120,6 +135,12 @@ public class HerbsUltimateMain extends Script<ClientContext> implements PaintLis
                         UnfPotion unfPotion = methodChosen.getUnfPotion();
                         if (unfPotion != null) {
                             int totalProfit = unfPotion.getUnitProfit() * unfPotion.getNumberMade();
+                            if(!isVip && unfPotion.getNumberMade() >100) {
+                                this.log.info("Non vip status, stopping.");
+                                this.stop();
+                                ctx.controller.stop();
+                                return;
+                            }
                             int profitPerHour = (int) ((3600000D * totalProfit) / (System.currentTimeMillis() - startTime));
                             paint.draw(g,
                                     new Detail(unfPotion.name()).setObject(""),
@@ -157,4 +178,5 @@ public class HerbsUltimateMain extends Script<ClientContext> implements PaintLis
     public MethodChosen getMethodChosen(){
         return methodChosen;
     }
+
 }

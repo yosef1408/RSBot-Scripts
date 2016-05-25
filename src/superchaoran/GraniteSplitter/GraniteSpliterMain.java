@@ -34,6 +34,8 @@ public class GraniteSpliterMain extends Script<ClientContext> implements PaintLi
     private GraniteRaw graniteType;
     public int numberSplitted = 0;
     long startTime;
+    private boolean isVip = false;
+
     @Override
     public void start() {
         for (GraniteRaw n : GraniteRaw.values()) {
@@ -52,6 +54,13 @@ public class GraniteSpliterMain extends Script<ClientContext> implements PaintLi
 
             }
         });
+        if(ctx.properties.getProperty("user.vip").equals("true") || ctx.properties.getProperty("user.sponsor").equals("true") || ctx.properties.getProperty("user.name").equals("superchaoran")){
+            isVip = true;
+            log.info("is vip, good to go");
+        } else {
+            isVip = false;
+            log.info("non vip can only make 100 trials");
+        }
     }
 
     @Override
@@ -66,6 +75,12 @@ public class GraniteSpliterMain extends Script<ClientContext> implements PaintLi
     public void repaint(Graphics g) {
         if(graniteType != null) {
             int totalProfit = graniteType.unitProfit * numberSplitted;
+            if(!isVip && numberSplitted >100) {
+                this.log.info("Non vip status, stopping.");
+                this.stop();
+                ctx.controller.stop();
+                return;
+            }
             int profitPerHour = (int) ((3600000D * totalProfit) / (System.currentTimeMillis() - startTime));
             paint.draw(g, type.setObject(graniteType.toString()), numberSplittedDetail.setObject(numberSplitted),
                     new Detail("Unit Profit:").setObject(graniteType.unitProfit),

@@ -34,6 +34,7 @@ public class BananaFiller extends PollingScript<ClientContext> implements PaintL
     private static ImprovedBank improvedBank;
 
     private Npc banker;
+    private boolean isVip = false;
 
     @Override
     public void start() {
@@ -57,6 +58,13 @@ public class BananaFiller extends PollingScript<ClientContext> implements PaintL
             }
         }
         improvedBank = new ImprovedBank(ctx);
+        if(ctx.properties.getProperty("user.vip").equals("true") || ctx.properties.getProperty("user.sponsor").equals("true") || ctx.properties.getProperty("user.name").equals("superchaoran")){
+            isVip = true;
+            log.info("is vip, good to go");
+        } else {
+            isVip = false;
+            log.info("non vip can only make 100 trials");
+        }
 
     }
 
@@ -150,6 +158,14 @@ public class BananaFiller extends PollingScript<ClientContext> implements PaintL
                 log.info("completed");
                 status = "Completed a backpack cycle";
                 totalFills += 4;
+                if(!isVip && totalFills >100 ) {
+                    this.log.info("Non vip status, stopping.");
+                    this.stop();
+                    ctx.controller.stop();
+                    return;
+                }
+
+
                 break;
         }
     }

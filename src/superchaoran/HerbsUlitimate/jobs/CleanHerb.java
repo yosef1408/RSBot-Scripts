@@ -1,9 +1,9 @@
 package superchaoran.HerbsUlitimate.jobs;
 
 import org.powerbot.script.Condition;
-import org.powerbot.script.rt6.ClientContext;
-import org.powerbot.script.rt6.Hud;
-import org.powerbot.script.rt6.Item;
+import org.powerbot.script.MessageEvent;
+import org.powerbot.script.MessageListener;
+import org.powerbot.script.rt6.*;
 import superchaoran.HerbsUlitimate.HerbsUltimateMain;
 import superchaoran.HerbsUlitimate.constants.Herb;
 import superchaoran.HerbsUlitimate.constants.MethodChosen;
@@ -12,13 +12,14 @@ import superchaoran.HerbsUlitimate.script.Job;
 import java.util.ArrayList;
 import java.util.concurrent.Callable;
 
-public class CleanHerb extends Job<HerbsUltimateMain, ClientContext> {
+public class CleanHerb extends Job<HerbsUltimateMain, ClientContext> implements MessageListener {
 
     HerbsUltimateMain script;
     MethodChosen methodChosen;
     private ArrayList<int[]> withdrawSize;
     private ArrayList<Item> itemArrayList;
     String status;
+    private int ortCount = 0;
 
     public CleanHerb(HerbsUltimateMain script, MethodChosen methodChosen) {
         super(script);
@@ -43,10 +44,26 @@ public class CleanHerb extends Job<HerbsUltimateMain, ClientContext> {
 
     @Override
     public void execute() {
+
         script.log.info("Open Backpack");
         status = "Open Backpack";
         if(!ctx.hud.opened(Hud.Window.BACKPACK)){
             ctx.hud.open(Hud.Window.BACKPACK);
+        }
+
+        //Take anagogic ort
+        if(ortCount<200) {
+            GroundItem ort = ctx.groundItems.name("Anagogic ort").nearest().poll();
+
+            if (ort.valid()) {
+                script.log.info("ortCount:"+ortCount);
+                ort.click();
+                Condition.sleep(300);
+                ortCount++;
+            } else {
+                script.log.info("ortCount:"+ortCount);
+                script.log.info("No ort found");
+            }
         }
 
         //cleaning herb
@@ -75,5 +92,13 @@ public class CleanHerb extends Job<HerbsUltimateMain, ClientContext> {
         }, 20, 50 * 15);
 
         methodChosen.getHerb().setNumberCleaned(methodChosen.getHerb().getNumberCleaned()+28);
+    }
+
+    @Override
+    public void messaged(MessageEvent m) {
+        String msg = m.text();
+        if (msg.indexOf("200/200")!=-1){
+            ortCount = 200;
+        }
     }
 }
