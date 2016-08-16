@@ -33,6 +33,7 @@ public class TaskHandler {
      *
      * @param task
      */
+    @SuppressWarnings("unchecked")
     public void addTask(Object task) {
         q.add(task);
     }

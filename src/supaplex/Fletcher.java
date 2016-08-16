@@ -61,6 +61,7 @@ public class Fletcher extends PollingScript<ClientContext> implements PaintListe
     }
 
     @Override
+    @SuppressWarnings({"unchecked", "deprecation"})
     public void poll() {
 
         // Checks if logged in

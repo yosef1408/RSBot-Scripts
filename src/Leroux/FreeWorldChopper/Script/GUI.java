@@ -291,6 +291,7 @@ public class GUI extends JFrame {
         );
     }
 
+    @SuppressWarnings("unchecked")
     public void addTasks(boolean bank) {
         if (bank) {
             WoodCutting.setBoothIDs(Bankers.BOOTHS.getBoothIDs());
