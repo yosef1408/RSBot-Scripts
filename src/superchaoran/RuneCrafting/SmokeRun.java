@@ -1,10 +1,13 @@
 package superchaoran.RuneCrafting;
-import org.powerbot.bot.Con;
-import org.powerbot.script.*;
+import java.util.concurrent.Callable;
+
+import org.powerbot.script.Condition;
+import org.powerbot.script.Locatable;
+import org.powerbot.script.PollingScript;
+import org.powerbot.script.Script;
+import org.powerbot.script.Tile;
 import org.powerbot.script.rt6.ClientContext;
 import org.powerbot.script.rt6.Path;
-
-import java.util.concurrent.Callable;
 
 /**
  * Created by chaoran on 5/24/16.

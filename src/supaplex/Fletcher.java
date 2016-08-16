@@ -1,31 +1,37 @@
 package supaplex;
 
-import supaplex.exceptions.BankException;
-import supaplex.exceptions.ResourceException;
-import supaplex.exceptions.QueueEmptyException;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Point;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import javax.swing.SwingUtilities;
+
 import org.powerbot.script.PaintListener;
 import org.powerbot.script.PollingScript;
 import org.powerbot.script.Script;
 import org.powerbot.script.rt4.ClientContext;
 import org.powerbot.script.rt4.Constants;
 import org.powerbot.script.rt4.Game;
-import supaplex.tasks.stringing.String;
+import supaplex.exceptions.BankException;
+import supaplex.exceptions.QueueEmptyException;
+import supaplex.exceptions.ResourceException;
+import supaplex.tasks.Task;
 import supaplex.tasks.cutting.DepositUnfBows;
 import supaplex.tasks.cutting.Fletch;
-import supaplex.tasks.Task;
 import supaplex.tasks.cutting.WithdrawLogs;
 import supaplex.tasks.stringing.DepositBows;
+import supaplex.tasks.stringing.String;
 import supaplex.tasks.stringing.WithdrawUnfBowsAndStrings;
 import supaplex.util.GlobalVariables;
 import supaplex.util.TaskHandler;
 import supaplex.util.TaskType;
 import supaplex.views.Gui;
-
-import javax.swing.*;
-import java.awt.*;
-import java.util.*;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Andreas on 20.06.2016.
@@ -72,7 +78,7 @@ public class Fletcher extends PollingScript<ClientContext> implements PaintListe
         if (GlobalVariables.taskFinished) {
             try {
                 TaskHandler.getInstance().checkTask();
-                taskList = new ArrayList<>();
+                taskList = new ArrayList<Task>();
             } catch (QueueEmptyException e) {
                 System.out.println(e.getMessage());
                 ctx.controller.stop();

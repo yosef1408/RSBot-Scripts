@@ -1,24 +1,40 @@
 package superchaoran.HerbsUlitimate.gui;
 
-import org.powerbot.script.Tile;
-import org.powerbot.script.rt6.ClientContext;
-import org.powerbot.script.rt6.Constants;
-import superchaoran.HerbsUlitimate.HerbsUltimateMain;
-import superchaoran.HerbsUlitimate.constants.*;
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Font;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
+import javax.swing.ButtonGroup;
+import javax.swing.ButtonModel;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.SwingConstants;
+import javax.swing.border.EmptyBorder;
+
+import org.powerbot.script.Tile;
+import org.powerbot.script.rt6.ClientContext;
+import org.powerbot.script.rt6.Constants;
+import superchaoran.HerbsUlitimate.HerbsUltimateMain;
+import superchaoran.HerbsUlitimate.constants.Herb;
+import superchaoran.HerbsUlitimate.constants.Method;
+import superchaoran.HerbsUlitimate.constants.MethodChosen;
+import superchaoran.HerbsUlitimate.constants.UnfPotion;
+
 
 public class GUI extends JFrame implements ItemListener{
 
     private JPanel contentPane;
-    private JComboBox<Herb> herbJComboBox;
-    private JComboBox<UnfPotion> unfPotionJComboBox;
+    private JComboBox herbJComboBox;
+    private JComboBox unfPotionJComboBox;
     private ButtonGroup group;
     private JLabel unitProfitJLabel;
     private JLabel loadingJLabel;
@@ -61,7 +77,7 @@ public class GUI extends JFrame implements ItemListener{
         radioPanel.setBounds(50,65,300,20);
         contentPane.add(radioPanel, BorderLayout.LINE_START);
 
-        herbJComboBox = new JComboBox<Herb>(Herb.values());
+        herbJComboBox = new JComboBox(Herb.values());
         herbJComboBox.setBounds(65, 95, 200, 50);
         contentPane.add(herbJComboBox);
         herbJComboBox.setVisible(false);
@@ -78,7 +94,7 @@ public class GUI extends JFrame implements ItemListener{
 //        };
 
 
-        unfPotionJComboBox = new JComboBox<UnfPotion>(UnfPotion.values());
+        unfPotionJComboBox = new JComboBox(UnfPotion.values());
         unfPotionJComboBox.setBounds(65, 95, 200, 50);
         contentPane.add(unfPotionJComboBox);
         unfPotionJComboBox.setVisible(false);

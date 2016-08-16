@@ -35,7 +35,7 @@ import matulino.MPlanker.Tasks.WithdrawEnergy;
 public class Gui extends ClientAccessor {
 	private JFrame frame;
 	private JPanel contentPane = new JPanel();
-	private JComboBox<Plank> cbPlankType;
+	private JComboBox cbPlankType;
 	private JLabel lblPlankType;
 	private JButton btnStart, btnCancel;
 	private JCheckBox staminaPot;
@@ -64,7 +64,7 @@ public class Gui extends ClientAccessor {
 			frame.setContentPane(contentPane);
 			contentPane.setLayout(null);
 			
-			cbPlankType = new JComboBox<Plank>(Plank.values());
+			cbPlankType = new JComboBox(Plank.values());
 			cbPlankType.setToolTipText("Select plank type you wish to make.");
 			cbPlankType.setBounds(127, 42, 82, 20);
 			staminaPot = new JCheckBox("Use Stamina potion");

@@ -8,8 +8,10 @@ import org.powerbot.script.rt4.Npc;
 import org.powerbot.script.rt4.*;
 import org.powerbot.script.rt4.GameObject;
 import xxb.event.EventSource;
+import xxb.event.impl.ExperienceEvent;
 import xxb.event.impl.ExperienceEventSource;
 import xxb.event.impl.ExperienceListener;
+import xxb.event.impl.InventoryItemEvent;
 import xxb.event.impl.InventoryItemEventSource;
 import xxb.event.impl.InventoryItemListener;
 import xxb.ge.SProfitTracker;
@@ -115,21 +117,27 @@ public class TaverlyChaosDruids extends PollingScript<ClientContext> implements 
         state = ScriptState.BANK_ITEMS;
 
         // add certain event listeners (mainly used for paint)
-        ctx.dispatcher.add((ExperienceListener) evt -> {
-            if(debug) {
-                System.out.println(evt.toString());
+        ctx.dispatcher.add(new ExperienceListener() {
+            @Override
+            public void onExperienceChanged(final ExperienceEvent evt) {
+                if(debug) {
+                    System.out.println(evt.toString());
+                }
+                xpgains[evt.getSkillIndex()] += evt.getExperienceChange();
             }
-            xpgains[evt.getSkillIndex()] += evt.getExperienceChange();
         });
 
-        ctx.dispatcher.add((InventoryItemListener) evt -> {
-            if(debug) {
-                System.out.println(evt.toString());
-            }
-            if(evt.getDiff() > 0) {
-                // we only care about tracking pickups anyway
-                if(tracker.getCachedItems().get(evt.getID()) != null) {
-                    tracker.addEarnedItem(evt.getID(), evt.getDiff());
+        ctx.dispatcher.add(new InventoryItemListener() {
+            @Override
+            public void onInventoryItemChanged(final InventoryItemEvent evt) {
+                if(debug) {
+                    System.out.println(evt.toString());
+                }
+                if(evt.getDiff() > 0) {
+                    // we only care about tracking pickups anyway
+                    if(tracker.getCachedItems().get(evt.getID()) != null) {
+                        tracker.addEarnedItem(evt.getID(), evt.getDiff());
+                    }
                 }
             }
         });
@@ -140,185 +148,228 @@ public class TaverlyChaosDruids extends PollingScript<ClientContext> implements 
         }
 
         actions = new ConcurrentHashMap<ScriptState,Runnable>(){{
-            put(ScriptState.WALK_WALL, () -> {
-                double d = ctx.movement.distance(new Tile(2936, 3355));
-                if(ctx.players.local().tile().x() <= 2934) {
-                    state = ScriptState.WALK_LADDER;
-                } else if(d < 5) {
-                    GameObject q = ctx.objects.select().id(24222).poll();
-                    if(!q.inViewport()) {
-                        ctx.camera.turnTo(q);
-                        return;
-                    }
-                    q.interact("Climb-over");
-                } else {
-                    ctx.movement.findPath(new Tile(2936, 3355)).traverse();
-                }
-            });
-
-            put(ScriptState.WALK_LADDER, () -> {
-                // it clicked too fast and we walked over twice
-                if(ctx.players.local().tile().x() > 2934) {
-                    state = ScriptState.WALK_WALL;
-                    return;
-                }
-                double d = ctx.movement.distance(new Tile(2884, 3396));
-                int y = ctx.players.local().tile().y();
-                System.out.println(d + "," + y);
-                if((d == -1 && y < 9000) || d > 5) {
-                    ladderPath.traverse();
-                } else if(y < 9000) {
-                    GameObject q = ctx.objects.select().id(16680).poll();
-                    q.interact("Climb-down");
-                } else {
-                    state = ScriptState.WALK_DRUIDS;
-                }
-            });
-
-
-            put(ScriptState.WALK_DRUIDS, () -> {
-                if(ctx.game.tab() != Game.Tab.INVENTORY) {
-                    ctx.game.tab(Game.Tab.INVENTORY);
-                } else {
-                    double d = ctx.movement.distance(new Tile(2931, 9847));
-                    if (d == -1 || d > 5) {
-                        pathToDruids.traverse();
-                    } else {
-                        state = ScriptState.KILL_DRUIDS;
-                    }
-                }
-            });
-
-            put(ScriptState.KILL_DRUIDS, () -> {
-                org.powerbot.script.rt4.Player player = ctx.players.local();
-
-                // Set back to run mode if energy > 40
-                if(ctx.movement.energyLevel() >= 40 && !ctx.movement.running()) {
-                    ctx.movement.running(true);
-                    return;
-                }
-
-                // Not sure f i'm doing this correctly, but it seems to work.
-                Actor interacting = player.interacting();
-                if(interacting != null && interacting.valid()) {
-                    // likely we attacked, accidently ran away and we're waiting for autoattack to start.
-                    // we can just attack now so we don't rely on autoattack.
-                    if(!interacting.inCombat() && player.inCombat()) {
-                        interacting.interact("Attack");
-                    }
-                    return;
-                }
-
-                // CHeck for items to drop (ie. bones that were accidently pcked up)
-                Item item2 = ctx.inventory.select().id(dropids).poll();
-
-                if(item2 != null && item2.valid()) {
-                    item2.interact("Drop", item2.name());
-                    return;
-                }
-
-                if(ctx.inventory.select().count() == 28) {
-                    state = ScriptState.TELE_FALADOR;
-                }
-
-                if(player.inMotion()) return;
-
-                BasicQuery<GroundItem> itemQuery = ctx.groundItems.select().id(pickupids).within(10).nearest();
-                // check for items to pick up
-                GroundItem item = itemQuery.poll();
-
-                if(item != null && item.valid()) {
-
-                    if(!item.inViewport()) {
-                        if(ctx.movement.distance(item.tile()) > 8) {
-                            ctx.movement.step(item.tile());
+            put(ScriptState.WALK_WALL, new Runnable() {
+                @Override
+                public void run() {
+                    double d = ctx.movement.distance(new Tile(2936, 3355));
+                    if(ctx.players.local().tile().x() <= 2934) {
+                        state = ScriptState.WALK_LADDER;
+                    } else if(d < 5) {
+                        GameObject q = ctx.objects.select().id(24222).poll();
+                        if(!q.inViewport()) {
+                            ctx.camera.turnTo(q);
                             return;
                         }
-                        ctx.camera.turnTo(item);
-                        ctx.camera.pitch(0);
-                        //ctx.camera.angleTo(ctx.game.tileHeight(item.tile().x(), item.tile().y()));
+                        q.interact("Climb-over");
+                    } else {
+                        ctx.movement.findPath(new Tile(2936, 3355)).traverse();
                     }
-                    item.interact("Take", item.name());
-                    return;
                 }
+            });
 
-                // Check if any nearby druids are interacting with us
-                Npc idruid = ctx.npcs.select().id(2878).select((n) -> n.interacting().equals(ctx.players.local())).poll();
-                if(idruid != null && idruid.valid()) {
-                    idruid.interact((cmd) -> cmd.action.equals("Attack"));
-                    return;
-                }
-
-                // Kill nearby druids
-                // TODO: make it change camera angle and not just rotation to search for druids
-                Npc druid = ctx.npcs.select().id(2878).select((n) -> !n.inCombat()).nearest().poll();
-                if(!druid.inViewport()) {
-
-                    if(ctx.movement.distance(druid.tile()) > 8) {
-                        ctx.movement.step(druid.tile());
+            put(ScriptState.WALK_LADDER, new Runnable() {
+                @Override
+                public void run() {
+                    // it clicked too fast and we walked over twice
+                    if(ctx.players.local().tile().x() > 2934) {
+                        state = ScriptState.WALK_WALL;
                         return;
                     }
-
-                    ctx.camera.turnTo(druid);
-                }
-                if(druid.valid() && !druid.inCombat()) {
-                    druid.interact((cmd) -> cmd.action.equals("Attack"));
-                    return;
-                }
-            });
-
-            put(ScriptState.TELE_FALADOR, () -> {
-                if(ctx.players.local().tile().y() > 9000) {
-                    if(ctx.game.tab() != Game.Tab.MAGIC) {
-                        ctx.game.tab(Game.Tab.MAGIC);
+                    double d = ctx.movement.distance(new Tile(2884, 3396));
+                    int y = ctx.players.local().tile().y();
+                    System.out.println(d + "," + y);
+                    if((d == -1 && y < 9000) || d > 5) {
+                        ladderPath.traverse();
+                    } else if(y < 9000) {
+                        GameObject q = ctx.objects.select().id(16680).poll();
+                        q.interact("Climb-down");
                     } else {
-                        ctx.magic.cast(Magic.Spell.FALADOR_TELEPORT);
+                        state = ScriptState.WALK_DRUIDS;
                     }
-                } else {
-                    state = ScriptState.WALK_BANK;
                 }
             });
 
-            put(ScriptState.WALK_BANK, () -> {
-                double d = ctx.movement.distance(new Tile(2946,3369));
-                if(d == -1 || d > 5) {
-                    pathToBank.traverse();
-                } else {
-                    state = ScriptState.BANK_ITEMS;
-                }
-            });
 
-            put(ScriptState.BANK_ITEMS, () -> {
-                if(!ctx.bank.opened()) {
-                    ctx.bank.open();
-                } else {
-                    if(!ctx.inventory.select().isEmpty()) {
-                        ctx.bank.depositInventory();
+            put(ScriptState.WALK_DRUIDS, new Runnable() {
+                @Override
+                public void run() {
+                    if(ctx.game.tab() != Game.Tab.INVENTORY) {
+                        ctx.game.tab(Game.Tab.INVENTORY);
                     } else {
-                        state = ScriptState.WITHDRAW_ITEMS;
+                        double d = ctx.movement.distance(new Tile(2931, 9847));
+                        if (d == -1 || d > 5) {
+                            pathToDruids.traverse();
+                        } else {
+                            state = ScriptState.KILL_DRUIDS;
+                        }
+                    }
+                }
+            });
+
+            put(ScriptState.KILL_DRUIDS, new Runnable() {
+	            @Override
+	            public void run() {
+		            org.powerbot.script.rt4.Player player = ctx.players.local();
+
+		            // Set back to run mode if energy > 40
+		            if(ctx.movement.energyLevel() >= 40 && !ctx.movement.running()) {
+			            ctx.movement.running(true);
+			            return;
+		            }
+
+		            // Not sure f i'm doing this correctly, but it seems to work.
+		            Actor interacting = player.interacting();
+		            if(interacting != null && interacting.valid()) {
+			            // likely we attacked, accidently ran away and we're waiting for autoattack to start.
+			            // we can just attack now so we don't rely on autoattack.
+			            if(!interacting.inCombat() && player.inCombat()) {
+				            interacting.interact("Attack");
+			            }
+			            return;
+		            }
+
+		            // CHeck for items to drop (ie. bones that were accidently pcked up)
+		            Item item2 = ctx.inventory.select().id(dropids).poll();
+
+		            if(item2 != null && item2.valid()) {
+			            item2.interact("Drop", item2.name());
+			            return;
+		            }
+
+		            if(ctx.inventory.select().count() == 28) {
+			            state = ScriptState.TELE_FALADOR;
+		            }
+
+		            if(player.inMotion()) return;
+
+		            BasicQuery<GroundItem> itemQuery = ctx.groundItems.select().id(pickupids).within(10).nearest();
+		            // check for items to pick up
+		            GroundItem item = itemQuery.poll();
+
+		            if(item != null && item.valid()) {
+
+			            if(!item.inViewport()) {
+				            if(ctx.movement.distance(item.tile()) > 8) {
+					            ctx.movement.step(item.tile());
+					            return;
+				            }
+				            ctx.camera.turnTo(item);
+				            ctx.camera.pitch(0);
+				            //ctx.camera.angleTo(ctx.game.tileHeight(item.tile().x(), item.tile().y()));
+			            }
+			            item.interact("Take", item.name());
+			            return;
+		            }
+
+		            // Check if any nearby druids are interacting with us
+		            Npc idruid = ctx.npcs.select().id(2878).select(new Filter<Npc>() {
+			            @Override
+			            public boolean accept(final Npc n) {
+				            return n.interacting().equals(ctx.players.local());
+			            }
+		            }).poll();
+		            if(idruid != null && idruid.valid()) {
+			            idruid.interact(new Filter<MenuCommand>() {
+				            @Override
+				            public boolean accept(final MenuCommand cmd) {
+					            return cmd.action.equals("Attack");
+				            }
+			            });
+			            return;
+		            }
+
+		            // Kill nearby druids
+		            // TODO: make it change camera angle and not just rotation to search for druids
+		            Npc druid = ctx.npcs.select().id(2878).select(new Filter<Npc>() {
+			            @Override
+			            public boolean accept(final Npc n) {
+				            return !n.inCombat();
+			            }
+		            }).nearest().poll();
+		            if(!druid.inViewport()) {
+
+			            if(ctx.movement.distance(druid.tile()) > 8) {
+				            ctx.movement.step(druid.tile());
+				            return;
+			            }
+
+			            ctx.camera.turnTo(druid);
+		            }
+		            if(druid.valid() && !druid.inCombat()) {
+			            druid.interact(new Filter<MenuCommand>() {
+				            @Override
+				            public boolean accept(final MenuCommand cmd) {
+					            return cmd.action.equals("Attack");
+				            }
+			            });
+		            }
+	            }
+            });
+
+            put(ScriptState.TELE_FALADOR, new Runnable() {
+                @Override
+                public void run() {
+                    if(ctx.players.local().tile().y() > 9000) {
+                        if(ctx.game.tab() != Game.Tab.MAGIC) {
+                            ctx.game.tab(Game.Tab.MAGIC);
+                        } else {
+                            ctx.magic.cast(Magic.Spell.FALADOR_TELEPORT);
+                        }
+                    } else {
+                        state = ScriptState.WALK_BANK;
+                    }
+                }
+            });
+
+            put(ScriptState.WALK_BANK, new Runnable() {
+                @Override
+                public void run() {
+                    double d = ctx.movement.distance(new Tile(2946,3369));
+                    if(d == -1 || d > 5) {
+                        pathToBank.traverse();
+                    } else {
+                        state = ScriptState.BANK_ITEMS;
+                    }
+                }
+            });
+
+            put(ScriptState.BANK_ITEMS, new Runnable() {
+                @Override
+                public void run() {
+                    if(!ctx.bank.opened()) {
+                        ctx.bank.open();
+                    } else {
+                        if(!ctx.inventory.select().isEmpty()) {
+                            ctx.bank.depositInventory();
+                        } else {
+                            state = ScriptState.WITHDRAW_ITEMS;
+                        }
                     }
                 }
             });
 
             // TODO: make this faster/better
-            put(ScriptState.WITHDRAW_ITEMS, () -> {
-                ItemQuery<Item> q =  ctx.inventory.select().id(air, water, law);
-                int ac = q.poll().stackSize(), wc = q.poll().stackSize(), lc = q.poll().stackSize();
+            put(ScriptState.WITHDRAW_ITEMS, new Runnable() {
+                @Override
+                public void run() {
+                    ItemQuery<Item> q =  ctx.inventory.select().id(air, water, law);
+                    int ac = q.poll().stackSize(), wc = q.poll().stackSize(), lc = q.poll().stackSize();
 
-                if(ac > 3) {
-                    ctx.bank.deposit(air, ac - 3);
-                } else if(ac < 3) {
-                    ctx.bank.withdraw(air, 3);
-                } else if(wc < 1) {
-                    ctx.bank.withdraw(water, 1);
-                } else if(wc > 1) {
-                    ctx.bank.deposit(water, wc - 1);
-                } else if(lc > 1) {
-                    ctx.bank.deposit(law, lc - 1);
-                } else if(lc < 1) {
-                    ctx.bank.withdraw(law, 1);
-                } else {
-                    state = ScriptState.WALK_WALL;
+                    if(ac > 3) {
+                        ctx.bank.deposit(air, ac - 3);
+                    } else if(ac < 3) {
+                        ctx.bank.withdraw(air, 3);
+                    } else if(wc < 1) {
+                        ctx.bank.withdraw(water, 1);
+                    } else if(wc > 1) {
+                        ctx.bank.deposit(water, wc - 1);
+                    } else if(lc > 1) {
+                        ctx.bank.deposit(law, lc - 1);
+                    } else if(lc < 1) {
+                        ctx.bank.withdraw(law, 1);
+                    } else {
+                        state = ScriptState.WALK_WALL;
+                    }
                 }
             });
 

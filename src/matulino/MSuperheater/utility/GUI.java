@@ -3,21 +3,19 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JButton;
+import javax.swing.JPanel;
 import javax.swing.WindowConstants;
-
-import org.powerbot.script.rt4.ClientContext;
 
 import matulino.MSuperheater.Superheater;
 import matulino.MSuperheater.Superheater.oreChoices;
 import matulino.MSuperheater.tasks.Cast;
 import matulino.MSuperheater.tasks.OpenBank;
 import matulino.MSuperheater.tasks.Withdraw;
-
-import javax.swing.JPanel;
-import javax.swing.JComboBox;
+import org.powerbot.script.rt4.ClientContext;
 
 public class GUI extends JFrame{
 	JPanel p = new JPanel();
@@ -27,7 +25,7 @@ public class GUI extends JFrame{
 	private Superheater sh = null;
 	private ClientContext ctx = null;
 
-	JComboBox<oreChoices> oreToHeat = new JComboBox<oreChoices>(oreChoices.values());
+	JComboBox oreToHeat = new JComboBox(oreChoices.values());
 	
 	public GUI(final ClientContext ctx, Superheater sh){
 		this.ctx = ctx;

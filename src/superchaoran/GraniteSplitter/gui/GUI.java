@@ -1,16 +1,23 @@
 package superchaoran.GraniteSplitter.gui;
 
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+import javax.swing.border.EmptyBorder;
+
 import org.powerbot.script.Tile;
 import org.powerbot.script.rt6.ClientContext;
 import org.powerbot.script.rt6.Constants;
-import superchaoran.GraniteSplitter.constants.GraniteRaw;
 import superchaoran.GraniteSplitter.GraniteSpliterMain;
-
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import superchaoran.GraniteSplitter.constants.GraniteRaw;
 
 public class GUI extends JFrame {
 
@@ -33,7 +40,7 @@ public class GUI extends JFrame {
         lblNewLabel.setBounds(10, 11, 200, 30);
         contentPane.add(lblNewLabel);
 
-        final JComboBox<GraniteRaw> cmbLog = new JComboBox<GraniteRaw>(GraniteRaw.values());
+        final JComboBox cmbLog = new JComboBox(GraniteRaw.values());
         cmbLog.setBounds(76, 50, 131, 34);
         contentPane.add(cmbLog);
 

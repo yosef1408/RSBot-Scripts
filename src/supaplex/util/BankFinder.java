@@ -1,12 +1,12 @@
 package supaplex.util;
 
-import supaplex.exceptions.BankException;
+import java.util.concurrent.Callable;
+
 import org.powerbot.script.Condition;
 import org.powerbot.script.Locatable;
 import org.powerbot.script.rt4.ClientContext;
 import org.powerbot.script.rt4.TilePath;
-
-import java.util.concurrent.Callable;
+import supaplex.exceptions.BankException;
 
 /**
  * Created by Andreas on 30.06.2016.
@@ -18,7 +18,7 @@ public class BankFinder {
      * @param ctx
      * @throws BankException
      */
-    public static void lookForBank(ClientContext ctx) throws BankException {
+    public static void lookForBank(final ClientContext ctx) throws BankException {
         System.out.println("Looks for bank..");
         Locatable nearest = ctx.bank.nearest();
         TilePath tilePath = ctx.movement.newTilePath(nearest.tile());
