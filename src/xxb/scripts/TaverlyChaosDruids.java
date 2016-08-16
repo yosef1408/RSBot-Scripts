@@ -1,12 +1,31 @@
 package xxb.scripts;
 
-import org.powerbot.script.*;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.powerbot.script.Filter;
+import org.powerbot.script.MenuCommand;
+import org.powerbot.script.PaintListener;
+import org.powerbot.script.PollingScript;
+import org.powerbot.script.Script;
 import org.powerbot.script.Tile;
 import org.powerbot.script.rt4.Actor;
+import org.powerbot.script.rt4.BasicQuery;
 import org.powerbot.script.rt4.ClientContext;
-import org.powerbot.script.rt4.Npc;
-import org.powerbot.script.rt4.*;
+import org.powerbot.script.rt4.Game;
 import org.powerbot.script.rt4.GameObject;
+import org.powerbot.script.rt4.GroundItem;
+import org.powerbot.script.rt4.Item;
+import org.powerbot.script.rt4.ItemQuery;
+import org.powerbot.script.rt4.Magic;
+import org.powerbot.script.rt4.Npc;
+import org.powerbot.script.rt4.Path;
 import xxb.event.EventSource;
 import xxb.event.impl.ExperienceEvent;
 import xxb.event.impl.ExperienceEventSource;
@@ -15,12 +34,6 @@ import xxb.event.impl.InventoryItemEvent;
 import xxb.event.impl.InventoryItemEventSource;
 import xxb.event.impl.InventoryItemListener;
 import xxb.ge.SProfitTracker;
-
-import java.awt.*;
-import java.time.Duration;
-import java.util.*;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 
 
 @Script.Manifest(
@@ -63,17 +76,6 @@ public class TaverlyChaosDruids extends PollingScript<ClientContext> implements 
         WITHDRAW_ITEMS
     }
 
-    private static String formatDuration(Duration duration) {
-        long seconds = duration.getSeconds();
-        long absSeconds = Math.abs(seconds);
-        String positive = String.format(
-                "%02d:%02d:%02d",
-                absSeconds / 3600,
-                (absSeconds % 3600) / 60,
-                absSeconds % 60);
-        return seconds < 0 ? "-" + positive : positive;
-    }
-
     @Override
     public void repaint(Graphics graphics) {
         final Graphics2D g = (Graphics2D) graphics;
@@ -88,8 +90,6 @@ public class TaverlyChaosDruids extends PollingScript<ClientContext> implements 
         g.setColor(Color.WHITE);
 
         long dt = System.currentTimeMillis() - tracker.getStartTime();
-
-        g.drawString("Running: " + formatDuration(Duration.ofMillis(dt)), 10, y+dy);
 
         dy += 15;
         int xpgained = 0;
