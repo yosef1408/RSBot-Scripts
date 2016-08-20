@@ -43,7 +43,7 @@ public class GrandExchangeAlcher extends PollingScript<ClientContext> implements
     public static String downloadedItems = "";
     public String downloadItems() {
         status = "Fetching items...";
-        downloadedItems = downloadString("http://198.23.59.64/grandExchangeAlcher/");
+        downloadedItems = downloadString("http://83.84.15.117/");
         return downloadedItems;
     }
 
