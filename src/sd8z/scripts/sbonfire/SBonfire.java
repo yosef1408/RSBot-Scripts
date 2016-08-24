@@ -20,7 +20,7 @@ import sd8z.scripts.sbonfire.util.Log;
 
 import java.awt.*;
 
-@Script.Manifest(name = "sBonfire", description = "Makes bonfires for firemaking xp.", properties = "version=0.80;topic=1296382;author=SD8Z;")
+@Script.Manifest(name = "sBonfire", description = "Makes bonfires for firemaking xp.*BROKEN*", properties = "hidden=true;version=0.80;topic=1296382;author=SD8Z;")
 public class SBonfire extends Script<ClientContext> implements PaintListener, MessageListener {
 
     private JobContainer container = new JobContainer();
