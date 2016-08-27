@@ -9,7 +9,7 @@ import org.powerbot.script.rt4.Widget;
 
 import java.awt.*;
 
-@Script.Manifest(name = "Fucking Magic m8",properties = "author=Furze; client=4;",  description = "Gets those $$$")
+@Script.Manifest(name = "Fucking Magic m8",properties = "author=Furze; client=4; topic=1319542;",  description = "Gets those $$$")
 public class MagicCutter extends PollingScript<ClientContext> implements PaintListener {
 
     private static Tile BANK_TILE_NOR_WEST = new Tile(1589, 3480);
