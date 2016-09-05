@@ -48,32 +48,32 @@ public class Constants {
     // Widgets
     public static final int SHORTBOW_UNF_WIDGET = 306;
     public static final int LONGBOW_UNF_WIDGET = 306;
-    public static final int OAK_SHORTBOW_UNF_WIDGET = 304;
-    public static final int OAK_LONGBOW_UNF_WIDGET = 304;
-    public static final int WILLOW_SHORTBOW_UNF_WIDGET = 304;
-    public static final int WILLOW_LONGBOW_UNF_WIDGET = 304;
-    public static final int MAPLE_SHORTBOW_UNF_WIDGET = 304;
-    public static final int MAPLE_LONGBOW_UNF_WIDGET = 304;
-    public static final int YEW_SHORTBOW_UNF_WIDGET = 304;
-    public static final int YEW_LONGBOW_UNF_WIDGET = 304;
-    public static final int MAGIC_SHORTBOW_UNF_WIDGET = 303;
-    public static final int MAGIC_LONGBOW_UNF_WIDGET = 303;
+    public static final int OAK_SHORTBOW_UNF_WIDGET = 305;
+    public static final int OAK_LONGBOW_UNF_WIDGET = 305;
+    public static final int WILLOW_SHORTBOW_UNF_WIDGET = 305;
+    public static final int WILLOW_LONGBOW_UNF_WIDGET = 305;
+    public static final int MAPLE_SHORTBOW_UNF_WIDGET = 305;
+    public static final int MAPLE_LONGBOW_UNF_WIDGET = 305;
+    public static final int YEW_SHORTBOW_UNF_WIDGET = 305;
+    public static final int YEW_LONGBOW_UNF_WIDGET = 305;
+    public static final int MAGIC_SHORTBOW_UNF_WIDGET = 304;
+    public static final int MAGIC_LONGBOW_UNF_WIDGET = 304;
 
     public static final int STRING_WIDGET = 309;
 
     // Components
     public static final int SHORTBOW_UNF_COMPONENT = 15;
     public static final int LONGBOW_UNF_COMPONENT = 19;
-    public static final int OAK_SHORTBOW_UNF_COMPONENT = 5;
-    public static final int OAK_LONGBOW_UNF_COMPONENT = 9;
-    public static final int WILLOW_SHORTBOW_UNF_COMPONENT = 5;
-    public static final int WILLOW_LONGBOW_UNF_COMPONENT = 9;
-    public static final int MAPLE_SHORTBOW_UNF_COMPONENT = 5;
-    public static final int MAPLE_LONGBOW_UNF_COMPONENT = 9;
-    public static final int YEW_SHORTBOW_UNF_COMPONENT = 5;
-    public static final int YEW_LONGBOW_UNF_COMPONENT = 9;
-    public static final int MAGIC_SHORTBOW_UNF_COMPONENT = 4;
-    public static final int MAGIC_LONGBOW_UNF_COMPONENT = 8;
+    public static final int OAK_SHORTBOW_UNF_COMPONENT = 10;
+    public static final int OAK_LONGBOW_UNF_COMPONENT = 14;
+    public static final int WILLOW_SHORTBOW_UNF_COMPONENT = 10;
+    public static final int WILLOW_LONGBOW_UNF_COMPONENT = 14;
+    public static final int MAPLE_SHORTBOW_UNF_COMPONENT = 10;
+    public static final int MAPLE_LONGBOW_UNF_COMPONENT = 14;
+    public static final int YEW_SHORTBOW_UNF_COMPONENT = 10;
+    public static final int YEW_LONGBOW_UNF_COMPONENT = 14;
+    public static final int MAGIC_SHORTBOW_UNF_COMPONENT = 9;
+    public static final int MAGIC_LONGBOW_UNF_COMPONENT = 13;
 
     public static final int STRING_COMPONENT = 3;
 }
