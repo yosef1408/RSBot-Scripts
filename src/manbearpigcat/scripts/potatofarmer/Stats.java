@@ -1,35 +1,22 @@
-package manbearpigcat.scripts;
+package manbearpigcat.scripts.potatofarmer;
 
 /**
  * Created by Shan on 2016-08-17.
  */
 public class Stats {
-    public int potFarmed = 0;
-    public String state = "Waiting...";
-    public int bag = 0;
-    public int bank = 0; //1 = varrock, 2 = al-kharid
+    private int potFarmed = 0;
+    private String state = "Waiting...";
 
     public Stats(){
         this.potFarmed = 0;
         this.state = "Waiting...";
-        this.bag = 0;
-        this.bank = 0;
     }
 
     public Stats(int pot){
         this.potFarmed = pot;
         this.state = "Waiting...";
-        this.bag = 0;
-        this.bank = 0;
     }
 
-    public int getBank(){
-        return bank;
-    }
-
-    public void setBank(int bank){
-        this.bank = bank;
-    }
     public String getState(){
         return state;
     }
@@ -40,14 +27,6 @@ public class Stats {
 
     public int getPotFarmed(){
         return potFarmed;
-    }
-
-    public int getBag(){
-        return bag;
-    }
-
-    public void setBag(int b){
-        this.bag = b;
     }
 
     public void setPotFarmed(int pot){

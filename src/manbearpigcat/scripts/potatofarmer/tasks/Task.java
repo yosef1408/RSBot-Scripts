@@ -1,4 +1,4 @@
-package manbearpigcat.scripts;
+package manbearpigcat.scripts.potatofarmer.tasks;
 
 import org.powerbot.script.ClientAccessor;
 import org.powerbot.script.ClientContext;

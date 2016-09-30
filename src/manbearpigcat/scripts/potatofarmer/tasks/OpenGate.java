@@ -1,5 +1,6 @@
-package manbearpigcat.scripts;
+package manbearpigcat.scripts.potatofarmer.tasks;
 
+import manbearpigcat.scripts.potatofarmer.PotatoPicker;
 import org.powerbot.script.Area;
 import org.powerbot.script.Condition;
 import org.powerbot.script.Random;
@@ -13,17 +14,15 @@ import java.util.concurrent.Callable;
  * Created by Shan on 2016-08-17.
  */
 public class OpenGate extends Task<ClientContext> {
-    public static final int POTATO = 312;
-    public static final int[] GATE = {45208, 45206};
-    public static final Tile GATE_AREA_T1 = new Tile(3270, 3329, 0);
-    public static final Tile GATE_AREA_T2 = new Tile(3245, 3309, 0);
-    public static final Area area = new Area(GATE_AREA_T1, GATE_AREA_T2);
-    public static final Tile after = new Tile(3262, 3314,0);
-    public static final Tile after1 = new Tile(3255, 3312, 0);
-    public static final Tile after2 = new Tile(3251, 3306, 0);
-
-
-    public static Stats sPots = PotatoPicker.sPots;
+    private static final int POTATO = 312;
+    private static final int[] GATE = {45208, 45206};
+    private static final Tile GATE_AREA_T1 = new Tile(3270, 3329, 0);
+    private static final Tile GATE_AREA_T2 = new Tile(3245, 3309, 0);
+    private static final Area area = new Area(GATE_AREA_T1, GATE_AREA_T2);
+    private static final Tile after = new Tile(3262, 3320,0);
+   // private static final Tile after1 = new Tile(3262, 3319, 0);
+   // private static final Tile after2 = new Tile(3263, 3320, 0);
+    private Random r = new Random();
 
     public OpenGate(ClientContext ctx){
         super(ctx);
@@ -35,13 +34,13 @@ public class OpenGate extends Task<ClientContext> {
     }
 
     public void execute(){
-        sPots.setState("Opening Gate.");
-        final GameObject closedGate = ctx.objects.select().id(GATE).nearest().poll();
+        PotatoPicker.sPots.setState("Opening Gate.");
+        final GameObject closedGate = ctx.objects.select(20).id(GATE).nearest().poll();
         if(closedGate.valid()) {
-            final GameObject pot = ctx.objects.select().id(POTATO).nearest().poll();
+            final GameObject pot = ctx.objects.select(20).id(POTATO).nearest().poll();
             ctx.camera.turnTo(pot);
-            Random r = new Random();      //use random so camera doesn't always set pitch to exactly 45 deg. every time
-            int pitch = r.nextInt(40,48); //angle the camera to make sure the mouse doesn't miss the gate
+            //use random so camera doesn't always set pitch to exactly 45 deg. every time
+            int pitch = r.nextInt(40,50); //angle the camera to make sure the mouse doesn't miss the gate
             ctx.camera.pitch(pitch);
             boolean check;
             check = Condition.wait(new Callable<Boolean>() {
@@ -53,9 +52,10 @@ public class OpenGate extends Task<ClientContext> {
 
             //reset overhead view
             if(check){
-                ctx.camera.pitch(90);
-                Random rand = new Random();
-                int x = rand.nextInt(0,4);
+                pitch = r.nextInt(80,90);
+                ctx.camera.pitch(pitch);
+                /*
+                int x = r.nextInt(0,4);
                 switch(x){
                     case 0:
                         ctx.movement.step(after);
@@ -70,6 +70,7 @@ public class OpenGate extends Task<ClientContext> {
                         ctx.movement.step(after);
                         break;
                 }
+                */
             }
         }
     }

@@ -1,5 +1,6 @@
-package manbearpigcat.scripts;
+package manbearpigcat.scripts.potatofarmer;
 
+import manbearpigcat.scripts.potatofarmer.tasks.*;
 import org.powerbot.script.Condition;
 import org.powerbot.script.PaintListener;
 import org.powerbot.script.PollingScript;
@@ -26,27 +27,26 @@ import java.util.List;
 public class PotatoPicker extends PollingScript<ClientContext> implements PaintListener, ActionListener{
 
     private List<Task> taskList = new ArrayList<Task>();
-    public static final Font TAHOMA = new Font("Calibri", Font.BOLD, 18);
-    public static final Font TAHOMA_BIG = new Font("Calibri", Font.BOLD, 24);
-    public static final int POT = 1942;
-    public static final int POT_GE = new GeItem(POT).price;
+    private static final Font TAHOMA = new Font("Tahoma", Font.BOLD, 18);
+    private static final Font TAHOMA_BIG = new Font("Tahoma", Font.BOLD, 24);
+    private static final int POT = 1942;
+    private static final int POT_GE = new GeItem(POT).price;
     public static Stats sPots = new Stats(0);
-    public boolean paused = true;
-    public JRadioButton option1;
-    public JRadioButton option2;
-    JFrame frame;
+    private Color lBlue = Color.decode("#232526");
+    private Color dBlue = Color.decode("#414345");
+    //Color text = Color.decode("#FF9068");
+    private GradientPaint bg = new GradientPaint(5, 5, lBlue, 250, 160, dBlue);
+    private JRadioButton option1;
+    private JRadioButton option2;
+    private JFrame frame;
 
 
     public void start(){
         initUI();
-        ctx.camera.pitch(90);
-        taskList.addAll(Arrays.asList(new WalkToField(ctx), new OpenGate(ctx), new Pick(ctx), new WalkToBank(ctx),
-                new Bank(ctx), new AntiBan(ctx)));
-
-
     }
 
     public void initUI(){
+
         frame = new JFrame("Options");
 
         JPanel panel = new JPanel();
@@ -75,20 +75,24 @@ public class PotatoPicker extends PollingScript<ClientContext> implements PaintL
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
 
-        while(paused == true){
-            Condition.sleep(500);
-        }
+        ctx.controller.suspend();
     }
 
     public void actionPerformed(ActionEvent e) {
-        paused = false;
+        int bank = 0;
         if(option1.isSelected()){
-            sPots.setBank(1);
+            bank = 1;
         }
         else{
-            sPots.setBank(2);
+            bank = 2;
         }
         frame.dispose();
+
+        taskList.addAll(Arrays.asList(new WalkToField(ctx), new OpenGate(ctx), new Pick(ctx), new WalkToBank(ctx, bank),
+                new Bank(ctx, bank), new AntiBan(ctx)));
+
+        ctx.controller.resume();
+        ctx.camera.pitch(90);
     }
 
     @Override
@@ -104,11 +108,6 @@ public class PotatoPicker extends PollingScript<ClientContext> implements PaintL
     public void repaint(Graphics graphics) {
         final Graphics2D g = (Graphics2D) graphics;
         g.setFont(TAHOMA_BIG);
-
-        Color lBlue = Color.decode("#232526");
-        Color dBlue = Color.decode("#414345");
-        //Color text = Color.decode("#FF9068");
-        GradientPaint bg = new GradientPaint(5, 5, lBlue, 250, 160, dBlue);
 
         int potFarmed = sPots.getPotFarmed();
         String states = sPots.getState();
@@ -129,7 +128,7 @@ public class PotatoPicker extends PollingScript<ClientContext> implements PaintL
         long seconds = (getRuntime()/1000) % 60;
 
 
-        g.drawString(String.format("------ Potato Farmer ------"), 15, 30);
+        g.drawString(String.format("--- Potato Farmer ---"), 15, 30);
         g.setColor(Color.WHITE);
         g.setFont(TAHOMA);
         //g.setColor(Color.WHITE);
