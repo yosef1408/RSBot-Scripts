@@ -6,6 +6,8 @@ import org.powerbot.script.GeItem;
 import org.powerbot.script.rt6.ClientContext;
 import org.powerbot.script.rt6.Hud;
 import org.powerbot.script.rt6.Item;
+import org.powerbot.script.rt6.Player;
+import org.powerbot.script.rt6.Component;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -14,7 +16,7 @@ import java.util.Comparator;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
-@Script.Manifest(name = "Grand Exchange Alcher",description = "Buys and alchs items at the Grand Exchange for profit and Magic XP.", properties = "topic=1307713; author=Is0lates; ")
+@Script.Manifest(name = "Grand Exchange Alcher",description = "Buys and alchs items at the Grand Exchange for profit and Magic XP.", properties = "topic=1307713; author=Is0lates;")
 public class GrandExchangeAlcher extends PollingScript<ClientContext> implements MessageListener, PaintListener {
 
     public static boolean started = false;
@@ -29,12 +31,26 @@ public class GrandExchangeAlcher extends PollingScript<ClientContext> implements
     private static int totalAlchs;
     private static int totalGp;
     private static int totalGuideGp;
+    public static int totlaStartGp;
     public static GUI form;
     public static int buyNatureRunePrice;
     public static int minProfit;
     public static boolean f2pItemsOnly = false;
     public static String sortBy = "Profit";
     public static int waitForOrders = 0;
+    public static int lastTotalOrderProgress = 0;
+
+    public static Tile[] clerkTiles = {
+            new Tile(3146,3479,0),
+            new Tile(3151,3478,0),
+            new Tile(3178,3479,0),
+            new Tile(3183,3478,0),
+            new Tile(3146,3505,0),
+            new Tile(3151,3504,0),
+            new Tile(3178,3505,0),
+            new Tile(3183,3504,0)
+    };
+    public static Tile clerkTile = null;
 
     private static AlchItem lastAlchItem;
 
@@ -87,26 +103,25 @@ public class GrandExchangeAlcher extends PollingScript<ClientContext> implements
     }
 
     private boolean abortOrder() {
+        int s = (int) (Math.random() * (isMember() ? 8 : 3));
+        return abortOrder(s);
+    }
+
+    private boolean abortOrder(int s) {
+        ctx.widgets.component(GrandExchange.WIDGET, GrandExchange.FIRST_SLOT_COMPONENT + s).click();
         return Condition.wait(new Callable<Boolean>() {
-            @Override
-            public Boolean call() {
-                int s = (int) (Math.random() * (isMember() ? 8 : 3));
-                return ctx.widgets.component(GrandExchange.WIDGET, GrandExchange.FIRST_SLOT_COMPONENT + s).click();
-            }
-        },1000,5) &&
-        Condition.wait(new Callable<Boolean>() {
             @Override
             public Boolean call() {
                 return ctx.widgets.component(GrandExchange.WIDGET, GrandExchange.ABORT_OFFER_COMPONENT).visible() &&
                         ctx.widgets.component(GrandExchange.WIDGET, GrandExchange.ABORT_OFFER_COMPONENT).click();
             }
-        },1000,5) &&
+        },1000,new Random().nextInt(5,50)) &&
         Condition.wait(new Callable<Boolean>() {
             @Override
             public Boolean call() {
                 return grandExchange.collectToInventory();
             }
-        },1000,5);
+        },1000,new Random().nextInt(5,50));
     }
 
     private int countOrdersHaveProgress() {
@@ -119,29 +134,66 @@ public class GrandExchangeAlcher extends PollingScript<ClientContext> implements
         return count;
     }
 
+    private int countTotalProgress() {
+        int totalProgress = 0;
+        for(int i = 0; i < (isMember() ? 8 : 3); i++) {
+            if(grandExchange.getProgress(i) > 0) {
+                totalProgress += Math.ceil(grandExchange.getProgress(i)*100);
+            }
+        }
+        return totalProgress;
+    }
+
     private boolean isMember(){
         return !ctx.widgets.component(1484, 5).visible();
     }
 
     private void escape() {
         ctx.input.send("{VK_ESCAPE down}");
-        Condition.sleep(50);
+        Condition.sleep(new Random().nextInt(50,100));
         ctx.input.send("{VK_ESCAPE up}");
-        Condition.sleep(1000);
+        Condition.sleep(new Random().nextInt(1000,2000));
+    }
+
+    public boolean walkToAreaAroundTile(Tile tile, int distance)  {
+        return ctx.movement.step(
+                new Tile(tile.x() + new Random().nextInt((distance/2)*-1,(distance/2)), tile.y() + new Random().nextInt((distance/2)*-1,(distance/2)), 0)
+        );
     }
 
     int loop = 0;
     public void poll() {
+        Tile currentTile = ctx.players.local().tile();
+
         if (loop == 0) {
             if (startXp == -1) {
                 startXp = ctx.skills.experience(6);
             }
+            clerkTile = clerkTiles[new java.util.Random().nextInt(clerkTiles.length)];
+            for(int i = 0; i < clerkTiles.length; i++) {
+                if(currentTile.distanceTo(clerkTiles[i]) < currentTile.distanceTo(clerkTile)) {
+                    clerkTile = clerkTiles[i];
+                }
+            }
         }
         loop++;
+
+        if(currentTile.distanceTo(clerkTile) > 5) {
+            ctx.camera.turnTo(clerkTile);
+            walkToAreaAroundTile(clerkTile, 5);
+            return;
+        }
 
         if(!ctx.hud.opened(Hud.Window.BACKPACK)) {
             status = "Opening Backpack.";
             ctx.hud.open(Hud.Window.BACKPACK);
+        }
+
+        if(ctx.widgets.component(594,217).visible()) {
+            ctx.widgets.component(594,217).click();
+        }
+        if(ctx.widgets.component(1560,22).visible()) {
+            ctx.widgets.component(1560, 22).click();
         }
 
         if (currentAlchItem == null) {
@@ -154,7 +206,7 @@ public class GrandExchangeAlcher extends PollingScript<ClientContext> implements
                     return ctx.widgets.component(grandExchange.WIDGET, 15).click();
                 }
             }, 1000, 5);
-            Condition.sleep(1000);
+            Condition.sleep(new Random().nextInt(1000,3500));
             return;
         }
         if (ctx.widgets.component(grandExchange.WIDGET, GrandExchange.CONFIRM_COMPONENT).visible() ||
@@ -162,11 +214,21 @@ public class GrandExchangeAlcher extends PollingScript<ClientContext> implements
                 ctx.widgets.component(1433, 0).visible() ||
                 ctx.bank.opened()) {
             status = "Stuck on screen. Escaping.";
-            escape();
+            switch (new Random().nextInt(1,2)) {
+                case 1:
+                    grandExchange.close();
+                    break;
+                case 2:
+                    escape();
+                    break;
+            }
             return;
         }
 
         if (ctx.backpack.select().id(561).count() == 0) {
+            if(ctx.widgets.component(1560,22).visible()) {
+                ctx.widgets.component(1560, 22).click();
+            }
             status = "No nature runes, buying nature runes.";
             if (!grandExchange.opened()) {
                 Condition.wait(new Callable<Boolean>() {
@@ -178,7 +240,7 @@ public class GrandExchangeAlcher extends PollingScript<ClientContext> implements
             } else {
                 if (countAvailableOrders() == 0) {
                     abortOrder();
-                    Condition.sleep(1000);
+                    Condition.sleep(new Random().nextInt(1000,3500));
                     return;
                 }
                 if (Condition.wait(new Callable<Boolean>() {
@@ -195,18 +257,21 @@ public class GrandExchangeAlcher extends PollingScript<ClientContext> implements
                         return grandExchange.buy(NATURE_RUNE_ID, amount, buyNatureRunePrice);
                     }
                 })) {
-                    Condition.sleep(2000);
+                    Condition.sleep(new Random().nextInt(2000,3500));
                     Condition.wait(new Callable<Boolean>() {
                         @Override
                         public Boolean call() {
                             return grandExchange.collectToInventory();
                         }
                     }, 100, 30);
-                    Condition.sleep(1000);
+                    Condition.sleep(new Random().nextInt(1000,2000));
                     return;
                 }
             }
         } else if (ctx.backpack.select().count() == 1) {
+            if(ctx.widgets.component(1560,22).visible()) {
+                ctx.widgets.component(1560, 22).click();
+            }
             status = "No items to alch, buying items.";
             if (!grandExchange.opened()) {
                 Condition.wait(new Callable<Boolean>() {
@@ -219,15 +284,17 @@ public class GrandExchangeAlcher extends PollingScript<ClientContext> implements
             } else {
                 if (countAvailableOrders() == 0) {
                     waitForOrders++;
-                    if (countOrdersHaveProgress() > 0) {
+                    System.out.println(countTotalProgress());
+                    if (countOrdersHaveProgress() > 0 && lastTotalOrderProgress != countTotalProgress()) {
                         Condition.wait(new Callable<Boolean>() {
                             @Override
                             public Boolean call() {
                                 return grandExchange.collectToInventory();
                             }
-                        }, 100, 30);
+                        }, 100, new Random().nextInt(30,300));
+                        lastTotalOrderProgress = countTotalProgress();
                     }
-                    Condition.sleep(1000);
+                    Condition.sleep(new Random().nextInt(1000,3500));
                     if (waitForOrders > 4) {
                         status = "Aborting order.";
                         if (Condition.wait(new Callable<Boolean>() {
@@ -236,8 +303,9 @@ public class GrandExchangeAlcher extends PollingScript<ClientContext> implements
                                 return abortOrder();
                             }
                         })) {
-                            Condition.sleep(1000);
+                            Condition.sleep(new Random().nextInt(1000,3500));
                             waitForOrders = 0;
+                            lastTotalOrderProgress = 0;
                         }
                     }
                     return;
@@ -260,20 +328,110 @@ public class GrandExchangeAlcher extends PollingScript<ClientContext> implements
                         }
                         currentAlchItem = alchItemList.get(currentAlchItemIndex);
                         waitForOrders = 0;
-                        Condition.sleep(2000);
+                        lastTotalOrderProgress = 0;
+                        Condition.sleep(new Random().nextInt(2000,3500));
                         return;
                     }
                 }
             }
         } else {
             waitForOrders = 0;
+            lastTotalOrderProgress = 0;
             if (grandExchange.opened()) {
-                escape();
+                switch (new Random().nextInt(1,2)) {
+                    case 1:
+                        grandExchange.close();
+                        break;
+                    case 2:
+                        escape();
+                        break;
+                }
             }
+
+            switch(new java.util.Random().nextInt(300)) {
+                case 1:
+                    status = "Antiban, walk to different clerk.";
+                    clerkTile = clerkTiles[new java.util.Random().nextInt(clerkTiles.length)];
+                    Condition.sleep(new Random().nextInt(500,5000));
+                    return;
+                case 2:
+                    status = "Antiban, rotate screen.";
+                    ctx.camera.angleTo(new Random().nextInt(0,360));
+                    ctx.camera.pitch(new Random().nextInt(0,100));
+                    Condition.sleep(new Random().nextInt(500,5000));
+                    return;
+                case 3:
+                case 4:
+                    status = "Antiban, pausing for a short while.";
+                    Condition.sleep(new Random().nextInt(5000,20000));
+                    return;
+                case 5:
+                    status = "Antiban, pausing for a while.";
+                    Condition.sleep(new Random().nextInt(10000,(120000)));
+                    return;
+                case 6:
+                    status = "Antiban, examining random object.";
+                    ctx.objects.select().shuffle().first().poll().interact("examine");
+                    Condition.sleep(new Random().nextInt(500,5000));
+                    return;
+                case 7:
+                    status = "Antiban, examining random NPC.";
+                    ctx.npcs.select().shuffle().first().poll().interact("examine");
+                    Condition.sleep(new Random().nextInt(500,5000));
+                    break;
+                case 8:
+                    status = "Antiban, examining random player.";
+                    Player player = ctx.players.select().shuffle().first().poll();
+                    if(player.name().equals(ctx.players.local().name())) {
+                        return;
+                    }
+                    ctx.camera.turnTo(player);
+                    Condition.sleep(new Random().nextInt(500,3000));
+                    player.interact("examine");
+                    Condition.sleep(new Random().nextInt(100,2000));
+                    for(int i = 0; i <= new Random().nextInt(1,10); i++) {
+                        int randomComponent = new Random().nextInt(0,98);
+                        Component component = ctx.widgets.component(1560,randomComponent);
+                        if(randomComponent == 22) {
+                            continue;
+                        }
+                        if(randomComponent == 16) {
+                            component = ctx.widgets.component(1558,14).component(new Random().nextInt(0,18));
+                        }
+                        switch(new Random().nextInt(1,3)) {
+                            case 1:
+                                component.click();
+                                Condition.sleep(new Random().nextInt(100,2500));
+                                break;
+                            default:
+                                component.hover();
+                                Condition.sleep(new Random().nextInt(100,2500));
+                                break;
+                        }
+                    }
+                    Condition.sleep(new Random().nextInt(100,2500));
+                    if(ctx.widgets.component(1477,509).component(1).visible()) {
+                        ctx.widgets.component(1477,509).component(1).click();
+                    }
+                    return;
+                case 9:
+                    status = "Antiban, walk to different tile.";
+                    walkToAreaAroundTile(clerkTile, 5);
+                    Condition.sleep(new Random().nextInt(100,2500));
+                    break;
+            }
+
+
+            if(ctx.widgets.component(1477,509).component(1).visible()) {
+                ctx.widgets.component(1477,509).component(1).click();
+            }
+
             status = "Alching.";
             for(Item item : ctx.backpack.items()) {
                 if(item.id() > 0 && item.id() != NATURE_RUNE_ID) {
+                    Condition.sleep(new Random().nextInt(100,500));
                     ctx.input.send("1");
+                    Condition.sleep(new Random().nextInt(100,500));
                     item.click();
                     lastAlchItem = getAlchItemById(item.id());
                     Condition.wait(new Callable<Boolean>() {
@@ -282,6 +440,7 @@ public class GrandExchangeAlcher extends PollingScript<ClientContext> implements
                             return !(ctx.players.local().animation() == 24458 || ctx.players.local().animation() == 17099);
                         }
                     }, 1, 2000);
+                    Condition.sleep(new Random().nextInt(100,500));
                     break;
                 }
             }
