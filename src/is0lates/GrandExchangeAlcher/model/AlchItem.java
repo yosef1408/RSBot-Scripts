@@ -13,6 +13,9 @@ public class AlchItem extends Object {
     public int buyPrice;
     public int calcProfit;
     public int calcMaxProfit;
+    public int bought;
+    public int alched;
+    public int ordered;
 
     public void calcProfit(int natureRunePrice) {
         calcProfit = alchPrice - buyPrice - natureRunePrice;

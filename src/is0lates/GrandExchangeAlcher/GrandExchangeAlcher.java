@@ -9,15 +9,19 @@ import org.powerbot.script.rt6.Item;
 import org.powerbot.script.rt6.Player;
 import org.powerbot.script.rt6.Component;
 
+import javax.swing.event.MouseInputListener;
 import java.awt.*;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
-@Script.Manifest(name = "Grand Exchange Alcher",description = "Buys and alchs items at the Grand Exchange for profit and Magic XP.", properties = "topic=1307713; author=Is0lates;")
-public class GrandExchangeAlcher extends PollingScript<ClientContext> implements MessageListener, PaintListener {
+@Script.Manifest(name = "Grand Exchange Alcher",description = "Buys and alchs items at the Grand Exchange for profit and Magic XP.", properties = "topic=1307713;author=Is0lates;")
+public class GrandExchangeAlcher extends PollingScript<ClientContext> implements MessageListener, PaintListener, MouseMotionListener {
 
     public static boolean started = false;
     private static int NATURE_RUNE_ID = 561;
@@ -30,8 +34,6 @@ public class GrandExchangeAlcher extends PollingScript<ClientContext> implements
     private static int startXp = -1;
     private static int totalAlchs;
     private static int totalGp;
-    private static int totalGuideGp;
-    public static int totlaStartGp;
     public static GUI form;
     public static int buyNatureRunePrice;
     public static int minProfit;
@@ -39,19 +41,6 @@ public class GrandExchangeAlcher extends PollingScript<ClientContext> implements
     public static String sortBy = "Profit";
     public static int waitForOrders = 0;
     public static int lastTotalOrderProgress = 0;
-
-    public static Tile[] clerkTiles = {
-            new Tile(3146,3479,0),
-            new Tile(3151,3478,0),
-            new Tile(3178,3479,0),
-            new Tile(3183,3478,0),
-            new Tile(3146,3505,0),
-            new Tile(3151,3504,0),
-            new Tile(3178,3505,0),
-            new Tile(3183,3504,0)
-    };
-    public static Tile clerkTile = null;
-
     private static AlchItem lastAlchItem;
 
     private static GrandExchange grandExchange;
@@ -119,6 +108,7 @@ public class GrandExchangeAlcher extends PollingScript<ClientContext> implements
         Condition.wait(new Callable<Boolean>() {
             @Override
             public Boolean call() {
+                status = "Collecting items to inventory.";
                 return grandExchange.collectToInventory();
             }
         },1000,new Random().nextInt(5,50));
@@ -155,34 +145,14 @@ public class GrandExchangeAlcher extends PollingScript<ClientContext> implements
         Condition.sleep(new Random().nextInt(1000,2000));
     }
 
-    public boolean walkToAreaAroundTile(Tile tile, int distance)  {
-        return ctx.movement.step(
-                new Tile(tile.x() + new Random().nextInt((distance/2)*-1,(distance/2)), tile.y() + new Random().nextInt((distance/2)*-1,(distance/2)), 0)
-        );
-    }
-
     int loop = 0;
     public void poll() {
-        Tile currentTile = ctx.players.local().tile();
-
         if (loop == 0) {
             if (startXp == -1) {
                 startXp = ctx.skills.experience(6);
             }
-            clerkTile = clerkTiles[new java.util.Random().nextInt(clerkTiles.length)];
-            for(int i = 0; i < clerkTiles.length; i++) {
-                if(currentTile.distanceTo(clerkTiles[i]) < currentTile.distanceTo(clerkTile)) {
-                    clerkTile = clerkTiles[i];
-                }
-            }
         }
         loop++;
-
-        if(currentTile.distanceTo(clerkTile) > 5) {
-            ctx.camera.turnTo(clerkTile);
-            walkToAreaAroundTile(clerkTile, 5);
-            return;
-        }
 
         if(!ctx.hud.opened(Hud.Window.BACKPACK)) {
             status = "Opening Backpack.";
@@ -258,6 +228,7 @@ public class GrandExchangeAlcher extends PollingScript<ClientContext> implements
                     }
                 })) {
                     Condition.sleep(new Random().nextInt(2000,3500));
+                    status = "Collecting items to inventory.";
                     Condition.wait(new Callable<Boolean>() {
                         @Override
                         public Boolean call() {
@@ -273,6 +244,7 @@ public class GrandExchangeAlcher extends PollingScript<ClientContext> implements
                 ctx.widgets.component(1560, 22).click();
             }
             status = "No items to alch, buying items.";
+            lastAlchItem = null;
             if (!grandExchange.opened()) {
                 Condition.wait(new Callable<Boolean>() {
                     @Override
@@ -284,8 +256,8 @@ public class GrandExchangeAlcher extends PollingScript<ClientContext> implements
             } else {
                 if (countAvailableOrders() == 0) {
                     waitForOrders++;
-                    System.out.println(countTotalProgress());
                     if (countOrdersHaveProgress() > 0 && lastTotalOrderProgress != countTotalProgress()) {
+                        status = "Collecting items to inventory.";
                         Condition.wait(new Callable<Boolean>() {
                             @Override
                             public Boolean call() {
@@ -319,7 +291,9 @@ public class GrandExchangeAlcher extends PollingScript<ClientContext> implements
                             int price = (currentAlchItem.buyPrice) < 1 ? 1 : (currentAlchItem.buyPrice);
                             int canByAmount = (coins < 1 ? 1 : coins) / price / divider;
                             int amount = Integer.parseInt(Double.toString(Math.floor(canByAmount > currentAlchItem.limit ? currentAlchItem.limit : canByAmount)).replace(".0", ""));
-                            return grandExchange.buy(currentAlchItem.id, amount, price);
+                            grandExchange.buy(currentAlchItem.id, amount, price);
+                            currentAlchItem.ordered += amount;
+                            return true;
                         }
                     })) {
                         currentAlchItemIndex++;
@@ -348,80 +322,6 @@ public class GrandExchangeAlcher extends PollingScript<ClientContext> implements
                 }
             }
 
-            switch(new java.util.Random().nextInt(300)) {
-                case 1:
-                    status = "Antiban, walk to different clerk.";
-                    clerkTile = clerkTiles[new java.util.Random().nextInt(clerkTiles.length)];
-                    Condition.sleep(new Random().nextInt(500,5000));
-                    return;
-                case 2:
-                    status = "Antiban, rotate screen.";
-                    ctx.camera.angleTo(new Random().nextInt(0,360));
-                    ctx.camera.pitch(new Random().nextInt(0,100));
-                    Condition.sleep(new Random().nextInt(500,5000));
-                    return;
-                case 3:
-                case 4:
-                    status = "Antiban, pausing for a short while.";
-                    Condition.sleep(new Random().nextInt(5000,20000));
-                    return;
-                case 5:
-                    status = "Antiban, pausing for a while.";
-                    Condition.sleep(new Random().nextInt(10000,(120000)));
-                    return;
-                case 6:
-                    status = "Antiban, examining random object.";
-                    ctx.objects.select().shuffle().first().poll().interact("examine");
-                    Condition.sleep(new Random().nextInt(500,5000));
-                    return;
-                case 7:
-                    status = "Antiban, examining random NPC.";
-                    ctx.npcs.select().shuffle().first().poll().interact("examine");
-                    Condition.sleep(new Random().nextInt(500,5000));
-                    break;
-                case 8:
-                    status = "Antiban, examining random player.";
-                    Player player = ctx.players.select().shuffle().first().poll();
-                    if(player.name().equals(ctx.players.local().name())) {
-                        return;
-                    }
-                    ctx.camera.turnTo(player);
-                    Condition.sleep(new Random().nextInt(500,3000));
-                    player.interact("examine");
-                    Condition.sleep(new Random().nextInt(100,2000));
-                    for(int i = 0; i <= new Random().nextInt(1,10); i++) {
-                        int randomComponent = new Random().nextInt(0,98);
-                        Component component = ctx.widgets.component(1560,randomComponent);
-                        if(randomComponent == 22) {
-                            continue;
-                        }
-                        if(randomComponent == 16) {
-                            component = ctx.widgets.component(1558,14).component(new Random().nextInt(0,18));
-                        }
-                        switch(new Random().nextInt(1,3)) {
-                            case 1:
-                                component.click();
-                                Condition.sleep(new Random().nextInt(100,2500));
-                                break;
-                            default:
-                                component.hover();
-                                Condition.sleep(new Random().nextInt(100,2500));
-                                break;
-                        }
-                    }
-                    Condition.sleep(new Random().nextInt(100,2500));
-                    if(ctx.widgets.component(1477,509).component(1).visible()) {
-                        ctx.widgets.component(1477,509).component(1).click();
-                    }
-                    return;
-                case 9:
-                    status = "Antiban, walk to different tile.";
-                    walkToAreaAroundTile(clerkTile, 5);
-                    Condition.sleep(new Random().nextInt(100,2500));
-                    break;
-            }
-
-
             if(ctx.widgets.component(1477,509).component(1).visible()) {
                 ctx.widgets.component(1477,509).component(1).click();
             }
@@ -449,10 +349,10 @@ public class GrandExchangeAlcher extends PollingScript<ClientContext> implements
 
     public void messaged(MessageEvent messageEvent) {
         if(messageEvent.text().contains("coins have been added to your money pouch.") && messageEvent.source().equals("")) {
-            if(status.equals("Alching.")) {
+            if (status.equals("Alching.")) {
                 totalAlchs++;
                 totalGp += lastAlchItem.calcProfit;
-                totalGuideGp += lastAlchItem.profit;
+                lastAlchItem.alched++;
             }
         }
     }
@@ -471,86 +371,152 @@ public class GrandExchangeAlcher extends PollingScript<ClientContext> implements
         return res;
     }
 
-    Font font = new Font("Arial", Font.PLAIN, 10);
-    Color background = new Color(0, 0, 0, 150);
-    public void repaint(Graphics graphics) {
-        graphics.setFont(font);
-        graphics.setColor(background);
-        graphics.drawRect(0, 0, 400, 150);
-        graphics.fillRect(0, 0, 400, 150);
-        graphics.setColor(Color.WHITE);
-        graphics.getFont();
-        graphics.drawString("Grand Exchange Alcher", 5, 15);
-        int runtime = Integer.parseInt("" + (System.currentTimeMillis()- startTime));
-        graphics.drawString("Run time: " + timeFormat(runtime), 300, 15);
-        graphics.drawString("Status: " + status, 5, 40);
-        graphics.drawString("Total Alchs: " + totalAlchs, 5, 53);
-        graphics.drawString("Alchs/h: " + (int)((3600000D*totalAlchs) / (System.currentTimeMillis() - startTime)), 5, 68);
+    /**
+     * Paint
+     */
 
-        graphics.drawString("Min Profit: " + totalGp, 105, 53);
-        graphics.drawString("Min Profit/h: " + (int)((3600000D*totalGp) / (System.currentTimeMillis() - startTime)), 105, 68);
+    int positionX = 5;
+    int positionY = 5;
+    int columnWidth = 50;
+    int rowHeight = 15;
+    int rowPadding = 0;
+    int columnPadding = 3;
+    float span = 1;
+    final static int defaultOpacity = 100;
+    int opacity = defaultOpacity;
+
+    Color color =  Color.WHITE;
+    Font font = new Font("Arial", Font.PLAIN, 12);
+    Color background = new Color(0, 0, 0, opacity);
+    Graphics _graphics = null;
+
+    void drawColumn(String text, int row, double column, double span, Color color, Font font, Color background) {
+        int rectHeight = rowHeight+(rowPadding*2);
+        int rectWidth = columnWidth+(columnPadding*2);
+        int rectX = positionX + (int)(column * rectWidth);
+        int rectY = positionY + (row * rectHeight);
+        int textX = rectX + columnPadding;
+        int textY = rectY + rowHeight - columnPadding;
+        _graphics.setColor(background);
+        _graphics.drawRect(rectX, rectY, (int)(rectWidth*span), rectHeight);
+        _graphics.fillRect(rectX, rectY, (int)(rectWidth*span), rectHeight);
+        _graphics.setFont(font);
+        _graphics.setColor(color);
+        _graphics.drawString(text, textX, textY);
+    }
+
+    void drawColumn(String text, int row, double column, double span, Color color) {
+        drawColumn(text, row, column, span, color, font, background);
+    }
+
+    void drawColumn(String text, int row, double column, Color color) {
+        drawColumn(text, row, column, span, color, font, background);
+    }
+
+    void drawColumn(String text, int row, double column, Color color, Color background) {
+        drawColumn(text, row, column, span, color, font, background);
+    }
+
+    void drawColumn(String text, int row, double column, double span, Color color, Color background) {
+        drawColumn(text, row, column, span, color, font, background);
+    }
+
+    void drawColumn(String text, int row, double column, double span) {
+        drawColumn(text, row, column, span, color, font, background);
+    }
+
+    void drawColumn(String text, int row, double column) {
+        drawColumn(text, row, column, span, color, font, background);
+    }
+
+
+    private boolean mouseOverPaint(MouseEvent e) {
+        return e.getX() > positionX && e.getX() < 11*(columnWidth+(columnPadding*2)) && e.getY() > positionY && e.getY() < 17*rowHeight;
+    }
+
+    public void mouseMoved(MouseEvent e) {
+        if(mouseOverPaint(e)){
+            opacity = 255;
+        } else {
+            opacity = defaultOpacity;
+        }
+        background = new Color(0, 0, 0, opacity);
+    }
+
+    public void mouseDragged(MouseEvent e) {
+
+    }
+
+    public void repaint(Graphics graphics) {
+        _graphics = graphics;
+        float runtime = System.currentTimeMillis() - startTime;
+        drawColumn("Grand Exchange Alcher", 0, 0, 8, Color.GREEN);
+        drawColumn("Run Time:", 0, 8, 2, Color.lightGray);
+        drawColumn(timeFormat((int)runtime), 0, 10);
+
+        drawColumn("Status:", 1,0, Color.lightGray);
+        drawColumn(status, 1,1,10);
+
+        drawColumn("Alchs", 2, 0, 1.83, Color.lightGray);
+        drawColumn("Alchs/H", 2, 1.83, 1.83, Color.lightGray);
+        drawColumn("Min Profit", 2, 3.66, 1.87, Color.lightGray);
+        drawColumn("Min Profit/H", 2, 5.5, 1.83, Color.lightGray);
+        drawColumn("XP", 2, 7.333333333, 1.83, Color.lightGray);
+        drawColumn("XP/H", 2, 9.16, 1.87, Color.lightGray);
+
+        drawColumn(""+totalAlchs, 3, 0, 1.83);
+        drawColumn("" + (int)((3600000D*totalAlchs) / runtime), 3, 1.83,1.83);
+        drawColumn(""+totalGp, 3, 3.66, 1.87);
+        drawColumn("" + (int)((3600000D*totalGp) / runtime), 3, 5.5, 1.83);
+        drawColumn(""+(ctx.skills.experience(6) - startXp), 3, 7.3333333,1.83);
+        drawColumn("" + (int) ((3600000D * (ctx.skills.experience(6) - startXp)) / (System.currentTimeMillis() - startTime)), 3, 9.16,1.87);
+
+        drawColumn("Nat Price:", 4, 0, Color.lightGray);
+        drawColumn(""+natureRunePrice, 4, 1, 4.5);
+        drawColumn("Buy Nat:", 4, 5.5, Color.lightGray);
+        drawColumn(""+buyNatureRunePrice, 4,6.5,4.5);
+
+        drawColumn("#", 5, 0, Color.lightGray);
+        drawColumn("Name", 5, 1, 4, Color.lightGray);
+        drawColumn("Limit", 5,5, Color.lightGray);
+        drawColumn("High Alch", 5, 6, Color.lightGray);
+        drawColumn("Buy Price",5,7, Color.lightGray);
+        drawColumn("Guide Price",5,8, Color.lightGray);
+        drawColumn("Min Profit", 5, 9, Color.lightGray);
+        drawColumn("Alched", 5, 10, Color.lightGray);
 
         if(started) {
-            if (startXp != -1) {
-                graphics.drawString("XP gained: " + (ctx.skills.experience(6) - startXp), 266, 53);
-                graphics.drawString("XP/h: " + (int) ((3600000D * (ctx.skills.experience(6) - startXp)) / (System.currentTimeMillis() - startTime)), 266, 68);
-            }
+            int alchItemCount = alchItemList.size()-1;
+            int lastAlchItemIndex = alchItemList.indexOf(lastAlchItem);
+            int reloopItemIndex = 0;
+            for (int i = (alchItemCount < 10 ? (alchItemCount/2) * -1 : -5); i <= (alchItemCount < 10 ? (alchItemCount/2) : 5); i++) {
+                int index = lastAlchItem instanceof AlchItem ? lastAlchItemIndex : currentAlchItemIndex;
+                int alchtItemIndex = index+i < 0 ? alchItemCount+index+i+1 : index+i > alchItemCount ? reloopItemIndex : index+i;
+                if(index+i > alchItemCount) {
+                    reloopItemIndex++;
+                }
+                AlchItem ai = alchItemList.get(alchtItemIndex);
+                int row = (alchItemCount < 10 ? (alchItemCount/2) + 6 : 11) + i;
+                int alpha = (i == 0 ? opacity : i < 0 ? (opacity-(-1*(i*20))) > opacity ? opacity : (opacity-(-1*(i*20))) : (opacity-(i*20)) > opacity ? opacity : (opacity-(i*20)));
+                Color color = new Color(255, 255, 255, alpha);
+                if(currentAlchItem instanceof AlchItem && currentAlchItem.id == ai.id) {
+                    color = Color.ORANGE;
+                    alpha = opacity;
+                }
+                if(lastAlchItem instanceof AlchItem && lastAlchItem.id == ai.id) {
+                    color = Color.GREEN;
+                    alpha = opacity;
+                }
+                Color background = new Color(0, 0, 0, alpha);
 
-            if (currentAlchItem != null && !status.equals("Alching.")) {
-                graphics.drawString("Next buy item:", 5, 90);
-                graphics.drawString("(#" + currentAlchItem.id + ") " + currentAlchItem.name, 70, 90);
-
-                graphics.drawString("Alch price:", 5, 105);
-                graphics.drawString("" + currentAlchItem.alchPrice, 65, 105);
-
-                graphics.drawString("Limit:", 5, 120);
-                graphics.drawString("" + currentAlchItem.limit, 65, 120);
-
-                graphics.drawString("Buy price:", 125, 105);
-                graphics.drawString("" + ((currentAlchItem.buyPrice)), 190, 105);
-
-                graphics.drawString("Nat price:", 125, 120);
-                graphics.drawString("" + buyNatureRunePrice, 190, 120);
-
-                graphics.drawString("Calc Profit:", 125, 135);
-                graphics.drawString("" + (currentAlchItem.calcProfit), 190, 135);
-
-                graphics.drawString("Guide price:", 255, 105);
-                graphics.drawString("" + (currentAlchItem.price), 320, 105);
-
-                graphics.drawString("Guide Profit:", 255, 120);
-                graphics.drawString("" + currentAlchItem.profit, 320, 120);
-
-                graphics.drawString("Guide Max:", 255, 135);
-                graphics.drawString("" + currentAlchItem.maxProfit, 320, 135);
-
-            } else if (lastAlchItem != null && status.equals("Alching.")) {
-                graphics.drawString("Alching item:", 5, 90);
-                graphics.drawString("(#" + lastAlchItem.id + ") " + lastAlchItem.name, 70, 90);
-
-                graphics.drawString("Alch price:", 5, 105);
-                graphics.drawString("" + lastAlchItem.alchPrice, 65, 105);
-
-                graphics.drawString("Limit:", 5, 120);
-                graphics.drawString("" + lastAlchItem.limit, 65, 120);
-
-                graphics.drawString("Buy price:", 125, 105);
-                graphics.drawString("" + lastAlchItem.buyPrice, 190, 105);
-
-                graphics.drawString("Nat price:", 125, 120);
-                graphics.drawString("" + buyNatureRunePrice, 190, 120);
-
-                graphics.drawString("Calc Profit:", 125, 135);
-                graphics.drawString("" + lastAlchItem.calcProfit, 190, 135);
-
-                graphics.drawString("Guide price:", 255, 105);
-                graphics.drawString("" + (lastAlchItem.price), 320, 105);
-
-                graphics.drawString("Guide Profit:", 255, 120);
-                graphics.drawString("" + lastAlchItem.profit, 320, 120);
-
-                graphics.drawString("Guide Max:", 255, 135);
-                graphics.drawString("" + lastAlchItem.maxProfit, 320, 135);
+                drawColumn("" + (alchtItemIndex + 1), row, 0, color, background);
+                drawColumn(ai.name, row, 1, 4, color, background);
+                drawColumn("" + ai.limit, row, 5, color, background);
+                drawColumn("" + ai.alchPrice, row, 6, color, background);
+                drawColumn("" + ai.buyPrice, row, 7, color, background);
+                drawColumn("" + ai.price, row, 8, color, background);
+                drawColumn("" + ai.calcProfit, row, 9, color, background);
+                drawColumn("" + ai.alched, row, 10, color, background);
             }
         }
     }
