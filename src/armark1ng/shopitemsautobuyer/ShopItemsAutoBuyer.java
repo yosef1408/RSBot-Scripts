@@ -6,7 +6,6 @@ import java.awt.Graphics;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.powerbot.script.Condition;
 import org.powerbot.script.PaintListener;
 import org.powerbot.script.PollingScript;
@@ -19,11 +18,9 @@ import org.powerbot.script.rt4.Interactive;
 import org.powerbot.script.rt4.Item;
 import org.powerbot.script.rt4.Npc;
 import org.powerbot.script.rt4.Player;
-
 import armark1ng.shopitemsautobuyer.WorldSwitcher.World;
 
-@Script.Manifest(name = "Armar's Shop Items Auto Buyer", description = "Buys items from any shop supports World Hopping/Opening Packs/Banking For both f2p/p2p osrs players.", 
-properties = "author=armark1ng; topic=1323639; client=4;")
+@Script.Manifest(name = "Shop Items Auto Buyer", description = "Buys items from any shop supports World Hopping/Opening Packs/Banking For both f2p/p2p players.", properties = "author=armark1ng;topic=1323639;client=4;")
 public class ShopItemsAutoBuyer extends PollingScript<ClientContext> implements PaintListener {
 
 	public static int[] RESTRICTED_WORLDS = { 73, 66, 61, 53, 49, 25, 37 };
@@ -42,10 +39,6 @@ public class ShopItemsAutoBuyer extends PollingScript<ClientContext> implements 
 	private boolean hopWorlds, banking, doingAction;
 	private World currentWorld, nextWorld;
 	private GUI gui;
-
-	// Shops npc Ids
-
-	// npcId varrock 637, port sarim 1052, mage arena 1601, magic guild 3247
 
 	@Override
 	public void start() {
@@ -258,10 +251,12 @@ public class ShopItemsAutoBuyer extends PollingScript<ClientContext> implements 
 			if (worldSwitcher.opened()) {
 				if (worldSwitcher.switchToWorld(nextWorld)) {
 					worldHopCounter++;
-					currentWorldHopDelay = worldHopCounter == worldHopFrequncy
-							? (System.currentTimeMillis() + worldHopDelay) : 0;
-					if (worldHopCounter == worldHopFrequncy)
-						worldHopCounter = 0;
+					if (worldHopFrequncy > 0) {
+						currentWorldHopDelay = worldHopCounter == worldHopFrequncy
+								? (System.currentTimeMillis() + worldHopDelay) : 0;
+						if (worldHopCounter >= worldHopFrequncy)
+							worldHopCounter = 0;
+					}
 					worldSwitcher = null;
 					currentWorld = null;
 					nextWorld = null;

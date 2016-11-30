@@ -3,7 +3,6 @@ package armark1ng.shopitemsautobuyer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
 import org.powerbot.script.Condition;
 import org.powerbot.script.Filter;
 import org.powerbot.script.MenuCommand;
