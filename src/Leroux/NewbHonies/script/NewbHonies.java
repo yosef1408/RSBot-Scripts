@@ -42,7 +42,6 @@ public class NewbHonies extends PollingScript<ClientContext> implements PaintLis
 	public  static String scriptStatus;
 
 	@Override
-	@SuppressWarnings("deprecated")
 	public void start() {
 		Item repellent = ctx.backpack.select().id(items.getRepel()).poll();
 
@@ -54,6 +53,7 @@ public class NewbHonies extends PollingScript<ClientContext> implements PaintLis
 			System.out.print(" Tasks Added ");
 		}
 
+		//noinspection deprecation
 		honeyPrice = GeItem.price(items.getHoney());
 		initialTime = System.currentTimeMillis();
 		System.out.print(" " + honeyPrice);

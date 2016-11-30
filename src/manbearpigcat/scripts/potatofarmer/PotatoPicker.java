@@ -1,21 +1,36 @@
 package manbearpigcat.scripts.potatofarmer;
 
-import manbearpigcat.scripts.potatofarmer.tasks.*;
-import org.powerbot.script.Condition;
-import org.powerbot.script.PaintListener;
-import org.powerbot.script.PollingScript;
-import org.powerbot.script.Script;
-import org.powerbot.script.rt6.ClientContext;
-import org.powerbot.script.rt6.GeItem;
-
-
-import javax.swing.*;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.GradientPaint;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import javax.swing.AbstractButton;
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+
+import manbearpigcat.scripts.potatofarmer.tasks.AntiBan;
+import manbearpigcat.scripts.potatofarmer.tasks.Bank;
+import manbearpigcat.scripts.potatofarmer.tasks.OpenGate;
+import manbearpigcat.scripts.potatofarmer.tasks.Pick;
+import manbearpigcat.scripts.potatofarmer.tasks.Task;
+import manbearpigcat.scripts.potatofarmer.tasks.WalkToBank;
+import manbearpigcat.scripts.potatofarmer.tasks.WalkToField;
+import org.powerbot.script.PaintListener;
+import org.powerbot.script.PollingScript;
+import org.powerbot.script.Script;
+import org.powerbot.script.rt6.ClientContext;
+import org.powerbot.script.rt6.GeItem;
 
 /**
  * Created by Shan on 2016-08-17.
@@ -78,6 +93,7 @@ public class PotatoPicker extends PollingScript<ClientContext> implements PaintL
         ctx.controller.suspend();
     }
 
+    @SuppressWarnings("unchecked")
     public void actionPerformed(ActionEvent e) {
         int bank = 0;
         if(option1.isSelected()){
