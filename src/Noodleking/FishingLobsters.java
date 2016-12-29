@@ -1,4 +1,4 @@
-package Fishing;
+package Noodleking;
 
 import org.powerbot.script.*;
 import org.powerbot.script.rt4.ClientContext;
@@ -13,20 +13,20 @@ import java.util.Arrays;
 @Script.Manifest(name = "Fishing Lobsters",properties = "author=Noodleking; topic=1325074; client=4;",  description = "Fishes lobsters at Musa Point and banks them in Draynor Village")
 public class FishingLobsters extends PollingScript<ClientContext> implements PaintListener {
 
+    //26254
     private int LobsterCount = 0, LobsterProfit = 186, LobsterXP = 90;
     private DecimalFormat formatted = new DecimalFormat("#,###,###");
     private boolean[] counting = new boolean[28];
     private long Stopwatch = 0;
-    private boolean not_enough_coins = false;
     private Area Karamjafishing = new Area(new Tile(2914,3164), new Tile(2934,3184));
-    private Area DraynorBank = new Area(new Tile(3090,3246), new Tile(3094,3240));
+    private Area EntranaDeposit = new Area(new Tile(3043,3236), new Tile(3047,3233));
     private Area KaramjaDock = new Area(new Tile(2941,3141), new Tile(2957,3151));
     private Area PortSarimDock = new Area(new Tile(3022,3216), new Tile(3032, 3226));
 
     private Tile[] path_to_sailor_Karamja;
-    private Tile[] path_to_draynor_bank;
+    private Tile[] path_to_entrana_monks;
 
-    private TilePath to_sailor_Karamja, to_sailor_Port_Sarim, to_fishing_spot, to_draynor_bank;
+    private TilePath to_sailor_Karamja, to_sailor_Port_Sarim, to_fishing_spot, to_entrana_monks;
     private boolean questfinished = false, Karamja = true, Draynor = true;
 
     public void start(){
@@ -42,9 +42,9 @@ public class FishingLobsters extends PollingScript<ClientContext> implements Pai
         for(int i = 0; i < ctx.inventory.select().count(); i++)
             counting[i]=false;
 
-        initiate_paths();
-        to_draynor_bank = ctx.movement.newTilePath(path_to_draynor_bank);
-        to_sailor_Port_Sarim = ctx.movement.newTilePath(path_to_draynor_bank).reverse();
+        Initiate_paths();
+        to_entrana_monks = ctx.movement.newTilePath(path_to_entrana_monks);
+        to_sailor_Port_Sarim = ctx.movement.newTilePath(path_to_entrana_monks).reverse();
         to_sailor_Karamja = ctx.movement.newTilePath(path_to_sailor_Karamja);
         to_fishing_spot = ctx.movement.newTilePath(path_to_sailor_Karamja).reverse();
     }
@@ -52,7 +52,7 @@ public class FishingLobsters extends PollingScript<ClientContext> implements Pai
     @Override
     public void poll(){
         final State state = getState();
-        if(state==null || not_enough_coins)
+        if(state==null)
             return;
         else if(questfinished) {
             switch (state) {
@@ -74,7 +74,8 @@ public class FishingLobsters extends PollingScript<ClientContext> implements Pai
 
     public State getState(){
         int inventory_amount = ctx.inventory.select().id(377).count();
-        boolean inBank = DraynorBank.contains(ctx.players.local().tile()), atFishingspot = Karamjafishing.contains(ctx.players.local().tile());
+        boolean inBank = EntranaDeposit.contains(ctx.players.local().tile()),
+                atFishingspot = Karamjafishing.contains(ctx.players.local().tile());
         if(atFishingspot) {
             if(inventory_amount == 26)
                 return State.WALKING_TO_DRAYNOR;
@@ -113,9 +114,9 @@ public class FishingLobsters extends PollingScript<ClientContext> implements Pai
             Karamja = false;
             Draynor = true;
         }
-        else if(!DraynorBank.contains(ctx.players.local().tile()) && Draynor){
+        else if(!EntranaDeposit.contains(ctx.players.local().tile()) && Draynor){
             Condition.sleep(Random.nextInt(1000,1500));
-            to_draynor_bank.traverse();
+            to_entrana_monks.traverse();
         }
     }
 
@@ -154,20 +155,22 @@ public class FishingLobsters extends PollingScript<ClientContext> implements Pai
     }
 
     public void Banking(){
-        if(!ctx.bank.opened()){
-            ctx.objects.select().id(6943).within(DraynorBank).nearest().poll().click();
-            Condition.sleep(Random.nextInt(1000, 1500));
-        }
-        else if (!ctx.inventory.id(377).isEmpty()) {
-            ctx.bank.deposit("Raw lobster", 26);
-            if(ctx.bank.id(995).poll().stackSize() >= 60)
-                ctx.bank.withdraw(995,60);
-            else
-                not_enough_coins = true;
+        Component item = ctx.widgets.widget(192).component(2).component(2);
+        Component item2 = ctx.widgets.widget(192).component(2).component(3);
+        if(ctx.objects.select().id(26254).nearest().poll().inViewport()){
+            if(!item.inViewport()) {
+                ctx.objects.select().id(26254).within(EntranaDeposit).nearest().poll().click();
+                Condition.sleep(Random.nextInt(1000, 1500));
+            }
+            else if(item.itemId()==377){
+                item.interact("Deposit-All");
+                Reset_Array();
+            }
+            else if(item2.itemId()==377){
+                item2.interact("Deposit-All");
             Reset_Array();
+            }
         }
-        else
-            ctx.bank.close();
     }
 
     public void Count() {
@@ -184,7 +187,7 @@ public class FishingLobsters extends PollingScript<ClientContext> implements Pai
             counting[i]=true;
     }
 
-    public void initiate_paths(){
+    public void Initiate_paths(){
         path_to_sailor_Karamja = new Tile[] {new Tile(2924, 3178),
                 new Tile(2924, 3173), new Tile(2923, 3169),
                 new Tile(2923, 3164), new Tile(2920, 3162),
@@ -196,23 +199,11 @@ public class FishingLobsters extends PollingScript<ClientContext> implements Pai
                 new Tile(2951, 3146), new Tile(2956, 3146)
         };
 
-        path_to_draynor_bank = new Tile[] { new Tile(3027, 3218),
+        path_to_entrana_monks = new Tile[] { new Tile(3027, 3218),
                 new Tile(3028, 3222), new Tile(3028, 3227),
                 new Tile(3028, 3232), new Tile(3029, 3236),
                 new Tile(3034, 3236), new Tile(3039, 3236),
-                new Tile(3042, 3238), new Tile(3042, 3243),
-                new Tile(3044, 3246), new Tile(3049, 3246),
-                new Tile(3052, 3248), new Tile(3054, 3251),
-                new Tile(3056, 3254), new Tile(3058, 3257),
-                new Tile(3059, 3261), new Tile(3060, 3265),
-                new Tile(3060, 3270), new Tile(3062, 3273),
-                new Tile(3065, 3275), new Tile(3069, 3276),
-                new Tile(3071, 3273), new Tile(3072, 3269),
-                new Tile(3074, 3266), new Tile(3074, 3261),
-                new Tile(3076, 3258), new Tile(3078, 3255),
-                new Tile(3079, 3251), new Tile(3082, 3250),
-                new Tile(3085, 3249), new Tile(3089, 3249),
-                new Tile(3092, 3247), new Tile(3093, 3244)
+                new Tile(3044, 3235)
         };
     }
 
@@ -233,7 +224,8 @@ public class FishingLobsters extends PollingScript<ClientContext> implements Pai
         g.drawString("Time: " + formated(this.getRuntime()), 5, 70);
         g.drawString("Lobsters: " + formatted.format(LobsterCount)+" ("+formatted.format(
                 getPerHour(LobsterCount, getRuntime()))+" per/Hour)",5, 84);
-        g.drawString("Total Profit: " + formatted.format((LobsterCount*LobsterProfit)), 5, 98);
+        g.drawString("Total Profit: " + formatted.format((LobsterCount*LobsterProfit)) + " (" + formatted.format
+                ((getPerHour(LobsterCount, getRuntime())*LobsterProfit)) + " XP/Hour)", 5, 98);
         g.drawString("Total XP: " + formatted.format((LobsterCount*LobsterXP)) + " (" + formatted.format((getPerHour(
                 LobsterCount, getRuntime())*LobsterXP)) + " XP/Hour)", 5, 112);
         g.drawString("Status: "+ getState().toString(),5,126);
@@ -254,7 +246,7 @@ public class FishingLobsters extends PollingScript<ClientContext> implements Pai
     }
 
     private enum State{
-            FISHING, WALKING_TO_DRAYNOR, BANKING, WALKING_TO_MUSA_POINT
-        }
+        FISHING, WALKING_TO_DRAYNOR, BANKING, WALKING_TO_MUSA_POINT
+    }
 
 }
