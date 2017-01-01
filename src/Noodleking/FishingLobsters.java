@@ -13,15 +13,16 @@ import java.util.Arrays;
 @Script.Manifest(name = "Fishing Lobsters",properties = "author=Noodleking; topic=1325074; client=4;",  description = "Fishes lobsters at Musa Point and banks them in Draynor Village")
 public class FishingLobsters extends PollingScript<ClientContext> implements PaintListener {
 
-    //26254
-    private int LobsterCount = 0, LobsterProfit = 186, LobsterXP = 90;
+    private int LobsterCount = 0, LobsterProfit = 186, LobsterXP = 90, KaramjaSailor = 3648,SarimSailor = 3645, KaramjaGP = 2082, SarimGP = 2084, spotID = 1522;
     private DecimalFormat formatted = new DecimalFormat("#,###,###");
     private boolean[] counting = new boolean[28];
     private long Stopwatch = 0;
     private Area Karamjafishing = new Area(new Tile(2914,3164), new Tile(2934,3184));
-    private Area EntranaDeposit = new Area(new Tile(3043,3236), new Tile(3047,3233));
+    private Area EntranaDeposit = new Area(new Tile(3043,3238), new Tile(3047,3233));
     private Area KaramjaDock = new Area(new Tile(2941,3141), new Tile(2957,3151));
     private Area PortSarimDock = new Area(new Tile(3022,3216), new Tile(3032, 3226));
+    private Area KaramjaShip = new Area(new Tile(2952,3144,1), new Tile(2959, 3140,1));
+    private Area PortSarimShip = new Area(new Tile(3031, 3221, 1), new Tile(3036, 3214, 1));
 
     private Tile[] path_to_sailor_Karamja;
     private Tile[] path_to_entrana_monks;
@@ -104,12 +105,15 @@ public class FishingLobsters extends PollingScript<ClientContext> implements Pai
         }
         else if(KaramjaDock.contains(ctx.players.local().tile()) && Karamja){
             Condition.sleep(Random.nextInt(100,500));
-            ctx.npcs.select().id(3648).poll().interact("Pay-fare");
-            while(!ctx.objects.select().id(2084).poll().inViewport())
+            while(!ctx.objects.select().id(SarimGP).poll().inViewport() || ctx.npcs.select().id(KaramjaSailor).poll().inViewport()){
+                ctx.npcs.select().id(KaramjaSailor).poll().interact("Pay-fare");
+                Condition.sleep(1000);
+            }
+            while(!PortSarimShip.contains(ctx.players.local().tile()))
                 Condition.sleep(500);
-            while(!PortSarimDock.contains(ctx.players.local().tile())) {
-                Condition.sleep(500);
-                ctx.objects.select().id(2084).poll().click();
+            while(PortSarimShip.contains(ctx.players.local().tile())) {
+                ctx.objects.select().id(SarimGP).poll().click();
+                Condition.sleep(1000);
             }
             Karamja = false;
             Draynor = true;
@@ -127,13 +131,16 @@ public class FishingLobsters extends PollingScript<ClientContext> implements Pai
         }
         else if(PortSarimDock.contains(ctx.players.local().tile()) && Draynor){
             Condition.sleep(Random.nextInt(100,500));
-            ctx.npcs.select().id(3645).poll().interact("Pay-fare");
-            while(!ctx.objects.select().id(2082).poll().inViewport()){
+            while(!ctx.objects.select().id(KaramjaGP).poll().inViewport() || ctx.npcs.select().id(SarimSailor).poll().inViewport()){
+                Condition.sleep(1000);
+                ctx.npcs.select().id(SarimSailor).poll().interact("Pay-fare");
+            }
+            while(!KaramjaShip.contains(ctx.players.local().tile())) {
                 Condition.sleep(500);
             }
-            while(!KaramjaDock.contains(ctx.players.local().tile())) {
-                Condition.sleep(500);
-                ctx.objects.select().id(2082).poll().click();
+            while(KaramjaShip.contains(ctx.players.local().tile())) {
+                Condition.sleep(1000);
+                ctx.objects.select().id(KaramjaGP).poll().click();
             }
             Draynor = false;
             Karamja = true;
@@ -145,10 +152,10 @@ public class FishingLobsters extends PollingScript<ClientContext> implements Pai
     }
 
     public void Fishing(){
-        Condition.sleep(Random.nextInt(200,2000));
+        Condition.sleep(Random.nextInt(750,2000));
         if(ctx.players.local().animation()==-1 || (System.currentTimeMillis()-Stopwatch)>180000) {
-            Npc spot = ctx.npcs.select().id(1522).nearest().poll();
-            spot.click();
+            Npc spot = ctx.npcs.select().id(spotID).nearest().poll();
+            spot.interact("Cage");
             Stopwatch = System.currentTimeMillis();
         }
         Count();
@@ -250,3 +257,4 @@ public class FishingLobsters extends PollingScript<ClientContext> implements Pai
     }
 
 }
+
