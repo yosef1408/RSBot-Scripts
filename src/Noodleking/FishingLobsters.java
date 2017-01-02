@@ -13,7 +13,7 @@ import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.concurrent.Callable;
  
-@Script.Manifest(name = "Fishing Lobsters",properties = "author=Noodleking; topic=1325074; client=4;",  description = "Fishes lobsters at Musa Point and banks them in Draynor Village")
+@Script.Manifest(name = "Fishing Lobsters",properties = "author=Noodleking, Terminator1; topic=1325074; client=4;",  description = "Fishes lobsters at Musa Point and banks them at the Monks of Entrana")
 public class FishingLobsters extends PollingScript<ClientContext> implements PaintListener,MessageListener{
  
     private final int fishbounds[] = {-48, 48, 0, 0, -48, 48};int lxp = 90,sxp = 100,txp = 80,LobsterXP = 90, KaramjaSailor = 3648,SarimSailor = 3645, KaramjaGP = 2082, SarimGP = 2084, spotID = 1522,lobsters = 377,swordfish = 371,tuna = 359;
