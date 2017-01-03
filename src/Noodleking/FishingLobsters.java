@@ -6,17 +6,18 @@ import org.powerbot.script.rt4.*;
 import org.powerbot.script.rt4.ClientContext;
 import org.powerbot.script.rt4.Component;
 import org.powerbot.script.rt4.Interactive;
- 
+
 import javax.swing.*;
 import java.awt.*;
 import java.text.DecimalFormat;
-import java.util.Arrays;
 import java.util.concurrent.Callable;
- 
-@Script.Manifest(name = "Fishing Lobsters",properties = "author=Noodleking, Terminator1; topic=1325074; client=4;",  description = "Fishes lobsters at Musa Point and banks them at the Monks of Entrana")
+
+@Script.Manifest(name = "Fishing Lobsters/Swordfish",properties = "author=Noodleking, Terminator1; topic=1325074; client=4;",  description = "Fishes lobsters at Musa Point and banks them at the Monks of Entrana")
 public class FishingLobsters extends PollingScript<ClientContext> implements PaintListener,MessageListener{
- 
-    private final int fishbounds[] = {-48, 48, 0, 0, -48, 48};int lxp = 90,sxp = 100,txp = 80,LobsterXP = 90, KaramjaSailor = 3648,SarimSailor = 3645, KaramjaGP = 2082, SarimGP = 2084, spotID = 1522,lobsters = 377,swordfish = 371,tuna = 359;
+
+    private final int fishbounds[] = {-48, 48, 0, 0, -48, 48};int lxp = 90,sxp = 100,txp = 80,LobsterXP = 90,
+            KaramjaSailor = 3648,SarimSailor = 3645, KaramjaGP = 2082, SarimGP = 2084, spotID = 1522,lobsters = 377,
+            swordfish = 371,tuna = 359;
     private int xpgained = 0;
     private GeItem ge;
     private DecimalFormat formatted = new DecimalFormat("#,###,###");
@@ -31,7 +32,7 @@ public class FishingLobsters extends PollingScript<ClientContext> implements Pai
     private Area PortSarimShip = new Area(new Tile(3031, 3221, 1), new Tile(3036, 3214, 1));
     private boolean lobster = true,fishing = false;
     private final Color color = new Color(0, 255, 0, 150);
- 
+
     private final Tile[] path_to_sailor_Karamja = {
             new Tile(2924, 3178),
             new Tile(2924, 3173), new Tile(2923, 3169),
@@ -50,10 +51,10 @@ public class FishingLobsters extends PollingScript<ClientContext> implements Pai
             new Tile(3034, 3236), new Tile(3039, 3236),
             new Tile(3044, 3235)
     };
- 
+
     private TilePath to_sailor_Karamja, to_sailor_Port_Sarim, to_fishing_spot, to_entrana_monks;
     private boolean questfinished = false, Karamja = true, Draynor = true;
- 
+
     public void start(){
         ge = new org.powerbot.script.rt4.GeItem(lobsters);
         LobsterProfit = ge.price;
@@ -62,7 +63,8 @@ public class FishingLobsters extends PollingScript<ClientContext> implements Pai
         ge = new org.powerbot.script.rt4.GeItem(tuna);
         TunaProfit = ge.price;
         Component questchecker = ctx.widgets.widget(399).component(7).component(9);
-        input = (String) JOptionPane.showInputDialog(null,"What do you want to fish:","The choice of fishing",JOptionPane.QUESTION_MESSAGE,null,tx,0);
+        input = (String) JOptionPane.showInputDialog(null,"What do you want to fish:",
+                "The choice of fishing",JOptionPane.QUESTION_MESSAGE,null,tx,0);
         if(input.equals("Lobsters")) {
             interacting = "Cage";
         } else {
@@ -79,7 +81,7 @@ public class FishingLobsters extends PollingScript<ClientContext> implements Pai
         to_sailor_Karamja = ctx.movement.newTilePath(path_to_sailor_Karamja);
         to_fishing_spot = ctx.movement.newTilePath(path_to_sailor_Karamja).reverse();
     }
- 
+
     @Override
     public void poll(){
         final State state = getState();
@@ -103,7 +105,7 @@ public class FishingLobsters extends PollingScript<ClientContext> implements Pai
             }
         }
     }
- 
+
     private State getState(){
         int inventory_amount = ctx.inventory.select().count();
         boolean inBank = EntranaDeposit.contains(ctx.players.local().tile()),
@@ -131,7 +133,7 @@ public class FishingLobsters extends PollingScript<ClientContext> implements Pai
         }
         return null;
     }
- 
+
     private void Walking_to_Draynor(){
         if(!KaramjaDock.contains(ctx.players.local().tile()) && Karamja) {
             Condition.sleep(Random.nextInt(1000,1500));
@@ -157,7 +159,7 @@ public class FishingLobsters extends PollingScript<ClientContext> implements Pai
             to_entrana_monks.traverse();
         }
     }
- 
+
     private void Walking_to_Musa_Point(){
         if(!PortSarimDock.contains(ctx.players.local().tile()) && Draynor) {
             Condition.sleep(Random.nextInt(1000,1500));
@@ -184,15 +186,16 @@ public class FishingLobsters extends PollingScript<ClientContext> implements Pai
             to_fishing_spot.traverse();
         }
     }
- 
+
     private boolean ManhattenDistance(){
         if(ctx.players.local().tile().distanceTo(ctx.npcs.select().id(spotID).nearest().poll().tile())==1)
             return true;
         return false;
     }
- 
+
     private void Fishing(){
-        if(((!ManhattenDistance() || (ctx.players.local().animation() == -1)) && !ctx.players.local().inMotion()) || (System.currentTimeMillis()-Stopwatch)>Random.nextInt(120000,180000)) {
+        if(((!ManhattenDistance() || (ctx.players.local().animation() == -1)) && !ctx.players.local().inMotion()) ||
+                (System.currentTimeMillis()-Stopwatch)>Random.nextInt(120000,180000)) {
             fishing = false;
             Npc spot = ctx.npcs.select().id(spotID).each(Interactive.doSetBounds(fishbounds)).nearest().poll();
             spot.interact(interacting);
@@ -205,7 +208,7 @@ public class FishingLobsters extends PollingScript<ClientContext> implements Pai
             },75,10);
         }
     }
- 
+
     public void Drop() {
         for(Item item: ctx.inventory.select()) {
             if(ctx.inventory.selectedItemIndex()!=-1)
@@ -214,8 +217,8 @@ public class FishingLobsters extends PollingScript<ClientContext> implements Pai
                 item.interact("Drop");
         }
     }
- 
-     private void Banking(){
+
+    private void Banking(){
         Component item = null;
         int fish = -1;
         if(ctx.objects.select().id(26254).nearest().poll().inViewport()) {
@@ -243,28 +246,29 @@ public class FishingLobsters extends PollingScript<ClientContext> implements Pai
                 }
             }
         }
+
         //Yes I could use i instead of fish,however it won't support a future update
         item = ctx.widgets.widget(192).component(2).component(fish);
         item.interact("Deposit-all");
     }
- 
+
     @Override
     public void repaint(Graphics gr) {
- 
+
         Color color1 = new Color(0, 0, 255, 100), color2 = new Color(0, 200, 255);
         BasicStroke stroke1 = new BasicStroke(1);
         Font font1 = new Font("Perpetua", 1, 15), font2 = new Font("Consolas", 1, 14);
- 
+
         Graphics2D g = (Graphics2D) gr;
         if(getState().toString().equals("FISHING")) {
             g.setColor(color);
             g.drawPolygon(ctx.npcs.select().id(spotID).nearest().poll().tile().matrix(ctx).bounds());
         }
         g.setColor(color1);
-        g.fillRect(0, 55,  250, 101);
+        g.fillRect(0, 55,  250, 104);
         g.setColor(color2);
         g.setStroke(stroke1);
-        g.drawRect(0, 55, 250, 101);
+        g.drawRect(0, 55, 250, 104);
         g.setFont(font1);
         g.drawString("Time: " + formated(this.getRuntime()), 5, 70);
         if(lobster) {
@@ -283,7 +287,7 @@ public class FishingLobsters extends PollingScript<ClientContext> implements Pai
         g.drawString("Created by Noodleking",5,140);
         g.drawString("Co-author:Terminator1",5,155);
     }
- 
+
     private String formated(long time) {
         final int sec = (int) (time / 1000),
                 h = sec / 3600,
@@ -292,11 +296,11 @@ public class FishingLobsters extends PollingScript<ClientContext> implements Pai
         return (h < 10 ? "0" + h : h) + ":" + (m < 10 ? "0" + m : m) + ":"
                 + (s < 10 ? "0" + s : s);
     }
- 
+
     private static int getPerHour(int in, long time) {
         return (int) ((in) * 3600000D / time);
     }
- 
+
     @Override
     public void messaged(MessageEvent messageEvent) {
         String txt = messageEvent.text().toLowerCase();
@@ -318,10 +322,10 @@ public class FishingLobsters extends PollingScript<ClientContext> implements Pai
             }
         }
     }
- 
+
     private enum State{
         FISHING, WALKING_TO_DRAYNOR, BANKING, WALKING_TO_MUSA_POINT, DROP
     }
- 
+
 }
 
