@@ -225,7 +225,6 @@ public class FishingLobsters extends PollingScript<ClientContext> implements Pai
                 Condition.sleep(Random.nextInt(1000, 1500));
         } else {
             for (int i = 0; i < 28; i++) {
-                System.out.println(ctx.widgets.widget(192).component(2).component(i).itemId() + " " + ctx.widgets.widget(192).component(2).component(i).modelId());
                 if (lobster) {
                     if (ctx.widgets.widget(192).component(2).component(i).itemId() == lobsters) {
                         fish = i;
