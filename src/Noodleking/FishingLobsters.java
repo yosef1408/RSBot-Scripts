@@ -215,19 +215,31 @@ public class FishingLobsters extends PollingScript<ClientContext> implements Pai
         }
     }
  
-    private void Banking(){
+     private void Banking(){
         Component item = null;
         int fish = -1;
-        for(int i =0;i<28;i++) {
-            if (lobster) {
-                if (ctx.widgets.widget(192).component(2).component(i).itemId() == lobsters) {
-                    fish = i;
-                    break;
+        if(ctx.objects.select().id(26254).nearest().poll().inViewport()) {
+            if (ctx.widgets.widget(192).component(2).inViewport()) {
+                ctx.objects.select().id(26254).within(EntranaDeposit).nearest().poll().click();
+                Condition.sleep(Random.nextInt(1000, 1500));
+            }
+        } else {
+            for (int i = 0; i < 28; i++) {
+                if (ctx.objects.select().id(26254).nearest().poll().inViewport() &&
+                        !ctx.widgets.widget(192).component(2).component(i).inViewport()) {
+                    ctx.objects.select().id(26254).within(EntranaDeposit).nearest().poll().click();
+                    Condition.sleep(Random.nextInt(1000, 1500));
                 }
-            } else {
-                if (ctx.widgets.widget(192).component(2).component(i).itemId() == swordfish) {
-                    fish = i;
-                    break;
+                if (lobster) {
+                    if (ctx.widgets.widget(192).component(2).component(i).itemId() == lobsters) {
+                        fish = i;
+                        break;
+                    }
+                } else {
+                    if (ctx.widgets.widget(192).component(2).component(i).itemId() == swordfish) {
+                        fish = i;
+                        break;
+                    }
                 }
             }
         }
