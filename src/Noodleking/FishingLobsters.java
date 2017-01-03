@@ -25,7 +25,7 @@ public class FishingLobsters extends PollingScript<ClientContext> implements Pai
     private long Stopwatch = 0;
     private String interacting,input,tx[] = {"Lobsters","Swordfish+"};
     private Area Karamjafishing = new Area(new Tile(2914,3164), new Tile(2934,3184));
-    private Area EntranaDeposit = new Area(new Tile(3043,3238), new Tile(3047,3233));
+    private Area EntranaDeposit = new Area(new Tile(3041,3238), new Tile(3047,3233));
     private Area KaramjaDock = new Area(new Tile(2941,3141), new Tile(2957,3151));
     private Area PortSarimDock = new Area(new Tile(3022,3216), new Tile(3032, 3226));
     private Area KaramjaShip = new Area(new Tile(2952,3144,1), new Tile(2959, 3140,1));
@@ -125,13 +125,12 @@ public class FishingLobsters extends PollingScript<ClientContext> implements Pai
             else
                 return State.WALKING_TO_MUSA_POINT;
         }
-        else if(!atFishingspot && !inBank){
+        else{
             if(inventory_amount == 28)
                 return State.WALKING_TO_DRAYNOR;
             else
                 return State.WALKING_TO_MUSA_POINT;
         }
-        return null;
     }
 
     private void Walking_to_Draynor(){
@@ -221,18 +220,12 @@ public class FishingLobsters extends PollingScript<ClientContext> implements Pai
     private void Banking(){
         Component item = null;
         int fish = -1;
-        if(ctx.objects.select().id(26254).nearest().poll().inViewport()) {
-            if (ctx.widgets.widget(192).component(2).inViewport()) {
+        if(!ctx.widgets.widget(192).component(2).inViewport() && ctx.objects.select().id(26254).nearest().poll().inViewport()) {
                 ctx.objects.select().id(26254).within(EntranaDeposit).nearest().poll().click();
                 Condition.sleep(Random.nextInt(1000, 1500));
-            }
         } else {
             for (int i = 0; i < 28; i++) {
-                if (ctx.objects.select().id(26254).nearest().poll().inViewport() &&
-                        !ctx.widgets.widget(192).component(2).component(i).inViewport()) {
-                    ctx.objects.select().id(26254).within(EntranaDeposit).nearest().poll().click();
-                    Condition.sleep(Random.nextInt(1000, 1500));
-                }
+                System.out.println(ctx.widgets.widget(192).component(2).component(i).itemId() + " " + ctx.widgets.widget(192).component(2).component(i).modelId());
                 if (lobster) {
                     if (ctx.widgets.widget(192).component(2).component(i).itemId() == lobsters) {
                         fish = i;
@@ -328,4 +321,5 @@ public class FishingLobsters extends PollingScript<ClientContext> implements Pai
     }
 
 }
+
 
