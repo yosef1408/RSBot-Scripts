@@ -23,7 +23,7 @@ import java.util.Properties;
 /**
  * Created by Genoss on 12/25/2016:8:22 AM
  */
-@Script.Manifest(description = "Will crack the safe's at Rogue's den.Check the forums once before you use it.", name = "ProjectLocker", properties = "author=Terminator1; topic=-1; client=4;")
+@Script.Manifest(description = "Will crack the safe's at Rogue's den.Check the forums once before you use it.", name = "ProjectLocker", properties = "author=Terminator1; topic=1325593; client=4;")
 public class ProjectLockerLooter extends PollingScript<ClientContext> implements PaintListener,MessageListener,MouseListener{
 
     private int shred = 0,shred0 = 0,shred1 = 0,shred2 = 0,lvlg = 0,priority = 0;
