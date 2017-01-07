@@ -4,13 +4,13 @@ package Terminator1.node.ProjectLockerLooter;
  * Created by Genoss on 12/25/2016:8:32 AM
  */
 
-import api.Node;
+import Terminator1.api.Node;
 
 import org.powerbot.script.Condition;
 import org.powerbot.script.rt4.ClientContext;
 import org.powerbot.script.rt4.Game;
 import org.powerbot.script.rt4.Npc;
-import scripts.ProjectLockerLooter;
+import Terminator1.ProjectLockerLooter;
 
 import java.util.concurrent.Callable;
 
