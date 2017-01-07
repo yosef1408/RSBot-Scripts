@@ -43,8 +43,10 @@ public class Bank extends Node<ClientContext>{
             pll.setLoot(ctx.inventory.select().id(995).poll().stackSize(),ctx.inventory.select().id(pll.sap).count(),ctx.inventory.select().id(pll.eme).count(),ctx.inventory.select().id(pll.rub).count(),ctx.inventory.select().id(pll.dia).count());
         }
         if(ctx.bank.select().id(pll.getFoodID()).count() == 0) {
+            ctx.bank.close();
             if(!ctx.game.tab().name().equals(Game.Tab.LOGOUT))
                 ctx.game.tab(Game.Tab.LOGOUT);
+            pll.setFood(0);
             ctx.widgets.widget(182).component(10).click();
             ctx.controller.stop();
         }
