@@ -1,12 +1,12 @@
 package Terminator1;
 
-import node.ProjectLockerLooter.*;
-import node.ProjectLockerLooter.Bank;
+import Terminator1.node.ProjectLockerLooter.*;
+import Terminator1.node.ProjectLockerLooter.Bank;
 import org.powerbot.script.*;
 import org.powerbot.script.GeItem;
 import org.powerbot.script.rt4.*;
 
-import api.Node;
+import Terminator1.api.Node;
 import org.powerbot.script.rt4.ClientContext;
 
 import javax.swing.*;
