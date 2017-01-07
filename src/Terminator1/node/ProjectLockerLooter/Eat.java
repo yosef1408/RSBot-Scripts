@@ -5,10 +5,10 @@ import org.powerbot.script.rt4.ClientContext;
 /**
  * Created by Genoss on 12/25/2016:11:18 AM
  */
-import api.Node;
+import Terminator1.api.Node;
 import org.powerbot.script.rt4.Constants;
 import org.powerbot.script.rt4.Game;
-import scripts.ProjectLockerLooter;
+import Terminator1.ProjectLockerLooter;
 
 public class Eat extends Node<ClientContext>{
 
