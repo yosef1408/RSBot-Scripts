@@ -3,9 +3,9 @@ package Terminator1.node.ProjectLockerLooter;
 /**
  * Created by Genoss on 12/26/2016:4:40 PM
  */
-import api.Node;
+import Terminator1.api.Node;
 import org.powerbot.script.rt4.ClientContext;
-import scripts.ProjectLockerLooter;
+import Terminator1.ProjectLockerLooter;
 
 import java.util.logging.Logger;
 
