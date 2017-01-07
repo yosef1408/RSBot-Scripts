@@ -88,6 +88,7 @@ public class ProjectLockerLooter extends PollingScript<ClientContext> implements
         amount = Integer.parseInt(prop.getProperty("amount"));
         healthLimit = Integer.parseInt(prop.getProperty("healthLimit"));
         optimize = Boolean.parseBoolean(prop.getProperty("optimize"));
+        food = Integer.parseInt(prop.getProperty("food"));
         efood = Boolean.parseBoolean(prop.getProperty("efood"));
         stream.close();
     }
@@ -99,10 +100,11 @@ public class ProjectLockerLooter extends PollingScript<ClientContext> implements
         prop.setProperty("amount",""+amount);
         prop.setProperty("healthLimit",""+healthLimit);
         prop.setProperty("optimize",""+optimize);
+        prop.setProperty("food",""+food);
         prop.setProperty("efood",""+efood);
-        prop.store(stream,"This is an optional comment");
         stream.close();
     }
+
 
     private void GUILaunch() {
         hidden = false;
@@ -211,6 +213,10 @@ public class ProjectLockerLooter extends PollingScript<ClientContext> implements
 
     public void setClick(boolean l) {
         click = l;
+    }
+    
+    public void setFood(int l) {
+        food = 0;
     }
 
     public void setLoot(long coins,long sapphire,long emerald,long ruby,long diamond) {
