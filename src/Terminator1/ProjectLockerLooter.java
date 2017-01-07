@@ -216,7 +216,7 @@ public class ProjectLockerLooter extends PollingScript<ClientContext> implements
     }
     
     public void setFood(int l) {
-        food = 0;
+        food = l;
     }
 
     public void setLoot(long coins,long sapphire,long emerald,long ruby,long diamond) {
