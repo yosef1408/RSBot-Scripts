@@ -10,17 +10,17 @@ import java.util.logging.Logger;
 public abstract class Node<C extends ClientContext> extends ClientAccessor implements NodeStructure {
 
     public String name;
-    private Class Parent;
+    protected Logger log;
 
     public Node(C ctx) {
         super(ctx);
         Logger.getLogger("Log").info("Node has been created.");
     }
 
-    public Node(C ctx,Class p) {
+    public Node(C ctx,String name) {
         super(ctx);
-        Parent = p;
-        Logger.getLogger("Log").info("Modern node has been created.");
+        log = Logger.getLogger(""+name);
+        log.info("Node["+name+"] has been created.");
     }
 
 }
