@@ -38,8 +38,6 @@ public class ProjectLockerLooter extends PollingScript<ClientContext> implements
     private final Font font2 = new Font("Arial", 1, 13);
     private final Font font3 = new Font("Arial", 1, 20);
 
-
-
     private boolean optimize = false,click = false,efood = true,hide = false,hidden = true;
     private char hid = '-';//—
     private final int steth = 5560,banker = 3194,sap = 1623,eme = 1621,rub = 1619, dia = 1617,coi = 995;
@@ -47,9 +45,9 @@ public class ProjectLockerLooter extends PollingScript<ClientContext> implements
             sr = new Rectangle(540,260,200,13), sr0 = new Rectangle(540,299,200,13),sr1 = new Rectangle(540,338,200,13),sr2 = new Rectangle(540,377,200,13),sr3 = new Rectangle(540,455,200,13),sr4 = new Rectangle(540,416,200,13);
     private long startTime = 0,cracked = 0,time = 0,cx = 0,xpgain = 0, coins = 0,
             sapphire = 0,ruby = 0,emerald = 0,diamond = 0,lsapphire = 0,lruby = 0,lemerald = 0,ldiamond = 0,lcoins = 0,tmploot = 0,tmploothr = 0,totalloot = 0,totalloothr = 0;
-    private int food = 0,amount = 0,healthLimit = 0,spotPos = 0,tc[] = new int[4],choice,tab = 0,psapphire = 0,pruby = 0,pemerald = 0,pdiamond = 0,shred = 0,shred0 = 0,shred1 = 0,shred2 = 0,lvlg = 0,priority = 0;
+    private int uid = 0,food = 0,amount = 0,healthLimit = 0,spotPos = 0,tc[] = new int[4],choice,tab = 0,psapphire = 0,pruby = 0,pemerald = 0,pdiamond = 0,shred = 0,shred0 = 0,shred1 = 0,shred2 = 0,lvlg = 0,priority = 0;
     private List<Node> eL = new ArrayList<Node>();
-    private String input,lp,pp,status = "Current status";
+    private String input,lp,pp,status = "Current status",username = "Null";
     private Tile spot[] = {new Tile(3055,4977,1),new Tile(3057,4977,1),new Tile(3055,4970,1),new Tile(3057,4970,1)};
 
     private String rePos(int pos) {
@@ -73,7 +71,7 @@ public class ProjectLockerLooter extends PollingScript<ClientContext> implements
 
     private void LSet() throws IOException {
         Properties prop = new Properties();
-        FileInputStream stream = new FileInputStream(getStorageDirectory()+"/.load");
+        FileInputStream stream = new FileInputStream(getStorageDirectory()+"/."+uid);
         prop.load(stream);
         priority = spotPos = Integer.parseInt(prop.getProperty("spotPos"));
         amount = Integer.parseInt(prop.getProperty("amount"));
@@ -86,7 +84,7 @@ public class ProjectLockerLooter extends PollingScript<ClientContext> implements
 
     private void SSet() throws IOException {
         Properties prop = new Properties();
-        FileOutputStream stream = new FileOutputStream(getStorageDirectory()+"/.load");
+        FileOutputStream stream = new FileOutputStream(getStorageDirectory()+"/."+uid);
         prop.setProperty("spotPos",""+spotPos);
         prop.setProperty("amount",""+amount);
         prop.setProperty("healthLimit",""+healthLimit);
@@ -125,6 +123,8 @@ public class ProjectLockerLooter extends PollingScript<ClientContext> implements
 
     @Override
     public void start() {
+        username = ctx.properties.getProperty("user.name");
+        uid = Integer.parseInt(ctx.properties.getProperty("user.id"));
         initPrice();
         try {
             LSet();
@@ -331,7 +331,7 @@ public class ProjectLockerLooter extends PollingScript<ClientContext> implements
                 g.setColor(color4);
                 g.setFont(font2);
                 shred(time);
-                g.drawString("Account:SirBotsALot", 552, 273);
+                g.drawString("Account:"+username, 552, 273);
                 g.drawString("Status:"+status, 552, 312);
                 g.drawString("RunTime:"+shred+"D::"+shred2+"H::"+shred1+"M::"+shred0+"S", 552, 351);
                 g.drawString("SafesCracked:"+cracked+"("+(long)((cracked*3600000D)/time)+")", 552, 390);
