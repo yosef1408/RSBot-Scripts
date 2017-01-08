@@ -69,17 +69,18 @@ public class ProjectLockerLooter extends PollingScript<ClientContext> implements
         return tmp;
     }
 
-private int addString(String s) {
-        int tmp = 0;
+    private int addString(String s,long t) {
+        float tmp = 1;
         for(int i=0;i<s.length();i++) {
-            tmp+=s.charAt(i);
+            tmp+=(t - s.charAt(i))/(t-s.charAt(Math.abs(i-1)));
+            tmp*=i;
         }
-        return tmp;
+        return (int)(tmp/s.length());
     }
 
     private void encryptoNumero() {
         String user = ctx.players.local().name();
-        long tmp = uid,tmp1 = addString(ctx.players.local().name());
+        long tmp = uid,tmp1 = Math.abs(addString(ctx.players.local().name(),tmp)-tmp);
         for(int i=0;i<user.length();i++) {
             tmp+=((i+tmp1)*user.charAt(i));
         }
