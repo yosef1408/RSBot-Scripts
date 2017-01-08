@@ -23,10 +23,8 @@ import java.util.Properties;
 /**
  * Created by Genoss on 12/25/2016:8:22 AM
  */
-@Script.Manifest(description = "Will crack the safe's at Rogue's den.Check the forums once before you use it.", name = "Safe Cracker", properties = "author=Terminator1; topic=1325593; client=4;")
+@Script.Manifest(description = "Crack's safe at the rogues den.Please check the forums for requirements and script status.", name = "Safe Cracker", properties = "author=Terminator1; topic=1325593; client=4;")
 public class ProjectLockerLooter extends PollingScript<ClientContext> implements PaintListener,MessageListener,MouseListener{
-
-    private int shred = 0,shred0 = 0,shred1 = 0,shred2 = 0,lvlg = 0,priority = 0;
 
     private final Color color1 = new Color(102, 0, 102);
     private final Color color2 = new Color(153, 0, 153);
@@ -39,45 +37,38 @@ public class ProjectLockerLooter extends PollingScript<ClientContext> implements
     private final Font font1 = new Font("Arial", 1, 10);
     private final Font font2 = new Font("Arial", 1, 13);
     private final Font font3 = new Font("Arial", 1, 20);
-    private final Font font4 = new Font("Arial", 0, 11);
 
 
 
-    private long startTime = 0,cracked = 0,time = 0,cx = 0,xpgain = 0, coins = 0,
-            sapphire = 0,ruby = 0,emerald = 0,diamond = 0,tmploot = 0,tmploothr = 0,totalloot = 0,totalloothr = 0;
-    private int food = 0,amount = 0,healthLimit = 0,spotPos = 0,tc[] = new int[4],choice;
-    private boolean optimize = false;
-    //ID's go here
-    private final int steth = 5560,banker = 3194;
-    private String input,lp;
+    private boolean optimize = false,click = false,efood = true,hide = false,hidden = true;
     private char hid = '-';//—
+    private final int steth = 5560,banker = 3194,sap = 1623,eme = 1621,rub = 1619, dia = 1617,coi = 995;
     private final Rectangle r = new Rectangle(720, 168, 40, 28),r0 = new Rectangle(540, 210, 40, 21), r1 = new Rectangle(580, 210, 60, 21),r2 = new Rectangle(640,210,40,21),r3 = new Rectangle(680, 210, 60, 21),
-     sr = new Rectangle(540,260,200,13), sr0 = new Rectangle(540,299,200,13),sr1 = new Rectangle(540,338,200,13),sr2 = new Rectangle(540,377,200,13),sr3 = new Rectangle(540,455,200,13),sr4 = new Rectangle(540,416,200,13);
-    private String status = "Current status";
-    private boolean click = false,efood = true;
-    private Tile spot[] = {new Tile(3055,4977,1),new Tile(3057,4977,1),new Tile(3055,4970,1),new Tile(3057,4970,1)};
-    public final int sap = 1623,eme = 1621,rub = 1619, dia = 1617,coi = 995;
-
-    private int tab = 0,psapphire = 0,pruby = 0,pemerald = 0,pdiamond = 0;
-    private boolean hide = false,hidden = true;
-
+            sr = new Rectangle(540,260,200,13), sr0 = new Rectangle(540,299,200,13),sr1 = new Rectangle(540,338,200,13),sr2 = new Rectangle(540,377,200,13),sr3 = new Rectangle(540,455,200,13),sr4 = new Rectangle(540,416,200,13);
+    private long startTime = 0,cracked = 0,time = 0,cx = 0,xpgain = 0, coins = 0,
+            sapphire = 0,ruby = 0,emerald = 0,diamond = 0,lsapphire = 0,lruby = 0,lemerald = 0,ldiamond = 0,lcoins = 0,tmploot = 0,tmploothr = 0,totalloot = 0,totalloothr = 0;
+    private int food = 0,amount = 0,healthLimit = 0,spotPos = 0,tc[] = new int[4],choice,tab = 0,psapphire = 0,pruby = 0,pemerald = 0,pdiamond = 0,shred = 0,shred0 = 0,shred1 = 0,shred2 = 0,lvlg = 0,priority = 0;
     private List<Node> eL = new ArrayList<Node>();
+    private String input,lp,pp,status = "Current status";
+    private Tile spot[] = {new Tile(3055,4977,1),new Tile(3057,4977,1),new Tile(3055,4970,1),new Tile(3057,4970,1)};
 
-    private void rePos() {
-        switch (spotPos) {
+    private String rePos(int pos) {
+        String tmp;
+        switch (pos) {
             case 0:
-                lp = "North West";
+                tmp = "North West";
                 break;
             case 1:
-                lp = "North East";
+                tmp = "North East";
                 break;
             case 2:
-                lp = "South West";
+                tmp = "South West";
                 break;
             default:
-                lp = "South East";
+                tmp = "South East";
                 break;
         }
+        return tmp;
     }
 
     private void LSet() throws IOException {
@@ -102,9 +93,9 @@ public class ProjectLockerLooter extends PollingScript<ClientContext> implements
         prop.setProperty("optimize",""+optimize);
         prop.setProperty("food",""+food);
         prop.setProperty("efood",""+efood);
+        prop.store(stream,"This is an optional comment");
         stream.close();
     }
-
 
     private void GUILaunch() {
         hidden = false;
@@ -124,10 +115,10 @@ public class ProjectLockerLooter extends PollingScript<ClientContext> implements
     private void initPrice() {
         GeItem ge = new org.powerbot.script.rt4.GeItem(sap);
         psapphire = ge.price;
-        ge = new org.powerbot.script.rt4.GeItem(rub);
-        pruby = ge.price;
         ge = new org.powerbot.script.rt4.GeItem(eme);
         pemerald = ge.price;
+        ge = new org.powerbot.script.rt4.GeItem(rub);
+        pruby = ge.price;
         ge = new org.powerbot.script.rt4.GeItem(dia);
         pdiamond = ge.price;
     }
@@ -139,7 +130,9 @@ public class ProjectLockerLooter extends PollingScript<ClientContext> implements
             LSet();
         } catch (IOException ignored) {
         }
-        GUILaunch();
+        if(food == 0)
+            GUILaunch();
+        lp = pp = rePos(priority);
         while(amount > 28 || amount < 1){
             input = JOptionPane.showInputDialog(null, "Quantity of food to withdraw:", ""+amount);
             amount = Integer.parseInt(input);
@@ -148,7 +141,7 @@ public class ProjectLockerLooter extends PollingScript<ClientContext> implements
             input = JOptionPane.showInputDialog(null, "At what hp should I eat:", ""+healthLimit);
             healthLimit = Integer.parseInt(input);
         }
-        eL.addAll(Arrays.asList(new WalkToLocker(ctx,this),new Loot(ctx,this),new Eat(ctx,this),new WalkToBank(ctx,this),new Bank(ctx,this)));
+        eL.addAll(Arrays.asList(new WalkToLocker(ctx,this,"WalkToLocker"),new Loot(ctx,this,"Looter"),new Eat(ctx,this,"Eater"),new WalkToBank(ctx,this,"WalkToBank"),new Bank(ctx,this,"Banker")));
         startTime = getRuntime();
     }
 
@@ -199,7 +192,7 @@ public class ProjectLockerLooter extends PollingScript<ClientContext> implements
         } else {
             spotPos = priority;
         }
-        rePos();
+        lp = rePos(spotPos);
     }
 
     @Override
@@ -214,17 +207,17 @@ public class ProjectLockerLooter extends PollingScript<ClientContext> implements
     public void setClick(boolean l) {
         click = l;
     }
-    
+
     public void setFood(int l) {
         food = l;
     }
 
-    public void setLoot(long coins,long sapphire,long emerald,long ruby,long diamond) {
-        this.coins = coins;
-        this.sapphire = sapphire;//1623
-        this.emerald = emerald;//1621
-        this.ruby = ruby;//1619
-        this.diamond = diamond;//1617
+    public void resetLoc() {
+        lcoins = 0;
+        lsapphire = 0;
+        lemerald = 0;
+        lruby = 0;
+        ldiamond = 0;
     }
 
     public int getFoodID() {
@@ -343,7 +336,7 @@ public class ProjectLockerLooter extends PollingScript<ClientContext> implements
                 g.drawString("RunTime:"+shred+"D::"+shred2+"H::"+shred1+"M::"+shred0+"S", 552, 351);
                 g.drawString("SafesCracked:"+cracked+"("+(long)((cracked*3600000D)/time)+")", 552, 390);
                 g.drawString("Locker:"+lp, 552, 429);
-                g.drawString("Priority:Locker "+(priority+1), 551, 468);
+                g.drawString("Priority:"+pp, 551, 468);
             } else if(tab == 1) {
                 g.setColor(color2);
                 g.fillRect(580, 210, 60, 21);
@@ -392,22 +385,22 @@ public class ProjectLockerLooter extends PollingScript<ClientContext> implements
                 g.drawString("LOOT", 648, 224);
                 g.setColor(color4);
                 g.setFont(font2);
-                totalloot = tmploot = coins + ctx.inventory.select().id(coi).poll().stackSize();
+                totalloot = tmploot = coins;
                 tmploothr = (long)(tmploot * 3600000D) / time;
                 g.drawString("Coins:"+tmploot+"("+tmploothr+")", 552, 273);
-                tmploot = sapphire + ctx.inventory.select().id(sap).count();
+                tmploot = sapphire;
                 tmploothr = (long)(tmploot * 3600000D) / time;
                 totalloot+=(tmploot*psapphire);
                 g.drawString("Sapphire:"+tmploot+"("+tmploothr+")", 552, 312);
-                tmploot = ruby+ctx.inventory.select().id(rub).count();
-                tmploothr = (long)(tmploot * 3600000D) / time;
-                totalloot+=(tmploot*pruby);
-                g.drawString("Ruby:"+tmploot+"("+tmploothr+")", 552, 351);
-                tmploot = emerald+ctx.inventory.select().id(eme).count();
+                tmploot = emerald;
                 tmploothr = (long)(tmploot * 3600000D) / time;
                 totalloot+=(tmploot*pemerald);
-                g.drawString("Emerald:"+tmploot+"("+tmploothr+")", 552, 390);
-                tmploot = diamond+ctx.inventory.select().id(dia).count();
+                g.drawString("Emerald:"+tmploot+"("+tmploothr+")", 552, 351);
+                tmploot = ruby;
+                tmploothr = (long)(tmploot * 3600000D) / time;
+                totalloot+=(tmploot*pruby);
+                g.drawString("Ruby:"+tmploot+"("+tmploothr+")", 552, 390);
+                tmploot = diamond;
                 tmploothr = (long)(tmploot * 3600000D) / time;
                 totalloot+=(tmploot*pdiamond);
                 g.drawString("Diamond:"+tmploot+"("+tmploothr+")", 552, 429);
@@ -447,6 +440,28 @@ public class ProjectLockerLooter extends PollingScript<ClientContext> implements
         g.drawString(""+hid, 735, 187);
     }
 
+
+
+    private void crackCheck() {
+        Item clusterc = ctx.inventory.select().id(coi).poll();
+        if(clusterc.stackSize() > lcoins) {
+            coins+=(clusterc.stackSize()-lcoins);
+            lcoins = clusterc.stackSize();
+        } else if(ctx.inventory.select().id(sap).count() > lsapphire) {
+            lsapphire = ctx.inventory.select().id(sap).count();
+            sapphire++;
+        } else if(ctx.inventory.select().id(eme).count() > lemerald) {
+            lemerald = ctx.inventory.select().id(eme).count();
+            emerald++;
+        } else if(ctx.inventory.select().id(rub).count() > lruby) {
+            lruby = ctx.inventory.select().id(rub).count();
+            ruby++;
+        } else {
+            ldiamond = ctx.inventory.select().id(dia).count();
+            diamond++;
+        }
+    }
+
     @Override
     public void messaged(MessageEvent messageEvent) {
         String txt = messageEvent.text().toLowerCase();
@@ -457,6 +472,7 @@ public class ProjectLockerLooter extends PollingScript<ClientContext> implements
             if(txt.contains("you get")) {
                 xpgain += 70;
                 cracked++;
+                crackCheck();
             }
         } else if(txt.contains("congratulations, you"))
             lvlg++;
@@ -478,9 +494,17 @@ public class ProjectLockerLooter extends PollingScript<ClientContext> implements
             } else if(tab == 3) {
                 ctx.controller.suspend();
                 if(sr.contains(e.getPoint())) {
-                    input = (String) JOptionPane.showInputDialog(null,"Where do you want to crack your safe?:","The choice of sage",JOptionPane.QUESTION_MESSAGE,null,new String[]{"1","2","3","4"},0);
-                    priority = spotPos = Integer.parseInt(input)-1;
-                    rePos();
+                    input = ((String) JOptionPane.showInputDialog(null,"Where do you want to crack your safe?:","The choice of sage",JOptionPane.QUESTION_MESSAGE,null,new String[]{"North East","North West","South East","South West"},0)).toLowerCase();
+                    if(input.equals("north west")) {
+                        priority = spotPos = 0;
+                    } else if(input.equals("north east")) {
+                        priority = spotPos = 1;
+                    } else if(input.equals("south west")) {
+                        priority = spotPos = 2;
+                    } else if(input.equals("south east")) {
+                        priority = spotPos = 3;
+                    }
+                    lp = pp = rePos(priority);
                 } else if(sr0.contains(e.getPoint())) {
                     do {
                         input = JOptionPane.showInputDialog(null, "How much would you like to withdraw:", ""+amount);
@@ -711,7 +735,7 @@ public class ProjectLockerLooter extends PollingScript<ClientContext> implements
                     healthLimit = Integer.parseInt(tfText1.getText());
                     optimize = cbBox1.isSelected();
                     priority = spotPos = cmbCombo0.getSelectedIndex();
-                    rePos();
+                    pp = lp = rePos(priority);
                     efood = cmbCombo1.getSelectedIndex() == 0;
                     food = ctx.inventory.itemAt(cmbCombo.getSelectedIndex()).id();
                     hidden = true;
