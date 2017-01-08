@@ -9,22 +9,21 @@ import org.powerbot.script.rt4.Constants;
 import org.powerbot.script.rt4.Npc;
 import Terminator1.ProjectLockerLooter;
 
-import java.util.logging.Logger;
-
 public class WalkToBank extends Node<ClientContext> {
 
     private ProjectLockerLooter pll;
     private Npc banker = null;
 
-    public WalkToBank(ClientContext ctx,ProjectLockerLooter mc) {
-        super(ctx);
+    public WalkToBank(ClientContext ctx,ProjectLockerLooter mc,String name) {
+        super(ctx,name);
         pll = mc;
     }
 
     @Override
     public void executeBlock() {
         pll.setStatus("Walking to the bank...");
-        ctx.movement.findPath(banker).traverse();
+        pll.resetLoc();
+        ctx.movement.step(banker.tile());
     }
 
     @Override
