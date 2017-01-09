@@ -18,8 +18,9 @@ public class Bank extends Node<ClientContext>{
 
     private ProjectLockerLooter pll;
     private Npc banker;
-    public Bank(ClientContext ctx, ProjectLockerLooter mc) {
-        super(ctx);
+
+    public Bank(ClientContext ctx, ProjectLockerLooter mc, String name) {
+        super(ctx,name);
         pll = mc;
     }
 
@@ -40,11 +41,10 @@ public class Bank extends Node<ClientContext>{
         }
         if(ctx.inventory.select().count() > 0) {
             ctx.bank.depositInventory();
-            pll.setLoot(ctx.inventory.select().id(995).poll().stackSize(),ctx.inventory.select().id(pll.sap).count(),ctx.inventory.select().id(pll.eme).count(),ctx.inventory.select().id(pll.rub).count(),ctx.inventory.select().id(pll.dia).count());
         }
-        if(ctx.bank.select().id(pll.getFoodID()).count() == 0) {
+        if(ctx.bank.opened() && !(ctx.bank.select().id(pll.getFoodID()).count()>0)) {
             ctx.bank.close();
-            if(!ctx.game.tab().name().equals(Game.Tab.LOGOUT))
+            if(!ctx.game.tab().name().equals(Game.Tab.LOGOUT.name()))
                 ctx.game.tab(Game.Tab.LOGOUT);
             pll.setFood(0);
             ctx.widgets.widget(182).component(10).click();
@@ -57,6 +57,7 @@ public class Bank extends Node<ClientContext>{
     @Override
     public boolean isReady() {
         banker = ctx.npcs.select().id(pll.getBankerID()).nearest().poll();
-        return (banker.tile().distanceTo(ctx.players.local().tile())<3||ctx.bank.opened()) && (((ctx.inventory.select().id(pll.getFoodID()).count() == 0)||(!pll.getEatFood()&&ctx.inventory.select().count()==28)) || (ctx.inventory.select().id(pll.getStethID()).count() == 0));
+        return (banker.tile().distanceTo(ctx.players.local().tile())<2||ctx.bank.opened()) && (((ctx.inventory.select().id(pll.getFoodID()).count() == 0)||(!pll.getEatFood()&&ctx.inventory.select().count()==28)) || (ctx.inventory.select().id(pll.getStethID()).count() == 0));
     }
 }
+

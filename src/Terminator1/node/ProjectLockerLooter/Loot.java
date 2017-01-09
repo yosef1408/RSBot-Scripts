@@ -12,7 +12,6 @@ import org.powerbot.script.rt4.Interactive;
 import Terminator1.ProjectLockerLooter;
 
 import java.util.concurrent.Callable;
-import java.util.logging.Logger;
 
 public class Loot extends Node<ClientContext> {
 
@@ -23,9 +22,9 @@ public class Loot extends Node<ClientContext> {
     private GameObject locker = null;
     private ProjectLockerLooter pll = null;
 
-    public Loot(ClientContext ctx, ProjectLockerLooter mc)
+    public Loot(ClientContext ctx, ProjectLockerLooter mc,String name)
     {
-        super(ctx);
+        super(ctx,name);
         pll = mc;
     }
 
@@ -43,7 +42,7 @@ public class Loot extends Node<ClientContext> {
             pll.setClick(false);
         if (ctx.players.local().animation() == -1 && (!pll.getClick()||(pll.getRunTime()-lastClick)>10000) && ctx.objects.select(2).id(deadlocker).nearest().poll().id() == -1) {
             ctx.camera.turnTo(locker);
-            locker.click();
+            locker.interact("Crack");
             lastClick = pll.getRunTime();
             Condition.wait(new Callable<Boolean>() {
                 @Override
