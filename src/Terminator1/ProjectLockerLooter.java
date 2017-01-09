@@ -199,7 +199,7 @@ public class ProjectLockerLooter extends PollingScript<ClientContext> implements
 
     private void autoOptimize() {
         if(choice!=tc[priority]) {
-            Condition.sleep(750);
+            Condition.sleep(Random.nextInt(250,750));
             if(tc[2] == choice) {
                 spotPos = 2;
             } else if(tc[3] == choice) {
