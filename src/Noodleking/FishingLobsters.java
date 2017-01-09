@@ -17,7 +17,7 @@ public class FishingLobsters extends PollingScript<ClientContext> implements Pai
 
     private final int fishbounds[] = {-48, 48, 0, 0, -48, 48}; int lxp = 90,sxp = 100,txp = 80,LobsterXP = 90,
             KaramjaSailor = 3648,SarimSailor = 3645, KaramjaGP = 2082, SarimGP = 2084, spotID = 1522,lobsters = 377,
-            swordfish = 371,tuna = 359;
+            swordfish = 371,tuna = 359, cage = 301,harpoon = 311;
     private GeItem ge;
     private DecimalFormat formatted = new DecimalFormat("#,###,###");
     private int LobsterProfit, SwordfishProfit, TunaProfit, LobsterCount = 0, SwordfishCount = 0,TunaCount = 0,
@@ -59,13 +59,13 @@ public class FishingLobsters extends PollingScript<ClientContext> implements Pai
         ge = new org.powerbot.script.rt4.GeItem(tuna);
         TunaProfit = ge.price;
 
-        input = (String) JOptionPane.showInputDialog(null,"What do you want to fish:",
-                "The choice of fishing",JOptionPane.QUESTION_MESSAGE,null,tx,0);
-        if(input.equals("Lobsters")) {
-            interacting = "Cage";
-        } else {
-            interacting = "Harpoon";
-            lobster = false;
+        for(Item item:ctx.inventory.items()){
+            if(item.id() == cage) {
+                interacting = "Cage";
+            } else if(item.id() == harpoon){
+                interacting = "Harpoon";
+                lobster = false;
+            }
         }
         Condition.sleep(250);
         input = (String) JOptionPane.showInputDialog(null,"Did you finish the quest 'Pirate's Treasure?'",
