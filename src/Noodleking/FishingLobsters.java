@@ -12,26 +12,23 @@ import java.awt.*;
 import java.text.DecimalFormat;
 import java.util.concurrent.Callable;
 
-@Script.Manifest(name = "Fishing Lobsters/Swordfish",properties = "author=Noodleking, Terminator1; topic=1325074; client=4;",  description = "Fishes lobsters at Musa Point and banks them at the Monks of Entrana")
+@Script.Manifest(name = "Fishing Lobsters/Swordfish",properties = "author=Noodleking, Terminator1; topic=1325074; client=4;",  description = "Fishes Lobsters/Swordfish at Musa Point and banks them at the Monks of Entrana")
 public class FishingLobsters extends PollingScript<ClientContext> implements PaintListener,MessageListener{
 
-    private final int fishbounds[] = {-48, 48, 0, 0, -48, 48};int lxp = 90,sxp = 100,txp = 80,LobsterXP = 90,
+    private final int fishbounds[] = {-48, 48, 0, 0, -48, 48}; int lxp = 90,sxp = 100,txp = 80,LobsterXP = 90,
             KaramjaSailor = 3648,SarimSailor = 3645, KaramjaGP = 2082, SarimGP = 2084, spotID = 1522,lobsters = 377,
-            swordfish = 371,tuna = 359;
-    private int xpgained = 0;
+            swordfish = 371,tuna = 359, cage = 301,harpoon = 311;
     private GeItem ge;
     private DecimalFormat formatted = new DecimalFormat("#,###,###");
-    private int LobsterProfit = 0,SwordfishProfit = 0,TunaProfit = 0,LobsterCount = 0, SwordfishCount = 0,TunaCount = 0;
+    private int LobsterProfit, SwordfishProfit, TunaProfit, LobsterCount = 0, SwordfishCount = 0,TunaCount = 0,
+            xpgained = 0;
     private long Stopwatch = 0;
-    private String interacting,input,tx[] = {"Lobsters","Swordfish+"};
+    private String interacting,input,tx[] = {"Lobsters","Swordfish+"}, yesno[] = {"Yes", "No"};
     private Area Karamjafishing = new Area(new Tile(2914,3164), new Tile(2934,3184));
-    private Area EntranaDeposit = new Area(new Tile(3041,3238), new Tile(3047,3233));
+    private Area EntranaDeposit = new Area(new Tile(3041,3238), new Tile(3051,3233));
     private Area KaramjaDock = new Area(new Tile(2941,3141), new Tile(2957,3151));
     private Area PortSarimDock = new Area(new Tile(3022,3216), new Tile(3032, 3226));
-    private Area KaramjaShip = new Area(new Tile(2952,3144,1), new Tile(2959, 3140,1));
-    private Area PortSarimShip = new Area(new Tile(3031, 3221, 1), new Tile(3036, 3214, 1));
-    private boolean lobster = true,fishing = false;
-    private final Color color = new Color(0, 255, 0, 150);
+    private boolean lobster = true,fishing = false, questfinished = false, Karamja, Draynor;
 
     private final Tile[] path_to_sailor_Karamja = {
             new Tile(2924, 3178),
@@ -53,7 +50,6 @@ public class FishingLobsters extends PollingScript<ClientContext> implements Pai
     };
 
     private TilePath to_sailor_Karamja, to_sailor_Port_Sarim, to_fishing_spot, to_entrana_monks;
-    private boolean questfinished = false, Karamja = true, Draynor = true;
 
     public void start(){
         ge = new org.powerbot.script.rt4.GeItem(lobsters);
@@ -62,20 +58,31 @@ public class FishingLobsters extends PollingScript<ClientContext> implements Pai
         SwordfishProfit = ge.price;
         ge = new org.powerbot.script.rt4.GeItem(tuna);
         TunaProfit = ge.price;
-        Component questchecker = ctx.widgets.widget(399).component(7).component(9);
-        input = (String) JOptionPane.showInputDialog(null,"What do you want to fish:",
-                "The choice of fishing",JOptionPane.QUESTION_MESSAGE,null,tx,0);
-        if(input.equals("Lobsters")) {
-            interacting = "Cage";
-        } else {
-            interacting = "Harpoon";
-            lobster = false;
+
+        for(Item item:ctx.inventory.items()){
+            if(item.id() == cage) {
+                interacting = "Cage";
+            } else if(item.id() == harpoon){
+                interacting = "Harpoon";
+                lobster = false;
+            }
         }
-        ctx.widgets.widget(161).component(53).click();
-        Condition.sleep(100);
-        if(questchecker.textColor()==65280)
-            questfinished=true;
-        ctx.widgets.widget(161).component(54).click();
+        Condition.sleep(250);
+        input = (String) JOptionPane.showInputDialog(null,"Did you finish the quest 'Pirate's Treasure?'",
+                "Yes/No",JOptionPane.QUESTION_MESSAGE,null,yesno,0);
+        if(input.equals("No"))
+            ctx.controller.stop();
+        if(Karamjafishing.contains(ctx.players.local().tile())){
+            Karamja = true;
+            Draynor = false;
+        }
+        else if(EntranaDeposit.contains(ctx.players.local().tile())){
+            Karamja = false;
+            Draynor = true;
+        }
+        else
+            ctx.controller.stop();
+
         to_entrana_monks = ctx.movement.newTilePath(path_to_entrana_monks);
         to_sailor_Port_Sarim = ctx.movement.newTilePath(path_to_entrana_monks).reverse();
         to_sailor_Karamja = ctx.movement.newTilePath(path_to_sailor_Karamja);
@@ -85,7 +92,7 @@ public class FishingLobsters extends PollingScript<ClientContext> implements Pai
     @Override
     public void poll(){
         final State state = getState();
-        if(state!=null && questfinished) {
+        if(state!=null) {
             switch (state) {
                 case BANKING:
                     Banking();
@@ -133,57 +140,59 @@ public class FishingLobsters extends PollingScript<ClientContext> implements Pai
         }
     }
 
-    private void Walking_to_Draynor(){
-        if(!KaramjaDock.contains(ctx.players.local().tile()) && Karamja) {
-            Condition.sleep(Random.nextInt(1000,1500));
-            to_sailor_Karamja.traverse();
-        }
-        else if(KaramjaDock.contains(ctx.players.local().tile()) && Karamja){
-            Condition.sleep(Random.nextInt(100,500));
-            while(!ctx.objects.select().id(SarimGP).poll().inViewport() || ctx.npcs.select().id(KaramjaSailor).poll().inViewport()){
-                ctx.npcs.select().id(KaramjaSailor).poll().interact("Pay-fare");
-                Condition.sleep(1000);
-            }
-            while(!PortSarimShip.contains(ctx.players.local().tile()))
-                Condition.sleep(500);
-            while(PortSarimShip.contains(ctx.players.local().tile())) {
-                ctx.objects.select().id(SarimGP).poll().click();
-                Condition.sleep(1000);
-            }
+    private void Walking_to_Draynor() {
+        if (PortSarimDock.contains(ctx.players.local().tile()) && !Draynor) {
             Karamja = false;
             Draynor = true;
         }
-        else if(!EntranaDeposit.contains(ctx.players.local().tile()) && Draynor){
-            Condition.sleep(Random.nextInt(1000,1500));
-            to_entrana_monks.traverse();
+        if (ctx.players.local().tile().floor() == 0) {
+            if (Karamja) {
+                if(!KaramjaDock.contains(ctx.players.local().tile())){
+                Condition.sleep(Random.nextInt(1000, 1500));
+                to_sailor_Karamja.traverse();
+                }
+                else if(ctx.npcs.select().id(KaramjaSailor).poll().inViewport()){
+                    ctx.npcs.select().id(KaramjaSailor).poll().interact("Pay-fare");
+                    Condition.sleep(Random.nextInt(1000, 1500));
+                }
+
+            } else if (Draynor) {
+                Condition.sleep(Random.nextInt(1000, 1500));
+                to_entrana_monks.traverse();
+            }
+        } else if (ctx.objects.select().id(SarimGP).poll().inViewport()){
+            ctx.objects.select().id(SarimGP).poll().click();
+            Condition.sleep(Random.nextInt(500, 1000));
         }
+        else
+            Condition.sleep(Random.nextInt(500, 1000));
     }
 
     private void Walking_to_Musa_Point(){
-        if(!PortSarimDock.contains(ctx.players.local().tile()) && Draynor) {
-            Condition.sleep(Random.nextInt(1000,1500));
-            to_sailor_Port_Sarim.traverse();
-        }
-        else if(PortSarimDock.contains(ctx.players.local().tile()) && Draynor){
-            Condition.sleep(Random.nextInt(100,500));
-            while(!ctx.objects.select().id(KaramjaGP).poll().inViewport() || ctx.npcs.select().id(SarimSailor).poll().inViewport()){
-                Condition.sleep(1000);
-                ctx.npcs.select().id(SarimSailor).poll().interact("Pay-fare");
-            }
-            while(!KaramjaShip.contains(ctx.players.local().tile())) {
-                Condition.sleep(500);
-            }
-            while(KaramjaShip.contains(ctx.players.local().tile())) {
-                Condition.sleep(1000);
-                ctx.objects.select().id(KaramjaGP).poll().click();
-            }
-            Draynor = false;
+        if (KaramjaDock.contains(ctx.players.local().tile()) && !Karamja) {
             Karamja = true;
+            Draynor = false;
         }
-        else if(!Karamjafishing.contains(ctx.players.local().tile()) && Karamja){
-            Condition.sleep(Random.nextInt(1000,1500));
-            to_fishing_spot.traverse();
+        if (ctx.players.local().tile().floor() == 0) {
+            if (Karamja) {
+                Condition.sleep(Random.nextInt(1000, 1500));
+                to_fishing_spot.traverse();
+            } else if (Draynor) {
+                if(!PortSarimDock.contains(ctx.players.local().tile())){
+                    Condition.sleep(Random.nextInt(1000, 1500));
+                    to_sailor_Port_Sarim.traverse();
+                }
+                else if(ctx.npcs.select().id(SarimSailor).poll().inViewport()){
+                    ctx.npcs.select().id(SarimSailor).poll().interact("Pay-fare");
+                    Condition.sleep(Random.nextInt(1000, 1500));
+                }
+            }
+        } else if (ctx.objects.select().id(KaramjaGP).poll().inViewport()){
+            ctx.objects.select().id(KaramjaGP).poll().click();
+            Condition.sleep(Random.nextInt(500, 1000));
         }
+        else
+            Condition.sleep(Random.nextInt(500, 1000));
     }
 
     private boolean ManhattenDistance(){
@@ -247,7 +256,8 @@ public class FishingLobsters extends PollingScript<ClientContext> implements Pai
     @Override
     public void repaint(Graphics gr) {
 
-        Color color1 = new Color(0, 0, 255, 100), color2 = new Color(0, 200, 255);
+        Color color = color = new Color(0, 255, 0, 150), color1 = new Color(0, 0, 255, 100),
+                color2 = new Color(0, 200, 255);
         BasicStroke stroke1 = new BasicStroke(1);
         Font font1 = new Font("Perpetua", 1, 15), font2 = new Font("Consolas", 1, 14);
 
@@ -320,5 +330,3 @@ public class FishingLobsters extends PollingScript<ClientContext> implements Pai
     }
 
 }
-
-
