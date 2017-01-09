@@ -281,7 +281,7 @@ public class ProjectLockerLooter extends PollingScript<ClientContext> implements
     }
 
     private void shred(long milliseconds) {
-        shred = (int) ((milliseconds / (1000 * 60 * 60 * 60)) % 30);
+        shred = (int) ((milliseconds / (1000 * 60 * 60 * 24)) % 7);
         shred0 = (int) (milliseconds / 1000) % 60;
         shred1 = (int) ((milliseconds / (1000 * 60)) % 60);
         shred2 = (int) ((milliseconds / (1000 * 60 * 60)) % 24);
