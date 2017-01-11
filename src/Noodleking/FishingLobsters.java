@@ -4,32 +4,29 @@ import org.powerbot.script.*;
 import org.powerbot.script.GeItem;
 import org.powerbot.script.rt4.*;
 import org.powerbot.script.rt4.ClientContext;
-import org.powerbot.script.rt4.Component;
 import org.powerbot.script.rt4.Interactive;
-
+ 
 import javax.swing.*;
 import java.awt.*;
 import java.text.DecimalFormat;
 import java.util.concurrent.Callable;
-
+ 
 @Script.Manifest(name = "Fishing Lobsters/Swordfish",properties = "author=Noodleking, Terminator1; topic=1325074; client=4;",  description = "Fishes Lobsters/Swordfish at Musa Point and banks them at the Monks of Entrana")
 public class FishingLobsters extends PollingScript<ClientContext> implements PaintListener,MessageListener{
-
-    private final int fishbounds[] = {-48, 48, 0, 0, -48, 48}; int lxp = 90,sxp = 100,txp = 80,LobsterXP = 90,
-            KaramjaSailor = 3648,SarimSailor = 3645, KaramjaGP = 2082, SarimGP = 2084, spotID = 1522,lobsters = 377,
-            swordfish = 371,tuna = 359, cage = 301,harpoon = 311;
+ 
+    private final int coins = 995,fishbounds[] = {-48, 48, 0, 0, -48, 48},lxp = 90,sxp = 100,txp = 80, KaramjaSailor = 3648,SarimSailor[] = {3644,3645,3646}, KaramjaGP = 2082, SarimGP = 2084, spotID = 1522,lobsters = 377, swordfish = 371,tuna = 359, cage = 301,harpoon = 311;
     private GeItem ge;
     private DecimalFormat formatted = new DecimalFormat("#,###,###");
     private int LobsterProfit, SwordfishProfit, TunaProfit, LobsterCount = 0, SwordfishCount = 0,TunaCount = 0,
             xpgained = 0;
     private long Stopwatch = 0;
-    private String interacting,input,tx[] = {"Lobsters","Swordfish+"}, yesno[] = {"Yes", "No"};
+    private String interacting = "wtf";
     private Area Karamjafishing = new Area(new Tile(2914,3164), new Tile(2934,3184));
     private Area EntranaDeposit = new Area(new Tile(3041,3238), new Tile(3051,3233));
     private Area KaramjaDock = new Area(new Tile(2941,3141), new Tile(2957,3151));
     private Area PortSarimDock = new Area(new Tile(3022,3216), new Tile(3032, 3226));
-    private boolean lobster = true,fishing = false, questfinished = false, Karamja, Draynor;
-
+    private boolean lobster = true,fishing = false, Karamja, Draynor,tunaFished=false,powerfish;
+ 
     private final Tile[] path_to_sailor_Karamja = {
             new Tile(2924, 3178),
             new Tile(2924, 3173), new Tile(2923, 3169),
@@ -48,9 +45,9 @@ public class FishingLobsters extends PollingScript<ClientContext> implements Pai
             new Tile(3034, 3236), new Tile(3039, 3236),
             new Tile(3044, 3235)
     };
-
+ 
     private TilePath to_sailor_Karamja, to_sailor_Port_Sarim, to_fishing_spot, to_entrana_monks;
-
+ 
     public void start(){
         ge = new org.powerbot.script.rt4.GeItem(lobsters);
         LobsterProfit = ge.price;
@@ -58,20 +55,35 @@ public class FishingLobsters extends PollingScript<ClientContext> implements Pai
         SwordfishProfit = ge.price;
         ge = new org.powerbot.script.rt4.GeItem(tuna);
         TunaProfit = ge.price;
-
+        //incase we ever want to go AIO instead
+        powerfish = JOptionPane.showConfirmDialog(null, "Do you want to powerfish?", "Powerfish Check", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
+        if(JOptionPane.showConfirmDialog(null, "Did you finish the quest 'Pirate's Treasure?", "Completion Check", JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION) {
+            ctx.controller.stop();
+        }
         for(Item item:ctx.inventory.items()){
             if(item.id() == cage) {
                 interacting = "Cage";
+                if(ctx.skills.level(Constants.SKILLS_FISHING) < 40) {
+                    performLogout("Your level is too low to fish lobsters!");
+                }
+                break;
             } else if(item.id() == harpoon){
                 interacting = "Harpoon";
+                //A way to powerfish for lowerlevels till they reach swordfish
+                if(ctx.skills.level(Constants.SKILLS_FISHING) < 35) {
+                    performLogout("Your level is too low to fish tuna/swordfishes!");
+                }
                 lobster = false;
+                if(JOptionPane.showConfirmDialog(null, "Do you want to drop tuna?", "Completion Check", JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION) {
+                    tunaFished = true;
+                }
+                break;
             }
         }
-        Condition.sleep(250);
-        input = (String) JOptionPane.showInputDialog(null,"Did you finish the quest 'Pirate's Treasure?'",
-                "Yes/No",JOptionPane.QUESTION_MESSAGE,null,yesno,0);
-        if(input.equals("No"))
-            ctx.controller.stop();
+        if(interacting.equals("wtf")) {
+            performLogout("You neither have a lobster pot,nor a harpoon!");
+        }
+        Condition.sleep(Random.nextInt(0,250));
         if(Karamjafishing.contains(ctx.players.local().tile())){
             Karamja = true;
             Draynor = false;
@@ -82,13 +94,13 @@ public class FishingLobsters extends PollingScript<ClientContext> implements Pai
         }
         else
             ctx.controller.stop();
-
+ 
         to_entrana_monks = ctx.movement.newTilePath(path_to_entrana_monks);
         to_sailor_Port_Sarim = ctx.movement.newTilePath(path_to_entrana_monks).reverse();
         to_sailor_Karamja = ctx.movement.newTilePath(path_to_sailor_Karamja);
         to_fishing_spot = ctx.movement.newTilePath(path_to_sailor_Karamja).reverse();
     }
-
+ 
     @Override
     public void poll(){
         final State state = getState();
@@ -98,6 +110,7 @@ public class FishingLobsters extends PollingScript<ClientContext> implements Pai
                     Banking();
                     break;
                 case WALKING_TO_MUSA_POINT:
+                    checkIfOuttaCash();
                     Walking_to_Musa_Point();
                     break;
                 case FISHING:
@@ -107,19 +120,20 @@ public class FishingLobsters extends PollingScript<ClientContext> implements Pai
                     Drop();
                     break;
                 case WALKING_TO_DRAYNOR:
+                    checkIfOuttaCash();
                     Walking_to_Draynor();
                     break;
             }
         }
     }
-
+ 
     private State getState(){
         int inventory_amount = ctx.inventory.select().count();
         boolean inBank = EntranaDeposit.contains(ctx.players.local().tile()),
                 atFishingspot = Karamjafishing.contains(ctx.players.local().tile());
         if(atFishingspot) {
             if(inventory_amount == 28)
-                if(ctx.inventory.select().id(tuna).count()==0)
+                if(((ctx.inventory.select().id(tuna).count()==0)||tunaFished)&&!powerfish)
                     return State.WALKING_TO_DRAYNOR;
                 else
                     return State.DROP;
@@ -139,7 +153,31 @@ public class FishingLobsters extends PollingScript<ClientContext> implements Pai
                 return State.WALKING_TO_MUSA_POINT;
         }
     }
-
+ 
+    private void performLogout(String reason) {
+        ctx.bank.close();
+        if(!ctx.game.tab().name().equals(Game.Tab.LOGOUT.name()))
+            ctx.game.tab(Game.Tab.LOGOUT);
+        if(ctx.widgets.widget(69).component(3).valid())
+            ctx.widgets.widget(69).component(3).click();
+        if(!ctx.widgets.widget(182).component(10).valid())
+            Condition.sleep(Random.nextInt(500,750));
+        ctx.widgets.widget(182).component(10).click();
+        ctx.controller.suspend();
+        alert(reason);
+        ctx.controller.stop();
+    }
+ 
+    private void checkIfOuttaCash() {
+        //Could implement an inventory check but it will need to scan the whole invent
+        if(ctx.widgets.widget(217).component(0).valid() || ctx.widgets.widget(231).component(0).valid())
+            performLogout("You are out of cash...");
+    }
+ 
+    private void alert(String message) {
+        JOptionPane.showMessageDialog(null, message);
+    }
+ 
     private void Walking_to_Draynor() {
         if (PortSarimDock.contains(ctx.players.local().tile()) && !Draynor) {
             Karamja = false;
@@ -148,14 +186,14 @@ public class FishingLobsters extends PollingScript<ClientContext> implements Pai
         if (ctx.players.local().tile().floor() == 0) {
             if (Karamja) {
                 if(!KaramjaDock.contains(ctx.players.local().tile())){
-                Condition.sleep(Random.nextInt(1000, 1500));
-                to_sailor_Karamja.traverse();
+                    Condition.sleep(Random.nextInt(1000, 1500));
+                    to_sailor_Karamja.traverse();
                 }
                 else if(ctx.npcs.select().id(KaramjaSailor).poll().inViewport()){
                     ctx.npcs.select().id(KaramjaSailor).poll().interact("Pay-fare");
                     Condition.sleep(Random.nextInt(1000, 1500));
                 }
-
+ 
             } else if (Draynor) {
                 Condition.sleep(Random.nextInt(1000, 1500));
                 to_entrana_monks.traverse();
@@ -167,7 +205,7 @@ public class FishingLobsters extends PollingScript<ClientContext> implements Pai
         else
             Condition.sleep(Random.nextInt(500, 1000));
     }
-
+ 
     private void Walking_to_Musa_Point(){
         if (KaramjaDock.contains(ctx.players.local().tile()) && !Karamja) {
             Karamja = true;
@@ -194,13 +232,11 @@ public class FishingLobsters extends PollingScript<ClientContext> implements Pai
         else
             Condition.sleep(Random.nextInt(500, 1000));
     }
-
+ 
     private boolean ManhattenDistance(){
-        if(ctx.players.local().tile().distanceTo(ctx.npcs.select().id(spotID).nearest().poll().tile())==1)
-            return true;
-        return false;
+        return ctx.players.local().tile().distanceTo(ctx.npcs.select().id(spotID).nearest().poll().tile()) == 1;
     }
-
+ 
     private void Fishing(){
         if(((!ManhattenDistance() || (ctx.players.local().animation() == -1)) && !ctx.players.local().inMotion()) ||
                 (System.currentTimeMillis()-Stopwatch)>Random.nextInt(120000,180000)) {
@@ -216,22 +252,23 @@ public class FishingLobsters extends PollingScript<ClientContext> implements Pai
             },75,10);
         }
     }
-
+ 
     public void Drop() {
         for(Item item: ctx.inventory.select()) {
             if(ctx.inventory.selectedItemIndex()!=-1)
                 ctx.inventory.select().shuffle().poll().click();
-            if(item.id() == tuna)
-                item.interact("Drop");
+            //This case shall do for now...
+            if (item.id() != cage && item.id() != harpoon && item.id() != coins)
+                if(powerfish||item.id()==tuna)
+                    item.interact("Drop");
         }
     }
-
+ 
     private void Banking(){
-        Component item = null;
-        int fish = -1;
+        int fish = -1,fish1 = -1;
         if(!ctx.widgets.widget(192).component(2).inViewport() && ctx.objects.select().id(26254).nearest().poll().inViewport()) {
-                ctx.objects.select().id(26254).within(EntranaDeposit).nearest().poll().click();
-                Condition.sleep(Random.nextInt(1000, 1500));
+            ctx.objects.select().id(26254).within(EntranaDeposit).nearest().poll().click();
+            Condition.sleep(Random.nextInt(1000, 1500));
         } else {
             for (int i = 0; i < 28; i++) {
                 if (lobster) {
@@ -242,25 +279,33 @@ public class FishingLobsters extends PollingScript<ClientContext> implements Pai
                 } else {
                     if (ctx.widgets.widget(192).component(2).component(i).itemId() == swordfish) {
                         fish = i;
+                    } else if(ctx.widgets.widget(192).component(2).component(i).itemId() == tuna) {
+                        fish1 = i;
+                    }
+                    if((fish!=-1)&&(fish1!=-1)) {
                         break;
                     }
                 }
             }
         }
-
-        //Yes I could use i instead of fish,however it won't support a future update
-        item = ctx.widgets.widget(192).component(2).component(fish);
-        item.interact("Deposit-all");
+        if(tunaFished) {
+            if(fish!=-1) {
+                ctx.widgets.widget(192).component(2).component(fish).interact("Deposit-all");
+            }
+            if(fish1!=-1) {
+                ctx.widgets.widget(192).component(2).component(fish1).interact("Deposit-all");
+            }
+        } else
+            ctx.widgets.widget(192).component(2).component(fish).interact("Deposit-all");
     }
-
+ 
     @Override
     public void repaint(Graphics gr) {
-
-        Color color = color = new Color(0, 255, 0, 150), color1 = new Color(0, 0, 255, 100),
+        final Color color = new Color(0, 255, 0, 150), color1 = new Color(0, 0, 255, 100),
                 color2 = new Color(0, 200, 255);
         BasicStroke stroke1 = new BasicStroke(1);
-        Font font1 = new Font("Perpetua", 1, 15), font2 = new Font("Consolas", 1, 14);
-
+        Font font1 = new Font("Perpetua", 1, 15);
+ 
         Graphics2D g = (Graphics2D) gr;
         if(getState().toString().equals("FISHING")) {
             g.setColor(color);
@@ -289,7 +334,7 @@ public class FishingLobsters extends PollingScript<ClientContext> implements Pai
         g.drawString("Created by Noodleking",5,140);
         g.drawString("Co-author:Terminator1",5,155);
     }
-
+ 
     private String formated(long time) {
         final int sec = (int) (time / 1000),
                 h = sec / 3600,
@@ -298,11 +343,11 @@ public class FishingLobsters extends PollingScript<ClientContext> implements Pai
         return (h < 10 ? "0" + h : h) + ":" + (m < 10 ? "0" + m : m) + ":"
                 + (s < 10 ? "0" + s : s);
     }
-
+ 
     private static int getPerHour(int in, long time) {
         return (int) ((in) * 3600000D / time);
     }
-
+ 
     @Override
     public void messaged(MessageEvent messageEvent) {
         String txt = messageEvent.text().toLowerCase();
@@ -324,9 +369,9 @@ public class FishingLobsters extends PollingScript<ClientContext> implements Pai
             }
         }
     }
-
+ 
     private enum State{
         FISHING, WALKING_TO_DRAYNOR, BANKING, WALKING_TO_MUSA_POINT, DROP
     }
-
+ 
 }
