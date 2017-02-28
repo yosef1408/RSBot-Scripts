@@ -18,7 +18,7 @@ public class GUI extends JFrame {
     }
 
     public GUI() {
-        super("Sally Hunter");
+        super("rSalamanders");
         combobox = new JComboBox(runeStrings);
         this.setSize(400, 400);
         this.setResizable(false);
