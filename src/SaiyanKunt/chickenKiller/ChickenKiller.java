@@ -13,7 +13,7 @@ import java.util.concurrent.Callable;
  */
 
 @Script.Manifest(
-        name = "Chicken Killer", properties = "author=SaiyanKunt; topic=; client=4;",
+        name = "Chicken Killer", properties = "author=SaiyanKunt; topic=1330081; client=4;",
         description = "A basic script that kills chickens, collects feathers and bones after 5 kills and buries bones when the inventory is full.")
 
 public class ChickenKiller extends PollingScript<ClientContext> implements PaintListener
