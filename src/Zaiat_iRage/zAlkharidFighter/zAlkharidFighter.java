@@ -1,10 +1,10 @@
-package scripts.zAlkharidFighter;
+package Zaiat_iRage.scripts.zAlkharidFighter;
 
 import org.powerbot.script.*;
 import org.powerbot.script.rt4.*;
 import org.powerbot.script.rt4.ClientContext;
-import scripts.zAlkharidFighter.Other.*;
-import scripts.zAlkharidFighter.Tasks.*;
+import Zaiat_iRage.scripts.zAlkharidFighter.Other.*;
+import Zaiat_iRage.scripts.zAlkharidFighter.Tasks.*;
 
 
 import java.awt.*;
@@ -41,7 +41,7 @@ public class zAlkharidFighter extends PollingScript<ClientContext> implements Pa
     @Override
     public void start()
     {
-        taskList.addAll(Arrays.asList(new scripts.zAlkharidFighter.Tasks.Bank(ctx), new Fight(ctx), new Eat(ctx), new ToggleRun(ctx)));
+        taskList.addAll(Arrays.asList(new Zaiat_iRage.scripts.zAlkharidFighter.Tasks.Bank(ctx), new Fight(ctx), new Eat(ctx), new ToggleRun(ctx)));
         gui = new GUI(this, ctx);
     }
 

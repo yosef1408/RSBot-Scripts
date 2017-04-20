@@ -1,4 +1,4 @@
-package scripts.zAlkharidFighter.Tasks;
+package Zaiat_iRage.scripts.zAlkharidFighter.Tasks;
 
 import org.powerbot.script.ClientAccessor;
 import org.powerbot.script.rt4.ClientContext;

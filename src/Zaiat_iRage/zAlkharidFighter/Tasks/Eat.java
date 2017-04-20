@@ -1,7 +1,7 @@
-package scripts.zAlkharidFighter.Tasks;
+package Zaiat_iRage.scripts.zAlkharidFighter.Tasks;
 
 import org.powerbot.script.rt4.ClientContext;
-import scripts.zAlkharidFighter.zAlkharidFighter;
+import Zaiat_iRage.scripts.zAlkharidFighter.zAlkharidFighter;
 
 /**
  * Created by Zaiat on 4/20/2017.

@@ -1,4 +1,4 @@
-package scripts.zAlkharidFighter.Other;
+package Zaiat_iRage.scripts.zAlkharidFighter.Other;
 
 // Commaize a number.
 

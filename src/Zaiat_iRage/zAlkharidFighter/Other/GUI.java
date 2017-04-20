@@ -1,8 +1,8 @@
-package scripts.zAlkharidFighter.Other;
+package Zaiat_iRage.scripts.zAlkharidFighter.Other;
 
 import org.powerbot.script.rt4.ClientContext;
 import org.powerbot.script.rt4.Constants;
-import scripts.zAlkharidFighter.zAlkharidFighter;
+import Zaiat_iRage.scripts.zAlkharidFighter.zAlkharidFighter;
 
 import javax.swing.*;
 import java.awt.*;

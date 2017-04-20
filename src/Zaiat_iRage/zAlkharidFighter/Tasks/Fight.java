@@ -1,9 +1,9 @@
-package scripts.zAlkharidFighter.Tasks;
+package Zaiat_iRage.scripts.zAlkharidFighter.Tasks;
 
 import org.powerbot.script.Area;
 import org.powerbot.script.Tile;
 import org.powerbot.script.rt4.*;
-import scripts.zAlkharidFighter.zAlkharidFighter;
+import Zaiat_iRage.scripts.zAlkharidFighter.zAlkharidFighter;
 
 import java.util.ArrayList;
 import java.util.List;
