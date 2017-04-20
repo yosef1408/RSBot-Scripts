@@ -22,7 +22,7 @@ public class Eat extends Task<ClientContext>
     @Override
     public void execute()
     {
-        zAlkharidFighter.status = "Low HP, eating food";
+        zAlkharidFighter.status = "Low HP, eating " + zAlkharidFighter.food;
         ctx.inventory.select().name((zAlkharidFighter.food)).poll().interact("Eat");
     }
 }
