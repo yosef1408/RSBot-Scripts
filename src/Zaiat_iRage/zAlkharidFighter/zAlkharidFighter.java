@@ -188,7 +188,16 @@ public class zAlkharidFighter extends PollingScript<ClientContext> implements Pa
                         @Override
                         public void run()
                         {
-                            ctx.camera.turnTo(door.tile());
+                            if(ctx.players.local().tile().x() < door.tile().x())
+                            {
+                                if(ctx.camera.yaw() > 300 || ctx.camera.yaw() < 240 )
+                                    ctx.camera.angle(240 + r.nextInt(60));
+                            }
+                            else
+                            {
+                                if(ctx.camera.yaw() > 120 || ctx.camera.yaw() < 60 )
+                                    ctx.camera.angle(60 + r.nextInt(60));
+                            }
                             return;
                         }
                     });
