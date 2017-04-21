@@ -1,4 +1,4 @@
-package com.intensechanging.scripts;
+package IntenseChanging.scripts.DragonBitterBuyer;
 
 import java.awt.Color;
 import java.awt.Font;
