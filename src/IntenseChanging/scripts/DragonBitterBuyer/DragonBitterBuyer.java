@@ -26,6 +26,9 @@ import org.powerbot.script.rt6.TilePath;
 				 properties = "author=IntenseChanging; topic=1331122; client=6;")
 /**
  * @author IntenseChanging
+ *
+ * Special thanks to Coma for his "Writing your second script" tutorial
+ * which this script is based on: https://gist.github.com/Strikegently/363d77f74dab204e78ba
  * Created: 4/16/17
  */
 public class DragonBitterBuyer extends PollingScript<ClientContext> implements MessageListener, PaintListener  {
