@@ -3,11 +3,11 @@ package Zaiat_iRage.scripts.zAlkharidFighter.Tasks;
 import org.powerbot.script.Area;
 import org.powerbot.script.Tile;
 import org.powerbot.script.rt4.*;
+import org.powerbot.script.Random;
 import Zaiat_iRage.scripts.zAlkharidFighter.zAlkharidFighter;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 /**
  * Created by Zaiat on 4/20/2017.
@@ -21,9 +21,14 @@ public class Fight extends Task<ClientContext>
 
     private int[] warrior_bounds = {-20, 20, -184, -12, -20, 20};
 
-    public Fight(ClientContext ctx)
+    private long attack_timer_1, attack_timer_2;
+
+    private zAlkharidFighter script;
+
+    public Fight(zAlkharidFighter script, ClientContext ctx)
     {
         super(ctx);
+        this.script = script;
     }
 
     @Override
@@ -68,7 +73,7 @@ public class Fight extends Task<ClientContext>
                         else
                         {
                             zAlkharidFighter.status = "Opening door";
-                            zAlkharidFighter.OpenDoor(ctx);
+                            script.OpenDoor(ctx);
                         }
                         break;
                     }
@@ -88,7 +93,12 @@ public class Fight extends Task<ClientContext>
             warriors_area_middle.contains(ctx.players.local())  && !warriors_area_middle.contains(warrior)  ||
                     zAlkharidFighter.warriors_area_right.contains(ctx.players.local())   && !zAlkharidFighter.warriors_area_right.contains(warrior))
         {
-            GameObject door = ctx.objects.select().name("Large door").nearest().within(zAlkharidFighter.warriors_area).poll();
+            BasicQuery<GameObject> query = ctx.objects.select().name("Large door").nearest().within(zAlkharidFighter.warriors_area);
+            GameObject door = query.poll();
+
+            while(door.tile().y() == 3167)
+                door = query.poll();
+
             for(String action: door.actions())
             {
                 if(action != null && action.equals("Open"))
@@ -100,35 +110,51 @@ public class Fight extends Task<ClientContext>
 
     private void AttackWarrior(final Npc warrior)
     {
-        final Random r = new Random();
-        try
+        if(attack_timer_1 != 0)
         {
-            Thread t1 = new Thread(new Runnable()
-            {
-                @Override
-                public void run()
-                {
-                    ctx.camera.pitch(38 + r.nextInt(8));
-                    return;
-                }
-            });
-            Thread t2 = new Thread(new Runnable()
-            {
-                @Override
-                public void run()
-                {
-                    ctx.camera.turnTo(warrior.tile());
-                    return;
-                }
-            });
-            t1.start();
-            t2.start();
+            attack_timer_2 =  script.getRuntime();
+            if(attack_timer_2 - attack_timer_1 >= 3000)
+                attack_timer_1 = 0;
         }
-        catch(Error e)
+        if(attack_timer_1 == 0)
         {
+            if (!warrior.inViewport())
+            {
+                try
+                {
+                    Thread t1 = new Thread(new Runnable()
+                    {
+                        @Override
+                        public void run()
+                        {
+                            ctx.camera.pitch(38 + Random.nextInt(0,8));
+                            return;
+                        }
+                    });
+                    Thread t2 = new Thread(new Runnable()
+                    {
+                        @Override
+                        public void run()
+                        {
+                            ctx.camera.turnTo(warrior.tile());
+                            return;
+                        }
+                    });
+                    t1.start();
+                    t2.start();
 
+                }
+                catch(Error e)
+                {
+
+                }
+            }
+            else
+            {
+                warrior.interact(true, "Attack", "Al-kharid warrior");
+                attack_timer_1 = script.getRuntime();
+            }
         }
-        warrior.interact(false,"Attack", "Al-kharid warrior");
     }
 
     private boolean IsTargetFighting(Npc target)

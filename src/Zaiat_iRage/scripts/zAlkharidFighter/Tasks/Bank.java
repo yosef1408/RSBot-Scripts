@@ -17,10 +17,12 @@ public class Bank extends Task<ClientContext>
 {
     private LocalPath path_to_bank = null;
     private Area bank_area = new Area(new Tile(3269, 3174), new Tile(3273, 3161));
+    private zAlkharidFighter script;
 
-    public Bank(ClientContext ctx)
+    public Bank(zAlkharidFighter script, ClientContext ctx)
     {
         super(ctx);
+        this.script = script;
     }
 
     @Override
@@ -38,7 +40,7 @@ public class Bank extends Task<ClientContext>
 
             if((zAlkharidFighter.warriors_area_left.contains(ctx.players.local()) || zAlkharidFighter.warriors_area_right.contains(ctx.players.local())) && IsDoorClosed())
             {
-                zAlkharidFighter.OpenDoor(ctx);
+                script.OpenDoor(ctx);
             }
             else
             {

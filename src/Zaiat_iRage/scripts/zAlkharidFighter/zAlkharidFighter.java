@@ -1,10 +1,12 @@
 package Zaiat_iRage.scripts.zAlkharidFighter;
 
+import Zaiat_iRage.scripts.zAlkharidFighter.Tasks.Bank;
 import org.powerbot.script.*;
 import org.powerbot.script.rt4.*;
 import org.powerbot.script.rt4.ClientContext;
 import Zaiat_iRage.scripts.zAlkharidFighter.Other.*;
 import Zaiat_iRage.scripts.zAlkharidFighter.Tasks.*;
+import org.powerbot.script.rt4.Interactive;
 
 
 import java.awt.*;
@@ -32,16 +34,19 @@ public class zAlkharidFighter extends PollingScript<ClientContext> implements Pa
     public static Area warriors_area_right = new Area(new Tile(3299, 3178), new Tile(3304, 3167));
 
     public long startTime = 0;
-    private static int[] door_bounds = {108, 128, -240, 0, -112, 112};
+    private static int[] door_bounds = {108, 128,
+                                        -160, -80,
+                                        -32, 32};
     private List<Task> taskList = new ArrayList<Task>();
 
+    private static long open_door_timer_1, open_door_timer_2;
 
     private GUI gui;
 
     @Override
     public void start()
     {
-        taskList.addAll(Arrays.asList(new Zaiat_iRage.scripts.zAlkharidFighter.Tasks.Bank(ctx), new Fight(ctx), new Eat(ctx), new ToggleRun(ctx)));
+        taskList.addAll(Arrays.asList(new Bank(this, ctx), new Fight(this, ctx), new Eat(this, ctx), new ToggleRun(ctx)));
         gui = new GUI(this, ctx);
     }
 
@@ -58,12 +63,16 @@ public class zAlkharidFighter extends PollingScript<ClientContext> implements Pa
         }
     }
 
-    private int s_x=0,s_s=0;
-    private int h=0,m=0,s=0;
+    int s_x=0,s_s=0;
+    int h=0,m=0,s=0;
     private final Color color1 = new Color(153, 153, 255);
     private final Color color2 = new Color(0, 0, 0);
     private final Color color3 = new Color(51, 51, 51);
+    private final Color color4 = new Color(255, 255, 255);
     private final BasicStroke stroke1 = new BasicStroke(1);
+    private final BasicStroke stroke2 = new BasicStroke(2);
+    private final BasicStroke stroke3 = new BasicStroke(3);
+    private final BasicStroke stroke4 = new BasicStroke(4);
     private final Font font1 = new Font("Arial", 0, 23);
     private final Font font2 = new Font("Arial", 1, 13);
     @Override
@@ -107,6 +116,29 @@ public class zAlkharidFighter extends PollingScript<ClientContext> implements Pa
             g.drawString("[Hitpoints Exp] " + Get_HP_EXP() + " (P/H: " + Get_HP_EXP_PerHour() + ")", 20, 125);
             g.drawString("[Combat Exp] " + Get_Combat_EXP() + " (P/H: " + Get_Combat_EXP_PerHour() + ")", 20, 145);
         }
+
+        int x = ctx.input.getLocation().x;
+        int y = ctx.input.getLocation().y;
+
+        g.setStroke(stroke4);
+        g.setColor(color2);
+        g.drawOval(x-10, y-10, 20, 20);
+
+        g.setStroke(stroke3);
+        g.drawLine(x, y-4, x, y-7);
+        g.drawLine(x, y+4, x, y+7);
+        g.drawLine(x-4, y, x - 7, y);
+        g.drawLine(x+4, y, x + 7, y);
+
+        g.setColor(color1);
+        g.setStroke(stroke1);
+        g.drawLine(x, y - 4, x, y - 8);
+        g.drawLine(x, y + 4, x, y + 8);
+        g.drawLine(x - 4, y, x - 8, y);
+        g.drawLine(x + 4, y, x + 8, y);
+        g.setStroke(stroke2);
+        g.drawOval(x-10, y-10, 20, 20);
+
     }
 
     private String Get_HP_EXP()
@@ -164,52 +196,66 @@ public class zAlkharidFighter extends PollingScript<ClientContext> implements Pa
 
     }
 
-    public static void OpenDoor(final ClientContext ctx)
+    public void OpenDoor(final ClientContext ctx)
     {
-        final GameObject door = ctx.objects.select().name("Large door").nearest().within(warriors_area).each(org.powerbot.script.rt4.Interactive.doSetBounds(door_bounds)).poll();
-        for(String action: door.actions())
+        if(open_door_timer_1 != 0)
         {
-            if(action != null && action.equals("Open"))
+            open_door_timer_2 = getRuntime();
+            if(open_door_timer_2 - open_door_timer_1 >= 3000)
+                open_door_timer_1 = 0;
+        }
+        if(open_door_timer_1 == 0)
+        {
+            BasicQuery<GameObject> query = ctx.objects.select().name("Large door").nearest().within(warriors_area).each(Interactive.doSetBounds(door_bounds));
+            GameObject temp_door = query.poll();
+
+            while (temp_door.tile().y() == 3167)
+                temp_door = query.poll();
+
+            final GameObject door = temp_door;
+
+            for (String action : door.actions())
             {
-                final java.util.Random r = new java.util.Random();
-                try
+                if (action != null && action.equals("Open"))
                 {
-                    Thread t1 = new Thread(new Runnable()
+                    final java.util.Random r = new java.util.Random();
+                    try
                     {
-                        @Override
-                        public void run()
+                        Thread t1 = new Thread(new Runnable()
                         {
-                            ctx.camera.pitch(38 + r.nextInt(8));
-                            return;
-                        }
-                    });
-                    Thread t2 = new Thread(new Runnable()
+                            @Override
+                            public void run()
+                            {
+                                ctx.camera.pitch(38 + r.nextInt(8));
+                                return;
+                            }
+                        });
+                        Thread t2 = new Thread(new Runnable()
+                        {
+                            @Override
+                            public void run()
+                            {
+                                if (ctx.players.local().tile().x() < door.tile().x())
+                                {
+                                    if (ctx.camera.yaw() > 300 || ctx.camera.yaw() < 240)
+                                        ctx.camera.angle(240 + r.nextInt(60));
+                                } else
+                                {
+                                    if (ctx.camera.yaw() > 120 || ctx.camera.yaw() < 60)
+                                        ctx.camera.angle(60 + r.nextInt(60));
+                                }
+                                return;
+                            }
+                        });
+                        t1.start();
+                        t2.start();
+                    } catch (Error e)
                     {
-                        @Override
-                        public void run()
-                        {
-                            if(ctx.players.local().tile().x() < door.tile().x())
-                            {
-                                if(ctx.camera.yaw() > 300 || ctx.camera.yaw() < 240 )
-                                    ctx.camera.angle(240 + r.nextInt(60));
-                            }
-                            else
-                            {
-                                if(ctx.camera.yaw() > 120 || ctx.camera.yaw() < 60 )
-                                    ctx.camera.angle(60 + r.nextInt(60));
-                            }
-                            return;
-                        }
-                    });
-                    t1.start();
-                    t2.start();
-                }
-                catch(Error e)
-                {
 
-                }
+                    }
 
-                door.interact(false,"Open", "Large door");
+                    door.interact(false, "Open", "Large door");
+                }
             }
         }
     }
