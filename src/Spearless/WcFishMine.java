@@ -104,15 +104,6 @@ public class WcFishMine extends PollingScript<ClientContext>implements PaintList
         }
     }
 
-    /*
-    public void walkingBank() {
-        Area bankArea = new Area(new Tile(3013, 3358, 0), new Tile(3013, 3057, 0), new Tile(3013, 3057, 0), new Tile(3012, 3057, 0));
-        Tile[] tiles = {new Tile(2986, 3240, 0), new Tile(2985, 3244, 0), new Tile(2982, 3247, 0), new Tile(2979, 3250, 0), new Tile(2978, 3254, 0), new Tile(2978, 3258, 0), new Tile(2978, 3263, 0), new Tile(2978, 3267, 0), new Tile(2978, 3271, 0), new Tile(2978, 3275, 0), new Tile(2977, 3279, 0), new Tile(2977, 3283, 0), new Tile(2980, 3287, 0), new Tile(2980, 3291, 0), new Tile(2979, 3295, 0), new Tile(2978, 3299, 0), new Tile(2974, 3300, 0), new Tile(2977, 3303, 0), new Tile(2981, 3303, 0), new Tile(2985, 3303, 0), new Tile(2989, 3303, 0), new Tile(2993, 3304, 0), new Tile(2996, 3307, 0), new Tile(2999, 3310, 0), new Tile(2999, 3314, 0), new Tile(3001, 3318, 0), new Tile(3005, 3321, 0), new Tile(3006, 3325, 0), new Tile(3006, 3329, 0), new Tile(3006, 3333, 0), new Tile(3006, 3337, 0), new Tile(3006, 3341, 0), new Tile(3006, 3345, 0), new Tile(3006, 3349, 0), new Tile(3006, 3353, 0),
-                new Tile(3006, 3357, 0), new Tile(2960, 3312, 0), new Tile(3012, 3357, 0)};
-        TilePath path = ctx.movement.newTilePath(tiles);
-        path.traverse();
-    }
-    */
     private void walkingFromFishing() {
         TilePath path = ctx.movement.newTilePath(WALKING_BACK_FISHING);
         path.randomize(2, 2);
