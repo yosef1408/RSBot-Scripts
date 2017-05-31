@@ -11,7 +11,7 @@ import java.awt.*;
 
 
 /**
- * Created by Gaston on 23/05/2017.
+ * Created by Spearless on 23/05/2017.
  */
 
 @Manifest(name = "WcFishMine", properties = "author=Spearless; topic=1333332; client=4;", description = "The objective of the script is for new accounts to level up Mining, Woodcutting. Start at Lumbridge with an axe, a pickaxe and a net, nothing else")
