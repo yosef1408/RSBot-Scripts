@@ -21,7 +21,7 @@ public class WcFishMine extends PollingScript<ClientContext>implements PaintList
 
    public Tile TILE_TO_FISHINGZONE[] = {new Tile(3222, 3218, 0), new Tile(3226, 3218, 0), new Tile(3230, 3218, 0), new Tile(3232, 3214, 0), new Tile(3233, 3210, 0), new Tile(3234, 3206, 0), new Tile(3237, 3202, 0), new Tile(3239, 3198, 0), new Tile(3241, 3194, 0), new Tile(3244, 3191, 0), new Tile(3244, 3187, 0), new Tile(3244, 3183, 0), new Tile(3242, 3179, 0), new Tile(3241, 3175, 0), new Tile(3241, 3171, 0), new Tile(3241, 3167, 0), new Tile(3241, 3163, 0), new Tile(3241, 3159, 0), new Tile(3241, 3155, 0), new Tile(3241, 3151, 0), new Tile(3239, 3147, 0)};
     public Tile WALKING_BACK_FISHING[] = {new Tile(3239, 3146, 0), new Tile(3239, 3150, 0), new Tile(3239, 3154, 0), new Tile(3239, 3158, 0), new Tile(3239, 3162, 0), new Tile(3239, 3166, 0), new Tile(3239, 3170, 0), new Tile(3239, 3174, 0), new Tile(3239, 3178, 0), new Tile(3239, 3182, 0), new Tile(3240, 3186, 0), new Tile(3243, 3189, 0), new Tile(3244, 3193, 0), new Tile(3241, 3196, 0), new Tile(3240, 3200, 0), new Tile(3236, 3203, 0), new Tile(3236, 3207, 0), new Tile(3236, 3211, 0), new Tile(3235, 3215, 0), new Tile(3232, 3218, 0), new Tile(3228, 3218, 0), new Tile(3224, 3218, 0)};
-    public Area TREE_AREA = new Area(new Tile(2979, 3262), new Tile(2986, 3254));
+    public Area TREE_AREA = new Area(new Tile(2978, 3261), new Tile(2987, 3254));
     public Area MINING_AREA = new Area(new Tile(2974, 3253), new Tile(2995, 3232));
     public Area LUMB_AREA = new Area(new Tile(2990, 3280, 0), new Tile(3234, 3217));
     public Area FISHING_AREA = new Area(new Tile(3230, 3154), new Tile(3247, 3145));
@@ -436,7 +436,7 @@ if(minutes>180) {
         g.drawLine(x-10,y,x+10,y);
 
         hours=(int)((System.currentTimeMillis()-initialTime)/3600000);
-        minutes=(int)((System.currentTimeMillis()-initialTime)/60000)+179;
+        minutes=(int)((System.currentTimeMillis()-initialTime)/60000);
         seconds=(int)((System.currentTimeMillis()-initialTime)/1000)%60;
         runTime= (double)(System.currentTimeMillis()-initialTime)/3600000;
 
