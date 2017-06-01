@@ -14,7 +14,7 @@ import java.awt.*;
  * Created by Spearless 
  */
 
-@Manifest(name = "WcFishMine", properties = "author=Spearless; topic=1333332; client=4;", description = "The objective of the script is for new accounts to level up Mining, Woodcutting. Start at Lumbridge with an axe, a pickaxe and a net, nothing else")
+@Manifest(name = "WcFishMine", properties = "author=Spearless; topic=1333332; client=4;", description = "The objective of the script is for new accounts to level up Mining, Woodcutting and Fishing. Start at Lumbridge with an axe, a pickaxe and a net, nothing else")
 public class WcFishMine extends PollingScript<ClientContext>implements PaintListener {
    public Tile TILE_TO_ZONE[] = {new Tile(3223, 3216, 0), new Tile(3227, 3217, 0), new Tile(3231, 3218, 0), new Tile(3235, 3221, 0), new Tile(3236, 3225, 0), new Tile(3233, 3229, 0), new Tile(3230, 3232, 0), new Tile(3226, 3234, 0), new Tile(3223, 3237, 0), new Tile(3219, 3237, 0), new Tile(3215, 3237, 0), new Tile(3211, 3238, 0), new Tile(3208, 3241, 0), new Tile(3204, 3242, 0), new Tile(3200, 3242, 0), new Tile(3195, 3241, 0), new Tile(3192, 3244, 0), new Tile(3188, 3246, 0), new Tile(3184, 3246, 0), new Tile(3180, 3248, 0), new Tile(3177, 3252, 0), new Tile(3172, 3253, 0), new Tile(3168, 3254, 0), new Tile(3164, 3254, 0), new Tile(3160, 3254, 0), new Tile(3156, 3254, 0), new Tile(3151, 3254, 0), new Tile(3147, 3253, 0), new Tile(3143, 3251, 0), new Tile(3139, 3251, 0), new Tile(3137, 3247, 0), new Tile(3136, 3251, 0), new Tile(3136, 3255, 0), new Tile(3135, 3259, 0), new Tile(3131, 3261, 0), new Tile(3127, 3263, 0), new Tile(3123, 3263, 0), new Tile(3119, 3263, 0), new Tile(3115, 3263, 0), new Tile(3111, 3263, 0), new Tile(3107, 3263, 0),
             new Tile(3103, 3263, 0), new Tile(3103, 3259, 0), new Tile(3102, 3255, 0), new Tile(3098, 3253, 0), new Tile(3095, 3250, 0), new Tile(3091, 3250, 0), new Tile(3087, 3250, 0), new Tile(3084, 3253, 0), new Tile(3080, 3255, 0), new Tile(3076, 3257, 0), new Tile(3074, 3261, 0), new Tile(3074, 3265, 0), new Tile(3074, 3269, 0), new Tile(3074, 3273, 0), new Tile(3071, 3276, 0), new Tile(3067, 3276, 0), new Tile(3064, 3273, 0), new Tile(3061, 3270, 0), new Tile(3059, 3266, 0), new Tile(3055, 3264, 0), new Tile(3051, 3264, 0), new Tile(3047, 3264, 0), new Tile(3043, 3264, 0), new Tile(3039, 3262, 0), new Tile(3035, 3263, 0), new Tile(3031, 3263, 0), new Tile(3027, 3263, 0), new Tile(3023, 3263, 0), new Tile(3019, 3261, 0), new Tile(3015, 3262, 0), new Tile(3011, 3262, 0), new Tile(3007, 3262, 0), new Tile(3004, 3259, 0), new Tile(3000, 3258, 0), new Tile(2996, 3258, 0), new Tile(2996, 3258, 0), new Tile(2994, 3254, 0), new Tile(2994, 3250, 0), new Tile(2994, 3246, 0), new Tile(2994, 3242, 0), new Tile(2994, 3238, 0), new Tile(2991, 3235, 0), new Tile(2988, 3232, 0), new Tile(2987, 3236, 0), new Tile(2985, 3240, 0), new Tile(2983, 3244, 0)};
@@ -448,10 +448,10 @@ if(minutes>180) {
 
         expGained= ctx.skills.experience(Constants.SKILLS_MINING)-initialMinExp;
          expGainedWC= ctx.skills.experience(Constants.SKILLS_WOODCUTTING)-initialWCExp;
-        expGainedFish= ctx.skills.experience((Constants.SKILLS_FISHING)-initialFishExp)+1;
-        fishLevel= ctx.skills.level((Constants.SKILLS_FISHING)-initFishLevel)+1;
-        WCLevel= ctx.skills.level((Constants.SKILLS_WOODCUTTING)-initWCLevel)+1;
-        MinLevel= ctx.skills.level((Constants.SKILLS_MINING)-initMinLevel)+1;
+        expGainedFish= ctx.skills.experience(Constants.SKILLS_FISHING)-initialFishExp;
+        fishLevel= ctx.skills.level(Constants.SKILLS_FISHING)-initFishLevel;
+        WCLevel= ctx.skills.level(Constants.SKILLS_WOODCUTTING)-initWCLevel;
+        MinLevel= ctx.skills.level(Constants.SKILLS_MINING)-initMinLevel;
         g.setFont(titleFont);
         g.drawString("Mining",22,364);
         g.drawString("1.00 v",250,364);
