@@ -45,6 +45,12 @@ public class Actions extends Controller {
 	 * can be expanded.
 	 */
 	public void dropFishes(){
+		boolean shiftClickOn = false;
+		if((ctx.varpbits.varpbit(1055) & 131072) > 0){
+			shiftClickOn = true;
+			 ctx.input.send("{VK_SHIFT down}");
+		}
+		
 		for(Item item : ctx.inventory.items()){
 			for(int id: fishList){
 				if(item.id() == id){
@@ -52,14 +58,25 @@ public class Actions extends Controller {
 						ctx.widgets.widget(548).component(50).interact("Inventory");
 						Condition.sleep(Random.nextInt(83, 116));
 					}
-					if ((ctx.varpbits.varpbit(1055) & 131072) > 0) {
-					    ctx.input.send("{VK_SHIFT down}");
+					if (shiftClickOn) {
 					    item.click(true);
+					}else{
+						item.interact("Drop");
 					}
 				}
 			}
 		}
-		ctx.input.send("{VK_SHIFT up}");
+		if(shiftClickOn)ctx.input.send("{VK_SHIFT up}");
+	}
+	
+	public void dropItem(Item item){
+		if((ctx.varpbits.varpbit(1055) & 131072) > 0){
+			 ctx.input.send("{VK_SHIFT down}");
+			 item.click(true);
+		}else{
+			item.interact("Drop");
+		}
+		
 	}
 	
 	/**
@@ -93,7 +110,7 @@ public class Actions extends Controller {
 	 * if not, it will open it
 	 */
 	public void openGate(){
-		if(!super.check.isGateOpen()){
+		if(!isGateOpen()){
 			int[] bounds = {-16, 8, -116, 0, -116, 100};			
 			final GameObject closedGate = ctx.objects.select().id(1558).each(Interactive.doSetBounds(bounds)).select(new Filter<GameObject>()
 			        {
@@ -102,10 +119,48 @@ public class Actions extends Controller {
 							return obj.tile().distanceTo(Checks.insideGate[0])<2;
 						}
 			}).nearest().poll();
-			
-			gotoTile(closedGate.tile());
-			closedGate.interact("Open");
+			if(closedGate.valid() && closedGate.tile().distanceTo(ctx.players.local()) < 7){
+				gotoTile(closedGate.tile());
+				ctx.camera.pitch(0);
+				ctx.camera.angle('w');
+				closedGate.interact("Open");
+				ctx.camera.pitch(170);
+			}
+
 		}
+	}
+	
+	/**
+	 * checks to see if the gate at the chicken farm is open
+	 * @return boolean true open, false closed
+	 */
+	public boolean isGateOpen(){
+		final GameObject gate = ctx.objects.select().id(1559).select(new Filter<GameObject>()
+		        {
+					@Override
+					public boolean accept(GameObject obj) {
+						return obj.tile().distanceTo(Checks.insideGate[0])<2;
+					}
+		}).nearest().poll();
+		if(gate.tile().x() != -1){
+			return true;
+		}
+		return false;
+	}
+	
+	public boolean amINearOpenGate(){
+		final GameObject gate = ctx.objects.select().id(1559).select(new Filter<GameObject>()
+		        {
+					@Override
+					public boolean accept(GameObject obj) {
+						return obj.tile().distanceTo(Checks.insideGate[0])<2;
+					}
+		}).nearest().poll();
+		if(gate.tile().x() != -1){
+			if(gate.tile().distanceTo(ctx.players.local()) < 8)
+			return true;
+		}
+		return false;
 	}
 	
 	public final static Tile[] travelPath_old = { new Tile(3237, 3296, 0),

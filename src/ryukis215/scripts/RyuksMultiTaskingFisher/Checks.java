@@ -114,25 +114,7 @@ public class Checks extends Controller {
 		}
 		return false;
 	}
-	
-	/**
-	 * checks to see if the gate at the chicken farm is open
-	 * @return boolean true open, false closed
-	 */
-	public boolean isGateOpen(){
-		final GameObject gate = ctx.objects.select().id(1559).select(new Filter<GameObject>()
-		        {
-					@Override
-					public boolean accept(GameObject obj) {
-						return obj.tile().distanceTo(Checks.insideGate[0])<2;
-					}
-		}).nearest().poll();
-		if(gate.tile().x() != -1){
-			return true;
-		}
-		return false;
-	}
-	
+		
 	public static final Tile[] insideGate = { new Tile(3236, 3296, 0),
 			new Tile(3236, 3295, 0) };
 	
