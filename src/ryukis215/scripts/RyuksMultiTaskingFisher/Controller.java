@@ -46,6 +46,7 @@ public class Controller extends PollingScript<ClientContext> implements MessageL
 	int featherCountAimLower = 400;
 	GroundItem feather;
 	String fishingAction = "Lure";
+	String version = "v1.1";
 	
 	/* ---Paint---*/
 	int startExp = ctx.skills.experience(Constants.SKILLS_FISHING);
@@ -283,7 +284,7 @@ public class Controller extends PollingScript<ClientContext> implements MessageL
 	
 	private void loadPaint(){
 	    try {
-	    	URL fishImgURL = new URL("http://i.imgur.com/PTcryml.png");
+	    	URL fishImgURL = new URL("http://i.imgur.com/zbUkHw2.png");
 	    	paintImg = ImageIO.read(fishImgURL);
 			paintLoaded = true;
 		} catch (IOException e) {
@@ -311,6 +312,7 @@ public class Controller extends PollingScript<ClientContext> implements MessageL
 			gfx.drawString(perHour(xpDif) + "(" + formatNumber(xpDif) + ")", 235, 468);
 			gfx.drawString("Catch/hr ", 380, 455);		
 			gfx.drawString(getPerHour(caughtCounter), 380, 468);
+			gfx.drawString(version, 467, 468);
 		}
 		gfx.setColor(Color.BLACK);	
 		gfx.fillOval(488, 347, 25, 25);
