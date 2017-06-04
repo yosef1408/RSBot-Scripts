@@ -41,7 +41,7 @@ public class Controller extends PollingScript<ClientContext> implements MessageL
 	Npc chicken;
 	String mode;//fight,fish,travel_to_fight,travel_to_fish
 	int featherCount;
-	int featherCountAim;//feathers we aim to collect
+	int featherCountAim = 100;//feathers we aim to collect
 	int featherCountAimUpper = 600;//upper and lower val of rand to aim for
 	int featherCountAimLower = 400;
 	GroundItem feather;
@@ -78,7 +78,7 @@ public class Controller extends PollingScript<ClientContext> implements MessageL
 		if(mode != "debug"){
 			if(check.findChicken().valid()){
 				mode = "fight";
-			}else if(ctx.npcs.select().name("Fishing spot").nearest().poll().valid()){
+			}else{
 				mode = "fish";
 			}
 		}
@@ -110,6 +110,7 @@ public class Controller extends PollingScript<ClientContext> implements MessageL
 			feather = check.findFeathers();
 			if(featherCount >= featherCountAim){//if we've reached our feather count aim, go back to fishing
 				mode = "travel_to_fish";
+				feather = null;
 			}
 		}
 		
@@ -146,21 +147,19 @@ public class Controller extends PollingScript<ClientContext> implements MessageL
 					status = "PICKUP";
 					feather.interact("Take");
 					Condition.sleep(Random.nextInt(1000, 1400));
-
 				break;
 			case TRAVEL_FIGHT:
 					status = "TRAVEL_FIGHT";
 					action.travelToFight();
-					if(!check.isGateOpen()) action.openGate();
-					if(check.isGateOpen()) mode = "fight";					
+					if(!action.isGateOpen()) action.openGate();
+					if(action.isGateOpen() && action.amINearOpenGate()) mode = "fight";	
 				break;
 			case TRAVEL_FISH:
 					status = "TRAVEL_FISH";
-					if(check.inFightArea(player.tile()) && !check.isGateOpen()){
+					if(check.inFightArea(player.tile()) && !action.isGateOpen()){
 						action.openGate();
 					}
-					System.out.println(check.isGateOpen());
-					if(check.isGateOpen() && check.inFightArea(player.tile()) || !check.inFightArea(player.tile())){
+					if(action.isGateOpen() && check.inFightArea(player.tile()) || !check.inFightArea(player.tile())){
 						action.travelToFish();
 					}
 					if(ctx.npcs.select().name("Fishing spot").nearest().poll().valid()){
@@ -185,7 +184,7 @@ public class Controller extends PollingScript<ClientContext> implements MessageL
 				System.out.println("Don't know what to do....logging out. ");
 				break;
 			case DEBUG:
-				action.travelToFight();
+				action.openGate();
 				break;
 		}
 	}
@@ -199,7 +198,7 @@ public class Controller extends PollingScript<ClientContext> implements MessageL
 		if(ctx.movement.energyLevel() > 20 && !ctx.movement.running(true)) return State.RUN;
 		
 		if(mode == "fight"){
-			if(feather.valid() && !player.interacting().equals(chicken)){
+			if(feather.valid() && feather != null && !player.interacting().equals(chicken)){
 				return State.PICKUP;
 			}else{
 				return State.FIGHT;
@@ -216,6 +215,7 @@ public class Controller extends PollingScript<ClientContext> implements MessageL
 				return State.FISH;
 			}
 		}else if(mode == "debug"){
+			System.out.println("debug");
 			return State.DEBUG;
 		}else{
 			
