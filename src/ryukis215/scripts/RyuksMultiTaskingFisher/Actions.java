@@ -45,6 +45,12 @@ public class Actions extends Controller {
 	 * can be expanded.
 	 */
 	public void dropFishes(){
+		boolean shiftClickOn = false;
+		if((ctx.varpbits.varpbit(1055) & 131072) > 0){
+			shiftClickOn = true;
+			 ctx.input.send("{VK_SHIFT down}");
+		}
+		
 		for(Item item : ctx.inventory.items()){
 			for(int id: fishList){
 				if(item.id() == id){
@@ -52,14 +58,25 @@ public class Actions extends Controller {
 						ctx.widgets.widget(548).component(50).interact("Inventory");
 						Condition.sleep(Random.nextInt(83, 116));
 					}
-					if ((ctx.varpbits.varpbit(1055) & 131072) > 0) {
-					    ctx.input.send("{VK_SHIFT down}");
+					if (shiftClickOn) {
 					    item.click(true);
+					}else{
+						item.interact("Drop");
 					}
 				}
 			}
 		}
-		ctx.input.send("{VK_SHIFT up}");
+		if(shiftClickOn)ctx.input.send("{VK_SHIFT up}");
+	}
+	
+	public void dropItem(Item item){
+		if((ctx.varpbits.varpbit(1055) & 131072) > 0){
+			 ctx.input.send("{VK_SHIFT down}");
+			 item.click(true);
+		}else{
+			item.interact("Drop");
+		}
+		
 	}
 	
 	/**
