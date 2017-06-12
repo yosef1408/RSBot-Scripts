@@ -3,9 +3,6 @@ package Spearless;
 import org.powerbot.script.*;
 import org.powerbot.script.rt4.*;
 import org.powerbot.script.rt4.ClientContext;
-import org.powerbot.script.rt6.Hud;
-import sun.rmi.runtime.Log;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
