@@ -13,7 +13,7 @@ import java.awt.event.ActionListener;
 import java.util.*;
 import java.util.Random;
 
-@Script.Manifest(name = "FireMaking", properties = "author=Spearless; topic=1333740; client=4;", description = "Firemaking Varrock West baank. Oak, Willow and normal Logs")
+@Script.Manifest(name = "FireMaking", properties = "author=Spearless; topic=1333740; client=4;", description = "Firemaking Varrock West baank. Oak, Willow,Yew,Maple and normal Logs")
 public class FireMaking extends PollingScript<ClientContext> implements MessageListener,PaintListener {
 
     int switcher;
