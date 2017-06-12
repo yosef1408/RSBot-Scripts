@@ -362,12 +362,11 @@ public class Controller extends PollingScript<ClientContext> implements MessageL
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		p = e.getPoint();
-		if (p.getX() >= 488 && p.getX() <= 511 && p.getY() >= 347 && p.getY() <= 365 && !paintToggle) {
-			if(!paintToggle)
-				paintToggle = true;
-			if(paintToggle)
-				paintToggle = false;
-		} 
+		if (p.getX() >= 488 && p.getX() <= 511 && p.getY() >= 347 && p.getY() <= 365 && !paintToggle){
+			paintToggle = true;
+		} else if (p.getX() >= 488 && p.getX() <= 511 && p.getY() >= 347 && p.getY() <= 365 && paintToggle){
+			paintToggle = false;
+		}
 		
 		if (p.getX() >= 230 && p.getX() <= 325 && p.getY() >= 458 && p.getY() <= 475 && paintToggle) {			
 			try {
