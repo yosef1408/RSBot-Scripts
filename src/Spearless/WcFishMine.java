@@ -11,17 +11,17 @@ import java.awt.*;
 
 
 /**
- * Created by Spearless 
+ * Created by Gaston on 23/05/2017.
  */
 
-@Manifest(name = "WcFishMine", properties = "author=Spearless; topic=1333332; client=4;", description = "The objective of the script is for new accounts to level up Mining, Woodcutting and Fishing. Start at Lumbridge with an axe, a pickaxe and a net, nothing else")
+@Manifest(name = "WcFishMine", properties = "author=Spearless; topic=1333332; client=4;", description = "The objective of the script is for new accounts to level up Mining, Woodcutting. Start at Lumbridge with an axe, a pickaxe and a net, nothing else")
 public class WcFishMine extends PollingScript<ClientContext>implements PaintListener {
    public Tile TILE_TO_ZONE[] = {new Tile(3223, 3216, 0), new Tile(3227, 3217, 0), new Tile(3231, 3218, 0), new Tile(3235, 3221, 0), new Tile(3236, 3225, 0), new Tile(3233, 3229, 0), new Tile(3230, 3232, 0), new Tile(3226, 3234, 0), new Tile(3223, 3237, 0), new Tile(3219, 3237, 0), new Tile(3215, 3237, 0), new Tile(3211, 3238, 0), new Tile(3208, 3241, 0), new Tile(3204, 3242, 0), new Tile(3200, 3242, 0), new Tile(3195, 3241, 0), new Tile(3192, 3244, 0), new Tile(3188, 3246, 0), new Tile(3184, 3246, 0), new Tile(3180, 3248, 0), new Tile(3177, 3252, 0), new Tile(3172, 3253, 0), new Tile(3168, 3254, 0), new Tile(3164, 3254, 0), new Tile(3160, 3254, 0), new Tile(3156, 3254, 0), new Tile(3151, 3254, 0), new Tile(3147, 3253, 0), new Tile(3143, 3251, 0), new Tile(3139, 3251, 0), new Tile(3137, 3247, 0), new Tile(3136, 3251, 0), new Tile(3136, 3255, 0), new Tile(3135, 3259, 0), new Tile(3131, 3261, 0), new Tile(3127, 3263, 0), new Tile(3123, 3263, 0), new Tile(3119, 3263, 0), new Tile(3115, 3263, 0), new Tile(3111, 3263, 0), new Tile(3107, 3263, 0),
             new Tile(3103, 3263, 0), new Tile(3103, 3259, 0), new Tile(3102, 3255, 0), new Tile(3098, 3253, 0), new Tile(3095, 3250, 0), new Tile(3091, 3250, 0), new Tile(3087, 3250, 0), new Tile(3084, 3253, 0), new Tile(3080, 3255, 0), new Tile(3076, 3257, 0), new Tile(3074, 3261, 0), new Tile(3074, 3265, 0), new Tile(3074, 3269, 0), new Tile(3074, 3273, 0), new Tile(3071, 3276, 0), new Tile(3067, 3276, 0), new Tile(3064, 3273, 0), new Tile(3061, 3270, 0), new Tile(3059, 3266, 0), new Tile(3055, 3264, 0), new Tile(3051, 3264, 0), new Tile(3047, 3264, 0), new Tile(3043, 3264, 0), new Tile(3039, 3262, 0), new Tile(3035, 3263, 0), new Tile(3031, 3263, 0), new Tile(3027, 3263, 0), new Tile(3023, 3263, 0), new Tile(3019, 3261, 0), new Tile(3015, 3262, 0), new Tile(3011, 3262, 0), new Tile(3007, 3262, 0), new Tile(3004, 3259, 0), new Tile(3000, 3258, 0), new Tile(2996, 3258, 0), new Tile(2996, 3258, 0), new Tile(2994, 3254, 0), new Tile(2994, 3250, 0), new Tile(2994, 3246, 0), new Tile(2994, 3242, 0), new Tile(2994, 3238, 0), new Tile(2991, 3235, 0), new Tile(2988, 3232, 0), new Tile(2987, 3236, 0), new Tile(2985, 3240, 0), new Tile(2983, 3244, 0)};
 
    public Tile TILE_TO_FISHINGZONE[] = {new Tile(3222, 3218, 0), new Tile(3226, 3218, 0), new Tile(3230, 3218, 0), new Tile(3232, 3214, 0), new Tile(3233, 3210, 0), new Tile(3234, 3206, 0), new Tile(3237, 3202, 0), new Tile(3239, 3198, 0), new Tile(3241, 3194, 0), new Tile(3244, 3191, 0), new Tile(3244, 3187, 0), new Tile(3244, 3183, 0), new Tile(3242, 3179, 0), new Tile(3241, 3175, 0), new Tile(3241, 3171, 0), new Tile(3241, 3167, 0), new Tile(3241, 3163, 0), new Tile(3241, 3159, 0), new Tile(3241, 3155, 0), new Tile(3241, 3151, 0), new Tile(3239, 3147, 0)};
     public Tile WALKING_BACK_FISHING[] = {new Tile(3239, 3146, 0), new Tile(3239, 3150, 0), new Tile(3239, 3154, 0), new Tile(3239, 3158, 0), new Tile(3239, 3162, 0), new Tile(3239, 3166, 0), new Tile(3239, 3170, 0), new Tile(3239, 3174, 0), new Tile(3239, 3178, 0), new Tile(3239, 3182, 0), new Tile(3240, 3186, 0), new Tile(3243, 3189, 0), new Tile(3244, 3193, 0), new Tile(3241, 3196, 0), new Tile(3240, 3200, 0), new Tile(3236, 3203, 0), new Tile(3236, 3207, 0), new Tile(3236, 3211, 0), new Tile(3235, 3215, 0), new Tile(3232, 3218, 0), new Tile(3228, 3218, 0), new Tile(3224, 3218, 0)};
-    public Area TREE_AREA = new Area(new Tile(2978, 3261), new Tile(2987, 3254));
+    public Area TREE_AREA = new Area(new Tile(2977, 3262), new Tile(2988, 3253));
     public Area MINING_AREA = new Area(new Tile(2974, 3253), new Tile(2995, 3232));
     public Area LUMB_AREA = new Area(new Tile(2990, 3280, 0), new Tile(3234, 3217));
     public Area FISHING_AREA = new Area(new Tile(3230, 3154), new Tile(3247, 3145));
@@ -30,7 +30,7 @@ public class WcFishMine extends PollingScript<ClientContext>implements PaintList
     public int treeID[] = {1278, 1276};
     public int logsINVID = 1511;
     public int fishinSpotID = 1530;
-    public int fishingInvID=317;
+    public int fishingInvID[]={317,319};
     public Color fishingColorBox= new Color(44, 200, 196);
     public Color woodColorBox = new Color(46, 200, 27);
     public Color mouseColor = new Color(209, 37, 16), boxColor = new Color(209, 30, 12), textColor = new Color(0, 0, 0);
@@ -42,7 +42,7 @@ public class WcFishMine extends PollingScript<ClientContext>implements PaintList
 
     private Npc fishingSpot = ctx.npcs.select().id(fishinSpotID).poll();
 
-    private void moveToInv() {
+    public void moveToInv() {
 
         Random randomINVX = new Random();
         Random randomINVY = new Random();
@@ -74,7 +74,7 @@ public class WcFishMine extends PollingScript<ClientContext>implements PaintList
         moveToInv();
     }
 
-    private void antiBan() {
+    public void antiBan() {
         Random randomXSK = new Random();
         Random randomYSK = new Random();
         int x = randomXSK.nextInt(900);
@@ -103,7 +103,6 @@ public class WcFishMine extends PollingScript<ClientContext>implements PaintList
             });
         }
     }
-
     private void walkingFromFishing() {
         TilePath path = ctx.movement.newTilePath(WALKING_BACK_FISHING);
         path.randomize(2, 2);
@@ -215,9 +214,9 @@ public class WcFishMine extends PollingScript<ClientContext>implements PaintList
         ctx.input.speed(100);
         initialTime = System.currentTimeMillis();
         initialMinExp = ctx.skills.experience(Constants.SKILLS_MINING);
-        initialWCExp = ctx.skills.experience((Constants.SKILLS_WOODCUTTING));
-        initialFishExp= ctx.skills.experience(((Constants.SKILLS_FISHING)));
-        initFishLevel= ctx.skills.level((Constants.SKILLS_FISHING));
+        initialWCExp = ctx.skills.experience(Constants.SKILLS_WOODCUTTING);
+        initialFishExp= ctx.skills.experience(Constants.SKILLS_FISHING);
+        initFishLevel= ctx.skills.level(Constants.SKILLS_FISHING);
         initMinLevel= ctx.skills.level(Constants.SKILLS_MINING);
         initWCLevel= ctx.skills.level(Constants.SKILLS_WOODCUTTING);
 
@@ -243,9 +242,9 @@ public class WcFishMine extends PollingScript<ClientContext>implements PaintList
 
             case WALKBACKLUMB:
 
-if(minutes>180) {
-    walkingFromFishing();
-}
+                if(minutes>180) {
+                    walkingFromFishing();
+                }
                 break;
             case FISH:
                 fishing();
@@ -273,9 +272,6 @@ if(minutes>180) {
                 }
                 log.info("Dropping");
 
-
-
-
                 break;
 
             case MINE:
@@ -283,34 +279,11 @@ if(minutes>180) {
                 Random random = new Random();
                 int x = random.nextInt(29);
                 switch (x) {
-                    case 0:
-                        mineRocks();
-                    case 1:
-                        mineRocks();
-                        break;
-                    case 2:
-                        mineRocks();
-                        break;
-                    case 3:
-                        mineRocks();
-                        break;
                     case 4:
                         antiBan();
                         break;
                     case 5:
                         antiBan();
-                        break;
-                    case 6:
-                        mineRocks();
-                        break;
-                    case 7:
-                        mineRocks();
-                        break;
-                    case 8:
-                        mineRocks();
-                        break;
-                    case 9:
-                        mineRocks();
                         break;
                     case 10:
                         try {
@@ -319,56 +292,13 @@ if(minutes>180) {
                             e.printStackTrace();
                         }
                         break;
-                    case 11:
-                        mineRocks();
-                        break;
-                    case 12:
-                        mineRocks();
-                        break;
-                    case 13:
-                        mineRocks();
-                        break;
-                    case 14:
-                        mineRocks();
-                        break;
-                    case 15:
-                        mineRocks();
-                        break;
-                    case 16:
-                        mineRocks();
-                        break;
-                    case 17:
-                        mineRocks();
-                        break;
-                    case 18:
-                        mineRocks();
-                        break;
-                    case 19:
-                        mineRocks();
-                        break;
                     case 20:
                         antiBan();
                         break;
                     case 21:
                         antiBan();
                         break;
-                    case 22:
-                        mineRocks();
-                        break;
-                    case 23:
-                        mineRocks();
-                        break;
-                    case 27:
-                        mineRocks();
-
-                        break;
-                    case 28:
-                        mineRocks();
-                        break;
-                    case 29:
-                        mineRocks();
-                        break;
-
+                    default: mineRocks();
 
                 }
                 if (ctx.inventory.select().count() == 28) {
@@ -394,11 +324,10 @@ if(minutes>180) {
             return State.WALKLUMB;
 
         } else if (rock.inViewport() && ctx.inventory.select().id(logsINVID).count() == 0 && minutes < 60&& MINING_AREA.contains(ctx.players.local()) || minutes >180 && minutes<= 240&& MINING_AREA.contains(ctx.players.local()) ) {
-            log.info("MINING");
 
             dropFish();
             return State.MINE;
-        } else if (minutes > 60 && minutes < 119|| minutes>240&& minutes<300) {
+        } else if (minutes >= 60 && minutes < 119|| minutes>240&& minutes<300) {
           dropOresAtEnd();
             log.info("Woodcuting");
             return State.CHOP;
@@ -439,8 +368,9 @@ if(minutes>180) {
         minutes=(int)((System.currentTimeMillis()-initialTime)/60000);
         seconds=(int)((System.currentTimeMillis()-initialTime)/1000)%60;
         runTime= (double)(System.currentTimeMillis()-initialTime)/3600000;
-
-
+int xperhourMin = (int) (expGained/runTime);
+int xperHourFish= (int)(expGainedFish/runTime);
+        int xperHourWc= (int)(expGainedWC/runTime);
         g.setColor(boxColor);
         g.fillRoundRect(8,340,300,140,50,5);
         g.setColor((textColor));
@@ -457,8 +387,9 @@ if(minutes>180) {
         g.drawString("1.00 v",250,364);
         g.setFont(font);
         g.drawString("Experienced gained: "+expGained,22,394 );
-        g.drawString("Time running: "+minutes+ " :"+seconds,22,424 );
-        g.drawString("Levels gained : " +MinLevel,22,454);
+        g.drawString("Time running: "+minutes+ " :"+seconds,22,416 );
+        g.drawString("Levels gained : " +MinLevel,22,438);
+        g.drawString("XP/Hour = " +xperhourMin,22,460);
 
         g.setColor(woodColorBox);
         g.fillRoundRect(300,340,220,140,5,5);
@@ -468,8 +399,9 @@ if(minutes>180) {
         g.drawString("1.00 v",450,364);
         g.setFont(font);
         g.drawString("Levels gained :" +WCLevel,310,470);
-        g.drawString("Experience gained: "+expGainedWC,310,400);
-        g.drawString("Time Running: " + minutes+ ": " + seconds,310,435);
+        g.drawString("Experience gained: "+expGainedWC,310,440);
+        g.drawString("Time Running: " + minutes+ ": " + seconds,310,410);
+        g.drawString("XP/Hour = " + xperHourWc,310,380);
 
         g.setColor(fishingColorBox);
         g.fillRoundRect(300,210,220,126,5,5);
@@ -477,9 +409,16 @@ if(minutes>180) {
         g.setFont(titleFont);
         g.drawString("Fishing",380,230);
         g.setFont(font);
-        g.drawString("Fishing levels gained : " +fishLevel,320,290);
-        g.drawString("Experience gained : " + expGainedFish,320,250);
-
+        g.drawString("Fishing levels gained : " +fishLevel,320,270);
+        g.drawString("Experience gained : " + expGainedFish,320,300);
+        g.drawString("XP/ Hour = " + xperHourFish,320,330);
+        long thickness = 4;
+        BasicStroke basic= new BasicStroke(thickness);
+        g.setColor(Color.black);
+        g.setStroke(basic);
+        g.drawRect(300,210,220,126);
+        g.drawRect(300,340,220,140);
+        g.drawRect(8,340,290,140);
 
 
     }
