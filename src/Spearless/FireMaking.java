@@ -3,14 +3,16 @@ package Spearless;
 import org.powerbot.script.*;
 import org.powerbot.script.rt4.*;
 import org.powerbot.script.rt4.ClientContext;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.*;
+import java.util.Random;
 
-@Script.Manifest(name = "FireMaking", properties = "author=Spearless; topic=1333740; client=4;", description = "Firemaking Varrock West baank. Oak, Willow and normal Logs")
+@Script.Manifest(name = "FireMaking", properties = "author=Spearless; topic=1333740; client=4;", description = "Firemaking Varrock West baank. Oak, Willow,Yew,Maple and normal Logs")
 public class FireMaking extends PollingScript<ClientContext> implements MessageListener,PaintListener {
+
     int switcher;
     String logs;
     int problem=0;
@@ -49,14 +51,37 @@ int lighter=1;
         final JButton OLogs= new JButton("Oak logs");
         final JButton Nlogs= new JButton("Logs");
         final JButton WLogs = new JButton("Willow logs");
+        final JButton YLogs= new JButton("Yew logs");
+        final JButton MLogs= new JButton("Maple logs");
         JPanel panel = new JPanel();
+
         panel.add(CF);
         panel.add(BF);
+
         panel.add(Nlogs);
         panel.add(OLogs);
         panel.add(WLogs);
+        panel.add(YLogs);
+        panel.add(MLogs);
         frame.add(panel);
-
+        MLogs.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                if(MLogs.isEnabled()){
+                    LOGSIDINV=1517;
+                    logs="Maple logs";
+                }
+            }
+        });
+YLogs.addActionListener(new ActionListener() {
+    @Override
+    public void actionPerformed(ActionEvent actionEvent) {
+        if(YLogs.isEnabled()){
+            LOGSIDINV=1515;
+            logs="Yew logs";
+        }
+    }
+});
         CF.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
@@ -110,6 +135,11 @@ int lighter=1;
 
     }
     public void start(){
+        try {
+            checkingFiremakingSkill();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         frame();
         int x=ctx.input.speed(100);
         initime=System.currentTimeMillis();
@@ -117,6 +147,59 @@ int lighter=1;
         FMExpInit= ctx.skills.experience(Constants.SKILLS_FIREMAKING);
         status="Setting up";
         log.info(""+x);
+
+    }
+    public void moveToInv() {
+
+        Random randomINVX = new Random();
+        Random randomINVY = new Random();
+        int invx = randomINVX.nextInt(30) + 627;
+        int invy = randomINVY.nextInt(30) + 169;
+        ctx.input.move(invx, invy);
+        ctx.input.click(true);
+    }
+    void checkingFiremakingSkill() throws InterruptedException {
+        Random random = new Random();
+        int speed= random.nextInt(3);
+        int x = random.nextInt(30) + 560;
+        int y = random.nextInt(31) + 170;
+        ctx.input.move(x, y);
+        ctx.input.click(true);
+
+        int xsk = random.nextInt(60) + 674;
+        int ysk = random.nextInt(30) + 333;
+        ctx.input.move(xsk, ysk);
+
+        Random randomsleep = new Random();
+        int sleepe = randomsleep.nextInt(2000);
+        Thread.sleep(2000 + sleepe);
+
+        moveToInv();
+        log.info(""+ x+xsk+ysk);
+
+    }
+    void changeMouseSpeed(){
+        java.util.Random random= new Random();
+        int x= random.nextInt(15);
+        int mouseSpeed= random.nextInt(5);
+        Random random1= new Random();
+        Random random2= new Random();
+        int x1= random1.nextInt(800);
+        int y1=random2.nextInt(800);
+        switch(x){
+            case 1:
+                ctx.input.move(x1,y1);
+                break;
+            case 3:
+                ctx.input.move(x1,y1);
+                break;
+            default:
+                ctx.input.speed(mouseSpeed);
+                break;
+        }
+
+
+
     }
 
     void movingTile(){
@@ -139,6 +222,8 @@ int lighter=1;
 
         switch (state()) {
             case LIGHT:
+
+                changeMouseSpeed();
                 ctx.input.speed(90);
                 if( ctx.players.local().animation()==-1 && lighter==1||ctx.players.local().animation()==-1&& lighter==2|| START_AREA.contains(ctx.players.local()) && ctx.players.local().animation()==-1&& (lighter==1||lighter==2)) {
                     status = "Lighting";
@@ -158,6 +243,7 @@ int lighter=1;
                 problem=0;
                 break;
             case GOLIGHTAREA:
+                changeMouseSpeed();
                 status="Going to lighting area";
                 movePlayer();
 
@@ -173,6 +259,7 @@ int lighter=1;
                 break;
             case CHOP:
 
+                changeMouseSpeed();
                 status="Chopping";
                 tree= ctx.objects.select().id(LogsID).nearest().poll();
                 if( !ctx.players.local().inMotion()&&ctx.players.local().animation()==-1&&TREE_AREA.contains(tree)){
@@ -184,12 +271,14 @@ int lighter=1;
                 break;
             case COMEBACKTOFIRING:
 
+                changeMouseSpeed();
                 status="Going to lighting zone";
                 TilePath path1= ctx.movement.newTilePath(TILE_TO_FIRING_AREA);
                 path1.randomize(2,2);
                 path1.traverse();
                 break;
             case BANK:
+                changeMouseSpeed();
                 status="Getting Logs";
                 TilePath path3= ctx.movement.newTilePath(tileToBank);
                 path3.randomize(2,2);
@@ -238,6 +327,13 @@ int lighter=1;
     }
     public void repaint(Graphics g1) {
         Graphics2D g2 = (Graphics2D) g1;
+        int posx= (int) ctx.input.getLocation().getX();
+        int posy= (int) ctx.input.getLocation().getY();
+        g2.setColor(Color.RED);
+        g2.drawLine(posx,posy-10,posx,posy+10);
+        g2.drawLine(posx-10,posy,posx+10,posy);
+        g2.setColor(Color.ORANGE);
+        g2.drawOval(posx-9,posy-9,18,18);
 
         int currentExp = ctx.skills.experience(Constants.SKILLS_FIREMAKING);
         int currLevel = ctx.skills.level(Constants.SKILLS_FIREMAKING);
@@ -274,6 +370,7 @@ int lighter=1;
         g2.setColor(Color.red);
         g2.setStroke(basic);
         g2.drawRect(290, 15, 225, 40);
+
 
     }
     public void messaged(MessageEvent me) {
