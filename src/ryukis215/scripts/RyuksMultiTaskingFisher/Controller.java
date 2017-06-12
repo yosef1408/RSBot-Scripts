@@ -3,6 +3,7 @@ package ryukis215;
 
 
 import java.awt.Color;
+import java.awt.Desktop;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -10,9 +11,13 @@ import java.awt.Image;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.font.TextAttribute;
 import java.awt.image.RenderedImage;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.text.AttributedString;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
@@ -28,12 +33,8 @@ import org.powerbot.script.Script;
 import org.powerbot.script.rt4.ClientContext;
 import org.powerbot.script.rt4.Constants;
 import org.powerbot.script.rt4.GroundItem;
-import org.powerbot.script.rt4.Item;
-import org.powerbot.script.rt4.ItemQuery;
 import org.powerbot.script.rt4.Npc;
 import org.powerbot.script.rt4.Player;
-
-
 
 @Script.Manifest(name = "Ryuk's MultiTasking Fisher", description = "Farms feathers at lumbridge and powerfishes at barbarian village.", properties = "author:ryukis215; topic=1333385; client=4;")
 public class Controller extends PollingScript<ClientContext> implements MessageListener, PaintListener, MouseListener {
@@ -43,16 +44,19 @@ public class Controller extends PollingScript<ClientContext> implements MessageL
 	Npc chicken;
 	String mode;//fight,fish,travel_to_fight,travel_to_fish
 	int featherCount;
-	int featherCountAim = 100;//feathers we aim to collect
-	int featherCountAimUpper = 600;//upper and lower val of rand to aim for
-	int featherCountAimLower = 400;
+	int featherCountAim = Random.nextInt(400,600);//feathers we aim to collect
+	static int featherCountAimUpper = 600;//upper and lower val of rand to aim for
+	static int featherCountAimLower = 400;
 	GroundItem feather;
 	String fishingAction = "Lure";
-	String version = "v1.2";
+	static String fullAction = "cook";
+	String version = "v1.3";
 	
 	/* ---Paint---*/
-	int startExp = ctx.skills.experience(Constants.SKILLS_FISHING);
-	int xpDif = 0;
+	int startExpFishing = ctx.skills.experience(Constants.SKILLS_FISHING);
+	int startExpCooking = ctx.skills.experience(Constants.SKILLS_COOKING);
+	int xpDifFishing = 0;
+	int xpDifCooking = 0;
 	int caughtCounter = 0;
 	public static long startTime = System.currentTimeMillis();
 	String timeElapsed  = "N/A";
@@ -69,6 +73,7 @@ public class Controller extends PollingScript<ClientContext> implements MessageL
 	Antiban antiban; 
 	Actions action; 
 	Checks check; 
+	static ControllerGUI gui;
 	
 	@Override
 	public void start(){
@@ -76,6 +81,7 @@ public class Controller extends PollingScript<ClientContext> implements MessageL
 		action = new Actions();
 		check = new Checks();
 		
+		 gui = new ControllerGUI();
 		
 		//mode = "debug";
 		if(mode != "debug"){
@@ -90,7 +96,8 @@ public class Controller extends PollingScript<ClientContext> implements MessageL
 	public void stop(){
 		System.out.println("last mode: " + mode);
 		System.out.println("Time Elapsed: "+timeElapsed);
-		System.out.println("Exp p/hr(gained): " +perHour(xpDif) + "(" + formatNumber(xpDif) + ")");	
+		System.out.println("Exp p/hr Fishing (gained): " +perHour(xpDifFishing) + "(" + formatNumber(xpDifFishing) + ")");
+		System.out.println("Exp p/hr Cooking (gained): " +perHour(xpDifCooking) + "(" + formatNumber(xpDifCooking) + ")");	
 		System.out.println("catch p/hr(caught): " + getPerHour(caughtCounter) +"("+caughtCounter + ")");
 	}
 	
@@ -98,7 +105,8 @@ public class Controller extends PollingScript<ClientContext> implements MessageL
 	public void poll() {
 		featherCount = check.itemQuantity(314);
 		timeElapsed = runTime(startTime);
-		xpDif = ctx.skills.experience(Constants.SKILLS_FISHING) - startExp;
+		xpDifFishing = ctx.skills.experience(Constants.SKILLS_FISHING) - startExpFishing;
+		xpDifCooking = ctx.skills.experience(Constants.SKILLS_COOKING) - startExpCooking;
 
 		if(mode == "fish"){
 			currentlyFishing = check.checkIfFishing();//establish whether we're currently fishing or not
@@ -111,13 +119,13 @@ public class Controller extends PollingScript<ClientContext> implements MessageL
 
 		if(mode == "fight"){
 			feather = check.findFeathers();
-			if(featherCount >= featherCountAim){//if we've reached our feather count aim, go back to fishing
+			if(featherCount >= featherCountAim){
 				mode = "travel_to_fish";
 				feather = null;
 			}
 		}
 	
-		if(ctx.inventory.select().id(526).count() >= 1)
+		if(ctx.inventory.select().id(526).count() >= 1)//bury bones
 			ctx.inventory.select().id(526).poll().click(true);
 			
 		
@@ -136,7 +144,13 @@ public class Controller extends PollingScript<ClientContext> implements MessageL
 				break;
 			case FULL:
 					status = "FULL";
-					action.dropFishes();
+					if(fullAction == "drop")
+						action.dropFishes();
+					if(fullAction == "cook")
+						action.cookFishes();
+					if(fullAction == "cook" && ctx.inventory.select().id(331, 335).count() <= 0)
+						action.dropFishes();
+					
 				break;
 			case FIGHT:
 					status = "FIGHT";
@@ -200,7 +214,6 @@ public class Controller extends PollingScript<ClientContext> implements MessageL
 				System.out.println("Don't know what to do....logging out. ");
 				break;
 			case DEBUG:
-				action.openGate();
 				break;
 		}
 	}
@@ -211,7 +224,7 @@ public class Controller extends PollingScript<ClientContext> implements MessageL
 	
 	private State getState() {
 		
-		if(ctx.movement.energyLevel() > 20 && !ctx.movement.running(true)) return State.RUN;
+		if(ctx.movement.energyLevel() > Random.nextInt(13,23) && !ctx.movement.running(true)) return State.RUN;
 		
 		if(mode == "fight"){
 			if(feather.valid() && feather != null && !player.interacting().equals(chicken)){
@@ -225,7 +238,7 @@ public class Controller extends PollingScript<ClientContext> implements MessageL
 			return State.TRAVEL_FISH;
 		}else if(mode == "fish"){
 			if (check.inventoryLength() == 28) return State.FULL;
-			if(currentlyFishing && Random.nextInt(1, 1000) > 993){
+			if(currentlyFishing && Random.nextInt(1, 1000) > 994){
 				return State.ANTIBAN;
 			}else{
 				return State.FISH;
@@ -236,12 +249,7 @@ public class Controller extends PollingScript<ClientContext> implements MessageL
 		}else{
 			
 			return State.LOGOUT;
-		}
-		
-		
-		
-			
-		
+		}	
 	}
 
 	
@@ -299,7 +307,7 @@ public class Controller extends PollingScript<ClientContext> implements MessageL
 	
 	private void loadPaint(){
 	    try {
-	    	URL fishImgURL = new URL("http://i.imgur.com/zbUkHw2.png");
+	    	URL fishImgURL = new URL("http://i.imgur.com/raz1gLW.png");
 	    	paintImg = ImageIO.read(fishImgURL);
 			paintLoaded = true;
 		} catch (IOException e) {
@@ -321,28 +329,54 @@ public class Controller extends PollingScript<ClientContext> implements MessageL
 			gfx.setFont(font);
 			gfx.setColor(textColorGold);
 			gfx.getFont();
-			gfx.drawString(timeElapsed, 235, 403);
-			gfx.drawString(Integer.toString(caughtCounter), 235, 428);
-			gfx.drawString("Fishing EXP/hr ", 235, 453);
-			gfx.drawString(perHour(xpDif) + "(" + formatNumber(xpDif) + ")", 235, 468);
-			gfx.drawString("Catch/hr ", 380, 455);		
-			gfx.drawString(getPerHour(caughtCounter), 380, 468);
-			gfx.drawString(version, 467, 468);
+
+			gfx.setFont(new Font("TimesRoman", Font.PLAIN, 27)); 
+			gfx.drawString(timeElapsed, 235, 400);
+			
+			gfx.setFont(new Font("TimesRoman", Font.PLAIN, 18)); 
+			gfx.drawString("Cooking EXP/hr ", 109, 423);
+			gfx.drawString(perHour(xpDifCooking) + "(" + formatNumber(xpDifCooking) + ")", 109, 442);
+			
+			gfx.drawString("Fishing EXP/hr ", 244, 423);
+			gfx.drawString(perHour(xpDifFishing) + "(" + formatNumber(xpDifFishing) + ")", 244, 442);
+			
+			gfx.drawString("Catch/hr ", 378, 423);		
+			gfx.drawString(getPerHour(caughtCounter) + "(" + Integer.toString(caughtCounter) + ")", 378, 442);
+			
+		    
+			gfx.setFont(new Font("TimesRoman", Font.ITALIC, 13)); 
+			AttributedString ft = new AttributedString("Forum Thread");
+		    ft.addAttribute(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON, 0, 12);
+			gfx.drawString(ft.getIterator(), 244, 470);
+			
+			gfx.setFont(new Font("TimesRoman", Font.PLAIN, 12)); 
+			gfx.drawString(version, 472, 468);
 		}
+		gfx.setFont(new Font("TimesRoman", Font.BOLD, 16)); 
 		gfx.setColor(Color.BLACK);	
 		gfx.fillOval(488, 347, 25, 25);
 		gfx.setColor(textColorGold);
 		gfx.drawString("X", 495, 365);
 	}
-
+	
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		p = e.getPoint();
 		if (p.getX() >= 488 && p.getX() <= 511 && p.getY() >= 347 && p.getY() <= 365 && !paintToggle) {
-			paintToggle = true;
-		} else if(p.getX() >= 488 && p.getX() <= 511 && p.getY() >= 347 && p.getY() <= 365 && paintToggle){
-			paintToggle = false;
-		}
+			if(!paintToggle)
+				paintToggle = true;
+			if(paintToggle)
+				paintToggle = false;
+		} 
+		
+		if (p.getX() >= 230 && p.getX() <= 325 && p.getY() >= 458 && p.getY() <= 475 && paintToggle) {			
+			try {
+				final URI uri = new URI("https://www.powerbot.org/community/topic/1333385-osrs-multitask-cooking-ryuks-powerfisher-farm-feathers-farm-fish-repeat/");
+				Desktop.getDesktop().browse(uri);
+			} catch (IOException | URISyntaxException e1) {
+				e1.printStackTrace();
+			}
+		} 
 	}
 
 	@Override
