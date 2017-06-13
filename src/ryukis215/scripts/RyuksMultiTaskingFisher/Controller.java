@@ -3,7 +3,6 @@ package ryukis215;
 
 
 import java.awt.Color;
-import java.awt.Desktop;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -11,19 +10,14 @@ import java.awt.Image;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.font.TextAttribute;
 import java.awt.image.RenderedImage;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
-import java.text.AttributedString;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
 import javax.imageio.ImageIO;
 
-import org.powerbot.script.AbstractScript;
 import org.powerbot.script.Condition;
 import org.powerbot.script.MessageEvent;
 import org.powerbot.script.MessageListener;
