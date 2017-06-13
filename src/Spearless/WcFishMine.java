@@ -52,7 +52,6 @@ public class WcFishMine extends PollingScript<ClientContext>implements PaintList
         ctx.input.move(invx, invy);
         ctx.input.click(true);
     }
-
     public void checkMiningSkill() throws InterruptedException {
 
         Random randX = new Random();
