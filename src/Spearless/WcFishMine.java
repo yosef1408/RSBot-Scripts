@@ -25,7 +25,7 @@ public class WcFishMine extends PollingScript<ClientContext>implements PaintList
     public Area MINING_AREA = new Area(new Tile(2974, 3253), new Tile(2995, 3232));
     public Area LUMB_AREA = new Area(new Tile(2990, 3280, 0), new Tile(3234, 3217));
     public Area FISHING_AREA = new Area(new Tile(3230, 3154), new Tile(3247, 3145));
-    public Area TREEPLAYER_AREA= new Area(new Tile(2974,3265), new Tile(2997,3251));
+    public Area TREEPLAYER_AREA= new Area(new Tile(2974,3267), new Tile(2997,3251));
     public int clayID[] = {7453, 7484};
     public int copperINVID = 436;
     public int treeID[] = {1278, 1276};
