@@ -23,6 +23,7 @@ import java.text.NumberFormat;
 
 import javax.imageio.ImageIO;
 
+import org.powerbot.script.AbstractScript;
 import org.powerbot.script.Condition;
 import org.powerbot.script.MessageEvent;
 import org.powerbot.script.MessageListener;
@@ -30,13 +31,11 @@ import org.powerbot.script.PaintListener;
 import org.powerbot.script.PollingScript;
 import org.powerbot.script.Random;
 import org.powerbot.script.Script;
-import org.powerbot.script.Tile;
 import org.powerbot.script.rt4.ClientContext;
 import org.powerbot.script.rt4.Constants;
 import org.powerbot.script.rt4.GroundItem;
 import org.powerbot.script.rt4.Npc;
 import org.powerbot.script.rt4.Player;
-import org.powerbot.script.rt4.TilePath;
 
 @Script.Manifest(name = "Ryuk's MultiTasking Fisher", description = "Farms feathers at lumbridge and powerfishes at barbarian village.", properties = "author:ryukis215; topic=1333385; client=4;")
 public class Controller extends PollingScript<ClientContext> implements MessageListener, PaintListener, MouseListener {
@@ -346,12 +345,6 @@ public class Controller extends PollingScript<ClientContext> implements MessageL
 			gfx.drawString("Catch/hr ", 378, 423);		
 			gfx.drawString(getPerHour(caughtCounter) + "(" + Integer.toString(caughtCounter) + ")", 378, 442);
 			
-		    
-			gfx.setFont(new Font("TimesRoman", Font.ITALIC, 13)); 
-			AttributedString ft = new AttributedString("Forum Thread");
-		    ft.addAttribute(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON, 0, 12);
-			gfx.drawString(ft.getIterator(), 244, 470);
-			
 			gfx.setFont(new Font("TimesRoman", Font.PLAIN, 12)); 
 			gfx.drawString(version, 472, 468);
 		}
@@ -370,22 +363,6 @@ public class Controller extends PollingScript<ClientContext> implements MessageL
 		} else if (p.getX() >= 488 && p.getX() <= 511 && p.getY() >= 347 && p.getY() <= 365 && paintToggle){
 			paintToggle = false;
 		}
-		
-		if (p.getX() >= 230 && p.getX() <= 325 && p.getY() >= 458 && p.getY() <= 475 && paintToggle) {
-			
-			URI uri = null;
-			try {
-				uri = new URI("https://www.powerbot.org/community/topic/1333385-osrs-multitask-cooking-ryuks-powerfisher-farm-feathers-farm-fish-repeat/");
-			} catch (URISyntaxException e2) {
-				e2.printStackTrace();
-			}
-
-			try {
-				Desktop.getDesktop().browse(uri);
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
-		} 
 	}
 
 	@Override
