@@ -30,11 +30,13 @@ import org.powerbot.script.PaintListener;
 import org.powerbot.script.PollingScript;
 import org.powerbot.script.Random;
 import org.powerbot.script.Script;
+import org.powerbot.script.Tile;
 import org.powerbot.script.rt4.ClientContext;
 import org.powerbot.script.rt4.Constants;
 import org.powerbot.script.rt4.GroundItem;
 import org.powerbot.script.rt4.Npc;
 import org.powerbot.script.rt4.Player;
+import org.powerbot.script.rt4.TilePath;
 
 @Script.Manifest(name = "Ryuk's MultiTasking Fisher", description = "Farms feathers at lumbridge and powerfishes at barbarian village.", properties = "author:ryukis215; topic=1333385; client=4;")
 public class Controller extends PollingScript<ClientContext> implements MessageListener, PaintListener, MouseListener {
@@ -214,6 +216,7 @@ public class Controller extends PollingScript<ClientContext> implements MessageL
 				System.out.println("Don't know what to do....logging out. ");
 				break;
 			case DEBUG:
+	
 				break;
 		}
 	}
@@ -368,11 +371,18 @@ public class Controller extends PollingScript<ClientContext> implements MessageL
 			paintToggle = false;
 		}
 		
-		if (p.getX() >= 230 && p.getX() <= 325 && p.getY() >= 458 && p.getY() <= 475 && paintToggle) {			
+		if (p.getX() >= 230 && p.getX() <= 325 && p.getY() >= 458 && p.getY() <= 475 && paintToggle) {
+			
+			URI uri = null;
 			try {
-				final URI uri = new URI("https://www.powerbot.org/community/topic/1333385-osrs-multitask-cooking-ryuks-powerfisher-farm-feathers-farm-fish-repeat/");
+				uri = new URI("https://www.powerbot.org/community/topic/1333385-osrs-multitask-cooking-ryuks-powerfisher-farm-feathers-farm-fish-repeat/");
+			} catch (URISyntaxException e2) {
+				e2.printStackTrace();
+			}
+
+			try {
 				Desktop.getDesktop().browse(uri);
-			} catch (IOException | URISyntaxException e1) {
+			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
 		} 
