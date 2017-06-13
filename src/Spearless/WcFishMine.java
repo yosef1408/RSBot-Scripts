@@ -21,10 +21,11 @@ public class WcFishMine extends PollingScript<ClientContext>implements PaintList
 
    public Tile TILE_TO_FISHINGZONE[] = {new Tile(3222, 3218, 0), new Tile(3226, 3218, 0), new Tile(3230, 3218, 0), new Tile(3232, 3214, 0), new Tile(3233, 3210, 0), new Tile(3234, 3206, 0), new Tile(3237, 3202, 0), new Tile(3239, 3198, 0), new Tile(3241, 3194, 0), new Tile(3244, 3191, 0), new Tile(3244, 3187, 0), new Tile(3244, 3183, 0), new Tile(3242, 3179, 0), new Tile(3241, 3175, 0), new Tile(3241, 3171, 0), new Tile(3241, 3167, 0), new Tile(3241, 3163, 0), new Tile(3241, 3159, 0), new Tile(3241, 3155, 0), new Tile(3241, 3151, 0), new Tile(3239, 3147, 0)};
     public Tile WALKING_BACK_FISHING[] = {new Tile(3239, 3146, 0), new Tile(3239, 3150, 0), new Tile(3239, 3154, 0), new Tile(3239, 3158, 0), new Tile(3239, 3162, 0), new Tile(3239, 3166, 0), new Tile(3239, 3170, 0), new Tile(3239, 3174, 0), new Tile(3239, 3178, 0), new Tile(3239, 3182, 0), new Tile(3240, 3186, 0), new Tile(3243, 3189, 0), new Tile(3244, 3193, 0), new Tile(3241, 3196, 0), new Tile(3240, 3200, 0), new Tile(3236, 3203, 0), new Tile(3236, 3207, 0), new Tile(3236, 3211, 0), new Tile(3235, 3215, 0), new Tile(3232, 3218, 0), new Tile(3228, 3218, 0), new Tile(3224, 3218, 0)};
-    public Area TREE_AREA = new Area(new Tile(2977, 3262), new Tile(2988, 3253));
+    public Area TREE_AREA = new Area(new Tile(2976, 3264), new Tile(2994, 3253));
     public Area MINING_AREA = new Area(new Tile(2974, 3253), new Tile(2995, 3232));
     public Area LUMB_AREA = new Area(new Tile(2990, 3280, 0), new Tile(3234, 3217));
     public Area FISHING_AREA = new Area(new Tile(3230, 3154), new Tile(3247, 3145));
+    public Area TREEPLAYER_AREA= new Area(new Tile(2974,3265), new Tile(2997,3251));
     public int clayID[] = {7453, 7484};
     public int copperINVID = 436;
     public int treeID[] = {1278, 1276};
@@ -187,22 +188,22 @@ public class WcFishMine extends PollingScript<ClientContext>implements PaintList
 
     private void chop() {
 
-        final GameObject tree = ctx.objects.select().id(treeID).nearest().poll();
-        if (!tree.inViewport()) {
+         GameObject tree = ctx.objects.select().id(treeID).nearest().poll();
+        if (!TREEPLAYER_AREA.contains(ctx.players.local())) {
             Tile[] goTreeTile = {new Tile(2982, 3256)};
             TilePath path = ctx.movement.newTilePath(goTreeTile);
             path.randomize(3, 3);
             path.traverse();
         }
-        if (ctx.players.local().animation() == -1 && tree.inViewport() && ctx.inventory.select().id(logsINVID).count() < 25 && TREE_AREA.contains(tree)) {
+        if (ctx.players.local().animation() == -1 &&  ctx.inventory.select().id(logsINVID).count() < 25 && TREEPLAYER_AREA.contains(ctx.players.local())&& !ctx.players.local().inMotion()) {
             tree.interact("Chop");
-            try {
-                Thread.sleep(3000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+
             log.info("Chopping");
 
+        }else{
+            if(!tree.inViewport())
+                ctx.objects.select().id(treeID).nearest().poll();
+            ctx.camera.turnTo(tree);
         }
 
     }
@@ -270,7 +271,7 @@ public class WcFishMine extends PollingScript<ClientContext>implements PaintList
                         }
                     });
                 }
-                log.info("Dropping");
+
 
                 break;
 
@@ -365,11 +366,12 @@ public class WcFishMine extends PollingScript<ClientContext>implements PaintList
         g.drawLine(x-10,y,x+10,y);
 
         hours=(int)((System.currentTimeMillis()-initialTime)/3600000);
-        minutes=(int)((System.currentTimeMillis()-initialTime)/60000);
+        minutes=(int)((System.currentTimeMillis()-initialTime)/60000)+60;
         seconds=(int)((System.currentTimeMillis()-initialTime)/1000)%60;
         runTime= (double)(System.currentTimeMillis()-initialTime)/3600000;
-int xperhourMin = (int) (expGained/runTime);
-int xperHourFish= (int)(expGainedFish/runTime);
+
+        int xperhourMin = (int) (expGained/runTime);
+        int xperHourFish= (int)(expGainedFish/runTime);
         int xperHourWc= (int)(expGainedWC/runTime);
         g.setColor(boxColor);
         g.fillRoundRect(8,340,300,140,50,5);
