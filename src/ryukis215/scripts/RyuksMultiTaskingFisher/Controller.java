@@ -3,7 +3,6 @@ package ryukis215;
 
 
 import java.awt.Color;
-import java.awt.Desktop;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -11,13 +10,9 @@ import java.awt.Image;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.font.TextAttribute;
 import java.awt.image.RenderedImage;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
-import java.text.AttributedString;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
@@ -214,6 +209,7 @@ public class Controller extends PollingScript<ClientContext> implements MessageL
 				System.out.println("Don't know what to do....logging out. ");
 				break;
 			case DEBUG:
+	
 				break;
 		}
 	}
@@ -343,12 +339,6 @@ public class Controller extends PollingScript<ClientContext> implements MessageL
 			gfx.drawString("Catch/hr ", 378, 423);		
 			gfx.drawString(getPerHour(caughtCounter) + "(" + Integer.toString(caughtCounter) + ")", 378, 442);
 			
-		    
-			gfx.setFont(new Font("TimesRoman", Font.ITALIC, 13)); 
-			AttributedString ft = new AttributedString("Forum Thread");
-		    ft.addAttribute(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON, 0, 12);
-			gfx.drawString(ft.getIterator(), 244, 470);
-			
 			gfx.setFont(new Font("TimesRoman", Font.PLAIN, 12)); 
 			gfx.drawString(version, 472, 468);
 		}
@@ -367,15 +357,6 @@ public class Controller extends PollingScript<ClientContext> implements MessageL
 		} else if (p.getX() >= 488 && p.getX() <= 511 && p.getY() >= 347 && p.getY() <= 365 && paintToggle){
 			paintToggle = false;
 		}
-		
-		if (p.getX() >= 230 && p.getX() <= 325 && p.getY() >= 458 && p.getY() <= 475 && paintToggle) {			
-			try {
-				final URI uri = new URI("https://www.powerbot.org/community/topic/1333385-osrs-multitask-cooking-ryuks-powerfisher-farm-feathers-farm-fish-repeat/");
-				Desktop.getDesktop().browse(uri);
-			} catch (IOException | URISyntaxException e1) {
-				e1.printStackTrace();
-			}
-		} 
 	}
 
 	@Override
