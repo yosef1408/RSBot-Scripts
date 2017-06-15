@@ -222,10 +222,10 @@ public class FireMaking extends PollingScript<ClientContext> implements MessageL
 
         switch (state()) {
             case LIGHT:
-
+int x= (int) System.currentTimeMillis();
                 changeMouseSpeed();
                 ctx.input.speed(90);
-                if( ctx.players.local().animation()==-1 && lighter==1||ctx.players.local().animation()==-1&& lighter==2|| START_AREA.contains(ctx.players.local()) && ctx.players.local().animation()==-1&& (lighter==1||lighter==2)|| lighter!=1 && lighter!=2 && ctx.players.local().inMotion()==false && ctx.players.local().animation()==-1&&ctx.players.local().orientation()==6 && ctx.inventory.select().count()>2
+                if( ctx.players.local().animation()==-1 && lighter==1||ctx.players.local().animation()==-1&& lighter==2|| START_AREA.contains(ctx.players.local()) && ctx.players.local().animation()==-1&& (lighter==1||lighter==2) && ctx.inventory.select().count()>2
                         ||lighter!=1 && lighter!=2 && ctx.players.local().inMotion()==false&&START_AREA.contains(ctx.players.local()) && ctx.players.local().animation()==-1&&(ctx.players.local().orientation()==0||ctx.players.local().orientation()==7||ctx.players.local().orientation()==5) && ctx.inventory.select().count()>2) {
                     status = "Lighting";
                     Item tinder = ctx.inventory.select().id(tinderbox).poll();
@@ -242,6 +242,9 @@ public class FireMaking extends PollingScript<ClientContext> implements MessageL
                     log.info("Problem =0");
                 }
                 problem=0;
+                if(x>2000&&ctx.players.local().orientation()==6){
+                    movingTile();
+                }
                 break;
             case GOLIGHTAREA:
                 changeMouseSpeed();
