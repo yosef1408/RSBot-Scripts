@@ -366,7 +366,7 @@ public class WcFishMine extends PollingScript<ClientContext>implements PaintList
         g.drawLine(x-10,y,x+10,y);
 
         hours=(int)((System.currentTimeMillis()-initialTime)/3600000);
-        minutes=(int)((System.currentTimeMillis()-initialTime)/60000)+117;
+        minutes=(int)((System.currentTimeMillis()-initialTime)/60000);
         seconds=(int)((System.currentTimeMillis()-initialTime)/1000)%60;
         runTime= (double)(System.currentTimeMillis()-initialTime)/3600000;
 
