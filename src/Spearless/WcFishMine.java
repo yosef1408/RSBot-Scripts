@@ -52,6 +52,7 @@ public class WcFishMine extends PollingScript<ClientContext>implements PaintList
         ctx.input.move(invx, invy);
         ctx.input.click(true);
     }
+
     public void checkMiningSkill() throws InterruptedException {
 
         Random randX = new Random();
@@ -227,7 +228,7 @@ public class WcFishMine extends PollingScript<ClientContext>implements PaintList
         switch (state()) {
             case WALKTOFISHING:
 
-               if(!LUMB_AREA.contains(ctx.players.local())&& minutes<120&& minutes>=119&& seconds <13&&ctx.players.local().animation()==-1||ctx.players.local().animation()==-1&&!LUMB_AREA.contains(ctx.players.local())&& minutes>=299&& seconds<13) {
+               if(!LUMB_AREA.contains(ctx.players.local())&& minutes<120&& minutes>=119&& seconds<50&&ctx.players.local().animation()==-1||ctx.players.local().animation()==-1&&!LUMB_AREA.contains(ctx.players.local())&& minutes>=299&& seconds<13) {
                    try {
                        teleportToLumbridge();
                    } catch (InterruptedException e) {
@@ -365,7 +366,7 @@ public class WcFishMine extends PollingScript<ClientContext>implements PaintList
         g.drawLine(x-10,y,x+10,y);
 
         hours=(int)((System.currentTimeMillis()-initialTime)/3600000);
-        minutes=(int)((System.currentTimeMillis()-initialTime)/60000);
+        minutes=(int)((System.currentTimeMillis()-initialTime)/60000)+117;
         seconds=(int)((System.currentTimeMillis()-initialTime)/1000)%60;
         runTime= (double)(System.currentTimeMillis()-initialTime)/3600000;
 
@@ -428,4 +429,6 @@ public class WcFishMine extends PollingScript<ClientContext>implements PaintList
 
 
 }
+
+
 
