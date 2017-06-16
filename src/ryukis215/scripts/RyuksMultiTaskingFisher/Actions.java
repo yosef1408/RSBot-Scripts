@@ -20,9 +20,10 @@ import org.powerbot.script.rt4.TilePath;
  */
 public class Actions extends Controller {
 		
-	int[] fishList = new int[]{335, 331, 317, 321, 359, 377, 329, 343, 333};
+	int[] fishList = new int[]{335, 331, 317, 321, 359, 377, 329, 343, 333, 11332, 11328, 1130};
 	static int[] fishingAnimationList = new int[]{621, 622, 623, 619};
 	long lastChecked;
+	boolean shiftClickOn = false;
 	
 	/**
 	 * when provided a npc and and an action, will 
@@ -37,9 +38,9 @@ public class Actions extends Controller {
 		}
 		ctx.camera.turnTo(theOne);
 		theOne.interact(action);
-		Condition.sleep(Random.nextInt(890, 1200));
+		//Condition.sleep(Random.nextInt(890, 1200));
 		antiban.randomMouseMovement(15,175);
-		Condition.sleep(Random.nextInt(1000, 1500));
+		//Condition.sleep(Random.nextInt(1000, 1500));
 	}
 	
 	/**
@@ -49,16 +50,14 @@ public class Actions extends Controller {
 	 * can be expanded.
 	 */
 	public void dropFishes(){
-		boolean shiftClickOn = false;
-		if((ctx.varpbits.varpbit(1055) & 131072) > 0){
-			shiftClickOn = true;
-			 ctx.input.send("{VK_SHIFT down}");
-		}
+		if(shiftClickOn)
+			ctx.input.send("{VK_SHIFT down}");
 		
 		for(Item item : ctx.inventory.items()){
 			for(int id: fishList){
 				if(item.id() == id){
-					if(!item.valid()){
+					if(!ctx.widgets.widget(548).component(50).visible()){
+						System.out.println("not valid, opening inventory");
 						ctx.widgets.widget(548).component(50).click();
 						Condition.sleep(Random.nextInt(83, 116));
 					}
@@ -74,6 +73,13 @@ public class Actions extends Controller {
 			}
 		}
 		if(shiftClickOn)ctx.input.send("{VK_SHIFT up}");
+		
+		for(Item item : ctx.inventory.items())
+			for(int id: fishList)
+				if(item.id() == id)
+					dropFishes();
+			
+		
 	}
 	
 	public void cookFishes(){
@@ -89,6 +95,12 @@ public class Actions extends Controller {
 			final Item raw = ctx.inventory.select().id(335, 331).poll();	
 			final Component cookingInterface = ctx.widgets.component(307, 5);
 			
+			if(!ctx.widgets.widget(548).component(50).visible()){
+				System.out.println("not valid, opening inventory");
+				ctx.widgets.widget(548).component(50).click();
+				Condition.sleep(Random.nextInt(83, 116));
+			}
+			
 			if (!cookingInterface.visible() && raw.interact("Use", raw.name())
 					&& fire.interact("Use", fire.name())) {
 				Condition.wait(new Callable<Boolean>() {
@@ -97,7 +109,8 @@ public class Actions extends Controller {
 						return cookingInterface.visible();
 					}
 				}, 250, 10);
-			} else if (cookingInterface.visible()) {
+			}
+			if (cookingInterface.visible()) {
 				cookingInterface.interact("Cook All");
 				Condition.wait(new Callable<Boolean>() {
 					@Override
@@ -254,17 +267,5 @@ public static final Tile[] travelPath = { new Tile(3238, 3297, 0),
 		new Tile(3104, 3420, 0), new Tile(3102, 3420, 0),
 		new Tile(3100, 3421, 0), new Tile(3099, 3423, 0),
 		new Tile(3099, 3425, 0), new Tile(3101, 3426, 0) };
-
-	public static final Tile[] catherbyPath = { new Tile(2845, 3430, 0),
-			new Tile(2843, 3432, 0), new Tile(2841, 3433, 0),
-			new Tile(2839, 3435, 0), new Tile(2837, 3435, 0),
-			new Tile(2834, 3435, 0), new Tile(2832, 3436, 0),
-			new Tile(2830, 3436, 0), new Tile(2828, 3436, 0),
-			new Tile(2826, 3436, 0), new Tile(2824, 3436, 0),
-			new Tile(2822, 3436, 0), new Tile(2820, 3436, 0),
-			new Tile(2818, 3436, 0), new Tile(2816, 3436, 0),
-			new Tile(2814, 3436, 0), new Tile(2812, 3436, 0),
-			new Tile(2810, 3436, 0), new Tile(2809, 3438, 0),
-			new Tile(2809, 3440, 0) };
 
 }

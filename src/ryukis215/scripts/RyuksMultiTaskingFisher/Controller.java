@@ -43,9 +43,9 @@ public class Controller extends PollingScript<ClientContext> implements MessageL
 	static int featherCountAimUpper = 600;//upper and lower val of rand to aim for
 	static int featherCountAimLower = 400;
 	GroundItem feather;
-	String fishingAction = "Lure";
-	static String fullAction = "cook";
-	String version = "v1.3";
+	static String fishingAction = "Use-rod";
+	static String fullAction = "drop";
+	String version = "v1.4";
 	
 	/* ---Paint---*/
 	int startExpFishing = ctx.skills.experience(Constants.SKILLS_FISHING);
@@ -77,6 +77,10 @@ public class Controller extends PollingScript<ClientContext> implements MessageL
 		check = new Checks();
 		
 		 gui = new ControllerGUI();
+		 
+		if((ctx.varpbits.varpbit(1055) & 131072) > 0){
+			action.shiftClickOn = true; 
+		}
 		
 		//mode = "debug";
 		if(mode != "debug"){

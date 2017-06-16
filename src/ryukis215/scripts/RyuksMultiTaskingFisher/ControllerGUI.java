@@ -26,6 +26,12 @@ public class ControllerGUI {
 							Controller.fullAction = "drop";
 						}
 						
+						if (sg.barbarianFishing.isSelected()) {
+							Controller.fishingAction = "Use-rod";
+						} else {
+							Controller.fishingAction = "Lure";
+						}
+						
 						Controller.featherCountAimLower = Integer.parseInt(sg.featherRangeMin.getText());
 						Controller.featherCountAimUpper = Integer.parseInt(sg.featherRangeMax.getText());
 						
