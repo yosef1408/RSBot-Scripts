@@ -10,6 +10,7 @@ import org.powerbot.script.rt4.Component;
 import org.powerbot.script.rt4.GameObject;
 import org.powerbot.script.rt4.Interactive;
 import org.powerbot.script.rt4.Item;
+import org.powerbot.script.rt4.Npc;
 import org.powerbot.script.rt4.TilePath;
 
 /**
@@ -20,8 +21,8 @@ import org.powerbot.script.rt4.TilePath;
  */
 public class Actions extends Controller {
 		
-	int[] fishList = new int[]{335, 331, 317, 321, 359, 377, 329, 343, 333, 11332, 11328, 11330};
-	static int[] fishingAnimationList = new int[]{621, 622, 623, 619};
+	final int[] fishList = new int[]{335, 331, 317, 321, 359, 377, 329, 343, 333, 11332, 11328, 11330};
+	final static int[] fishingAnimationList = new int[]{621, 622, 623, 619};
 	long lastChecked;
 	boolean shiftClickOn = false;
 	
@@ -32,15 +33,35 @@ public class Actions extends Controller {
 	 * @param theOne the npc to interact with
 	 * @param action the action to carry out in the interaction
 	 */
-	public void interactWithNpc(org.powerbot.script.rt4.Npc theOne, String action, Antiban antiban){
+	public void interactWithNpc(org.powerbot.script.rt4.Npc theOne, String action){
 		if(!theOne.inViewport()){
 			gotoTile(theOne.tile());
 		}
 		ctx.camera.turnTo(theOne);
 		theOne.interact(action);
-		//Condition.sleep(Random.nextInt(890, 1200));
-		antiban.randomMouseMovement(15,175);
-		//Condition.sleep(Random.nextInt(1000, 1500));
+		Condition.sleep(Random.nextInt(400, 600));
+	}
+	
+	/**
+	 * find a chicken and attack it
+	 * prioritize chicken that are attacking us
+	 * 
+	 */
+	public void attackChicken(){
+		Npc ciwm = check.chickenInteractingWithMe();
+		if(ciwm.valid() && !player.interacting().equals(ciwm)){
+			ciwm.interact("Attack");
+			Condition.sleep(Random.nextInt(250, 500));
+		}else{
+			chicken = check.findChicken();
+			if(!player.interacting().equals(chicken) && !player.interacting().valid()) chicken.interact("Attack");
+			Condition.sleep(Random.nextInt(250, 500));
+		}
+	}
+	
+	public void castLine(){
+		Npc fishspot = ctx.npcs.select().name("Fishing spot").nearest().poll();
+		action.interactWithNpc(fishspot, fishingAction);
 	}
 	
 	/**
@@ -53,17 +74,15 @@ public class Actions extends Controller {
 		if(shiftClickOn)
 			ctx.input.send("{VK_SHIFT down}");
 		
+		openInventory();
+		
 		for(Item item : ctx.inventory.items()){
 			for(int id: fishList){
 				if(item.id() == id){
-					if(!ctx.widgets.widget(548).component(50).visible()){
-						System.out.println("not valid, opening inventory");
-						ctx.widgets.widget(548).component(50).click();
-						Condition.sleep(Random.nextInt(83, 116));
-					}
-					if(ctx.inventory.selectedItemIndex() != -1){
+						
+					if(ctx.inventory.selectedItemIndex() != -1)
 						ctx.inventory.itemAt(ctx.inventory.selectedItemIndex()).click();
-					}
+					
 					if (shiftClickOn) {
 					    item.click(true);
 					}else{
@@ -73,13 +92,6 @@ public class Actions extends Controller {
 			}
 		}
 		if(shiftClickOn)ctx.input.send("{VK_SHIFT up}");
-		
-		for(Item item : ctx.inventory.items())
-			for(int id: fishList)
-				if(item.id() == id)
-					dropFishes();
-			
-		
 	}
 	
 	public void cookFishes(){
@@ -95,11 +107,7 @@ public class Actions extends Controller {
 			final Item raw = ctx.inventory.select().id(335, 331).poll();	
 			final Component cookingInterface = ctx.widgets.component(307, 5);
 			
-			if(!ctx.widgets.widget(548).component(50).visible()){
-				System.out.println("not valid, opening inventory");
-				ctx.widgets.widget(548).component(50).click();
-				Condition.sleep(Random.nextInt(83, 116));
-			}
+			openInventory();
 			
 			if (!cookingInterface.visible() && raw.interact("Use", raw.name())
 					&& fire.interact("Use", fire.name())) {
@@ -123,10 +131,24 @@ public class Actions extends Controller {
 		}
 	}
 	
+	public void openInventory(){
+		if(!ctx.inventory.component().visible()){
+			ctx.widgets.widget(548).component(50).click();
+			
+			Condition.wait(new Callable<Boolean>() {
+				@Override
+				public Boolean call() throws Exception {
+					return ctx.inventory.component().visible();
+				}
+			}, 250, 10);
+		}
+	}
+	
 	public void dropItem(Item item){
 		if((ctx.varpbits.varpbit(1055) & 131072) > 0){
 			 ctx.input.send("{VK_SHIFT down}");
 			 item.click(true);
+			 ctx.input.send("{VK_SHIFT up}");
 		}else{
 			item.interact("Drop");
 		}

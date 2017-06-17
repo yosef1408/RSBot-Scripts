@@ -3,6 +3,9 @@ package ryukis215;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+
 import javax.swing.*;
 
 public class ControllerGUI {
@@ -15,6 +18,17 @@ public class ControllerGUI {
 				sg.setVisible(true);
 				sg.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 				
+				sg.featherRangeMax.setText("600");
+				sg.featherRangeMin.setText("400");
+				
+				sg.barbarianFishing.addMouseListener(new MouseAdapter()
+				{
+					public void mouseClicked(MouseEvent e)
+					{
+						sg.drop.setSelected(true);
+					}
+				
+				});
 				
 				sg.startBottingBtn.addActionListener(new ActionListener() {	
 					@Override
@@ -28,6 +42,7 @@ public class ControllerGUI {
 						
 						if (sg.barbarianFishing.isSelected()) {
 							Controller.fishingAction = "Use-rod";
+							Controller.fullAction = "drop";
 						} else {
 							Controller.fishingAction = "Lure";
 						}

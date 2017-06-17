@@ -82,7 +82,7 @@ public class SettingsGUI extends JFrame{
 	}
 	
 	public void featherCollect(){
-		JLabel featherLabel = new JLabel("How many feathers would you like to collect per trip? Recommended:(400-600)");
+		JLabel featherLabel = new JLabel("How many feathers would you like to collect per trip?");
 		c.insets = new Insets(10,10,10,10);
 		c.gridx = 0;
 		c.gridy = 4;
