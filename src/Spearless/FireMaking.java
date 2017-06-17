@@ -27,7 +27,7 @@ public class FireMaking extends PollingScript<ClientContext> implements MessageL
     long initime;
     String status;
     Tile tile[]={new Tile(3207,3429)};
-    Area CHOPPER_AREA=new Area(new Tile(3147,3458),new Tile(3160,3449));
+    Area CHOPPER_AREA=new Area(new Tile(3140,3466),new Tile(3171,3449));
     Area TREE_AREA=new Area(new Tile(3151,3457),new Tile(3158,3450));
     Area WALKING_AREA= new Area(new Tile(3156,3459),new Tile(3178,3437));
     Area FIRIN_AREA= new Area(new Tile(3169,3433),new Tile(3214,3423));
@@ -39,7 +39,7 @@ public class FireMaking extends PollingScript<ClientContext> implements MessageL
     GameObject tree= ctx.objects.select().id(LogsID).nearest().poll();
     int x= ctx.players.local().tile().x();
     int y= ctx.players.local().tile().y();
-int lighter=1;
+    int lighter=1;
 
     public void frame(){
 
@@ -73,15 +73,15 @@ int lighter=1;
                 }
             }
         });
-YLogs.addActionListener(new ActionListener() {
-    @Override
-    public void actionPerformed(ActionEvent actionEvent) {
-        if(YLogs.isEnabled()){
-            LOGSIDINV=1515;
-            logs="Yew logs";
-        }
-    }
-});
+        YLogs.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                if(YLogs.isEnabled()){
+                    LOGSIDINV=1515;
+                    logs="Yew logs";
+                }
+            }
+        });
         CF.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
@@ -212,7 +212,7 @@ YLogs.addActionListener(new ActionListener() {
         path.traverse();
         lighter=1;
     }
-     void movePlayer(){
+    void movePlayer(){
         TilePath path= ctx.movement.newTilePath(tiletoLight);
         path.randomize(1,1);
         path.traverse();
@@ -222,10 +222,11 @@ YLogs.addActionListener(new ActionListener() {
 
         switch (state()) {
             case LIGHT:
-
+int x= (int) System.currentTimeMillis();
                 changeMouseSpeed();
                 ctx.input.speed(90);
-                if( ctx.players.local().animation()==-1 && lighter==1||ctx.players.local().animation()==-1&& lighter==2|| START_AREA.contains(ctx.players.local()) && ctx.players.local().animation()==-1&& (lighter==1||lighter==2)) {
+                if( ctx.players.local().animation()==-1 && lighter==1||ctx.players.local().animation()==-1&& lighter==2|| START_AREA.contains(ctx.players.local()) && ctx.players.local().animation()==-1&& (lighter==1||lighter==2) && ctx.inventory.select().count()>2
+                        ||lighter!=1 && lighter!=2 && ctx.players.local().inMotion()==false&&START_AREA.contains(ctx.players.local()) && ctx.players.local().animation()==-1&&(ctx.players.local().orientation()==0||ctx.players.local().orientation()==7||ctx.players.local().orientation()==5) && ctx.inventory.select().count()>2) {
                     status = "Lighting";
                     Item tinder = ctx.inventory.select().id(tinderbox).poll();
                     tinder.interact("Use");
@@ -241,6 +242,9 @@ YLogs.addActionListener(new ActionListener() {
                     log.info("Problem =0");
                 }
                 problem=0;
+                if(x>2000&&ctx.players.local().orientation()==6){
+                    movingTile();
+                }
                 break;
             case GOLIGHTAREA:
                 changeMouseSpeed();
@@ -262,11 +266,12 @@ YLogs.addActionListener(new ActionListener() {
                 changeMouseSpeed();
                 status="Chopping";
                 tree= ctx.objects.select().id(LogsID).nearest().poll();
-                if( !ctx.players.local().inMotion()&&ctx.players.local().animation()==-1&&TREE_AREA.contains(tree)){
+                if( !ctx.players.local().inMotion()&&ctx.players.local().animation()==-1&&CHOPPER_AREA.contains(ctx.players.local())) {
                     tree.interact("Chop");
 
-                }else{
-                    ctx.camera.turnTo(tree);
+                    if (!tree.inViewport()) {
+                        ctx.camera.turnTo(tree);
+                    }
                 }
                 break;
             case COMEBACKTOFIRING:
@@ -300,7 +305,8 @@ YLogs.addActionListener(new ActionListener() {
         }
     }
     private State state(){
-        if ( ctx.inventory.select().count()> 2&&START_AREA.contains(ctx.players.local())||ctx.inventory.select().count()>2  && ctx.inventory.count()<28 &&FIRIN_AREA.contains(ctx.players.local())) {
+        if ( ctx.inventory.select().count()> 2&&START_AREA.contains(ctx.players.local())|| ctx.inventory.select().count()<28 &&FIRIN_AREA.contains(ctx.players.local())&& ctx.inventory.select().count()>2) {
+            log.info("Burning");
             return State.LIGHT;
         }else if(!START_AREA.contains(ctx.players.local())&& ctx.inventory.select().count()==28&& !CHOPPER_AREA.contains(ctx.players.local()) && !WALKING_AREA.contains(ctx.players.local())){
             log.info("Going light area");
