@@ -20,7 +20,7 @@ import org.powerbot.script.rt4.TilePath;
  */
 public class Actions extends Controller {
 		
-	int[] fishList = new int[]{335, 331, 317, 321, 359, 377, 329, 343, 333, 11332, 11328, 1130};
+	int[] fishList = new int[]{335, 331, 317, 321, 359, 377, 329, 343, 333, 11332, 11328, 11330};
 	static int[] fishingAnimationList = new int[]{621, 622, 623, 619};
 	long lastChecked;
 	boolean shiftClickOn = false;
