@@ -31,10 +31,10 @@ import org.powerbot.script.rt4.GroundItem;
 import org.powerbot.script.rt4.Npc;
 import org.powerbot.script.rt4.Player;
 
-@Script.Manifest(name = "Ryuk's MultiTasking Fisher", description = "Farms feathers at lumbridge and powerfishes at barbarian village.", properties = "author:ryukis215; topic=1333385; client=4;")
+@Script.Manifest(name = "Ryuk's MultiTasking Fisher", description = "Barbarian Village multi tasking and Barbarian Fishing.", properties = "author:ryukis215; topic=1333385; client=4;")
 public class Controller extends PollingScript<ClientContext> implements MessageListener, PaintListener, MouseListener {
 	
-	Player player = ctx.players.local();
+	final Player player = ctx.players.local();
 	Boolean currentlyFishing = false;
 	Npc chicken;
 	String mode;//fight,fish,travel_to_fight,travel_to_fish
@@ -45,11 +45,12 @@ public class Controller extends PollingScript<ClientContext> implements MessageL
 	GroundItem feather;
 	static String fishingAction = "Use-rod";
 	static String fullAction = "drop";
-	String version = "v1.4";
+	static String location;
+	final String version = "v1.4.1";
 	
 	/* ---Paint---*/
-	int startExpFishing = ctx.skills.experience(Constants.SKILLS_FISHING);
-	int startExpCooking = ctx.skills.experience(Constants.SKILLS_COOKING);
+	final int startExpFishing = ctx.skills.experience(Constants.SKILLS_FISHING);
+	final int startExpCooking = ctx.skills.experience(Constants.SKILLS_COOKING);
 	int xpDifFishing = 0;
 	int xpDifCooking = 0;
 	int caughtCounter = 0;
@@ -65,19 +66,14 @@ public class Controller extends PollingScript<ClientContext> implements MessageL
 	String status = "N/A";//last action for debugging
 	/* --- */
 	
-	Antiban antiban; 
-	Actions action; 
-	Checks check; 
-	static ControllerGUI gui;
+	final static Antiban antiban = new Antiban();
+	final static Actions action = new Actions();
+	final static Checks check = new Checks();
+	final static ControllerGUI gui = new ControllerGUI();
+
 	
 	@Override
 	public void start(){
-		antiban = new Antiban();
-		action = new Actions();
-		check = new Checks();
-		
-		 gui = new ControllerGUI();
-		 
 		if((ctx.varpbits.varpbit(1055) & 131072) > 0){
 			action.shiftClickOn = true; 
 		}
@@ -101,7 +97,7 @@ public class Controller extends PollingScript<ClientContext> implements MessageL
 	}
 	
 	@Override
-	public void poll() {
+	public void poll() {		
 		featherCount = check.itemQuantity(314);
 		timeElapsed = runTime(startTime);
 		xpDifFishing = ctx.skills.experience(Constants.SKILLS_FISHING) - startExpFishing;
@@ -111,8 +107,13 @@ public class Controller extends PollingScript<ClientContext> implements MessageL
 			currentlyFishing = check.checkIfFishing();//establish whether we're currently fishing or not
 			if(featherCount == 0 || featherCount == -1){
 				action.dropFishes();
-				mode = "travel_to_fight";
-				featherCountAim = Random.nextInt(featherCountAimLower,featherCountAimUpper);
+				if(location == "barbarianVillage"){
+					mode = "travel_to_fight";
+					featherCountAim = Random.nextInt(featherCountAimLower,featherCountAimUpper);
+				}else if(location == "barbarianFishing"){
+					mode = "derp";//unidentified mode leads to controller.stop() as default
+				}
+				
 			}
 		}
 
@@ -137,8 +138,7 @@ public class Controller extends PollingScript<ClientContext> implements MessageL
 			case FISH:
 					status = "FISH";
 					if(!currentlyFishing){
-						org.powerbot.script.rt4.Npc fishspot = ctx.npcs.select().name("Fishing spot").nearest().poll();
-						action.interactWithNpc(fishspot, fishingAction, antiban);
+						action.castLine();
 					}
 				break;
 			case FULL:
@@ -153,15 +153,7 @@ public class Controller extends PollingScript<ClientContext> implements MessageL
 				break;
 			case FIGHT:
 					status = "FIGHT";
-					Npc ciwm = check.chickenInteractingWithMe();
-					if(ciwm.valid() && !player.interacting().equals(ciwm)){
-						ciwm.interact("Attack");
-						Condition.sleep(Random.nextInt(250, 500));
-					}else{
-						chicken = check.findChicken();
-						if(!player.interacting().equals(chicken) && !player.interacting().valid()) chicken.interact("Attack");
-						Condition.sleep(Random.nextInt(250, 500));
-					}
+					action.attackChicken();
 					if(!check.inFightArea(player.tile())){
 						if(!action.isGateOpen()){
 							action.openGate();
@@ -202,24 +194,19 @@ public class Controller extends PollingScript<ClientContext> implements MessageL
 				break;
 			case ANTIBAN:
 					status = "ANTIBAN";
-					int randNum = Random.nextInt(1, 11);
-					if(randNum == 1) antiban.hoverOverRandomPlayer();
-					if(randNum == 2) antiban.checkXP();
-					if(randNum >= 3 && randNum <= 5) antiban.randomCameraTurn();
-					if(randNum >= 6 && randNum <= 8) antiban.moveMouseOffScreen();
-					if(randNum >= 9 && randNum <= 11) antiban.randomMouseMovement(100,300);
+					antiban.runAntiban();
 				break;
-			case LOGOUT:
-				System.out.println("Don't know what to do....logging out. ");
+			case STOP:
+					ctx.controller.stop();
 				break;
 			case DEBUG:
-	
+			
 				break;
 		}
 	}
 	
 	private enum State {
-		FISH, FULL, ANTIBAN, RUN, FIGHT, PICKUP, LOGOUT, TRAVEL_FIGHT, TRAVEL_FISH, DEBUG
+		FISH, FULL, ANTIBAN, RUN, FIGHT, PICKUP, STOP, TRAVEL_FIGHT, TRAVEL_FISH, DEBUG
 	}
 	
 	private State getState() {
@@ -248,7 +235,7 @@ public class Controller extends PollingScript<ClientContext> implements MessageL
 			return State.DEBUG;
 		}else{
 			
-			return State.LOGOUT;
+			return State.STOP;
 		}	
 	}
 
@@ -325,7 +312,7 @@ public class Controller extends PollingScript<ClientContext> implements MessageL
 			gfx.drawString(status, 250, 15);
 			
 		    if(paintImg != null)gfx.drawImage((Image) paintImg, 2, 340, null);
-			    
+		   			    
 			gfx.setFont(font);
 			gfx.setColor(textColorGold);
 			gfx.getFont();
@@ -345,13 +332,14 @@ public class Controller extends PollingScript<ClientContext> implements MessageL
 			
 			gfx.setFont(new Font("TimesRoman", Font.PLAIN, 12)); 
 			gfx.drawString(version, 472, 468);
-		}
+		}		
 		gfx.setFont(new Font("TimesRoman", Font.BOLD, 16)); 
 		gfx.setColor(Color.BLACK);	
 		gfx.fillOval(488, 347, 25, 25);
 		gfx.setColor(textColorGold);
 		gfx.drawString("X", 495, 365);
 	}
+
 	
 	@Override
 	public void mouseClicked(MouseEvent e) {
@@ -365,26 +353,12 @@ public class Controller extends PollingScript<ClientContext> implements MessageL
 
 	@Override
 	public void mouseEntered(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
+	}@Override
 	public void mouseExited(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
+	}@Override
 	public void mousePressed(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
+	}@Override
 	public void mouseReleased(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-		
 	}
 	
 }

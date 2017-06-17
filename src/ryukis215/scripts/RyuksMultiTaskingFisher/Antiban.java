@@ -4,29 +4,42 @@ import java.awt.Point;
 
 import org.powerbot.script.Condition;
 import org.powerbot.script.Random;
-import org.powerbot.script.rt4.Player;
 
 public class Antiban extends Controller {
 	
-	public void hoverOverRandomPlayer(){
-		Player randPlayer = ctx.players.select().nearest().poll();
-		ctx.camera.turnTo(randPlayer);
-		randPlayer.hover();
-		Condition.sleep(Random.nextInt(1000, 2000));
-	}
 	
+	public void runAntiban(){
+		int randNum = Random.nextInt(1, 11);
+		if(randNum == 1) antiban.checkXP();
+		if(randNum >= 2 && randNum <= 5) randomCameraTurn();
+		if(randNum >= 6 && randNum <= 8) moveMouseOffScreen();
+		if(randNum >= 9 && randNum <= 11) randomMouseMovement(100,300);
+	}
+		
+	/**
+	 * turns camera once to random sport
+	 * or 2-6 times to random places
+	 * or turns camera to nearest player
+	 * 
+	 * all rolled randomly
+	 * 
+	 */
 	public void randomCameraTurn(){
-		int randNum = Random.nextInt(1, 2);
-		if(randNum == 1){//light camera turn
+		int randNum = Random.nextInt(1, 3);
+		if(randNum == 1)
 			ctx.camera.angle(ctx.camera.yaw() + Random.nextInt(-100, 100));
-		}
-		if(randNum == 2){//aggressive camera turn
+		
+		if(randNum == 2){
 			randNum = Random.nextInt(2, 6);
 			for(int i = 0; i<randNum; i++){
 				ctx.camera.angle(ctx.camera.yaw() + Random.nextInt(-100, 100));
 				Condition.sleep(Random.nextInt(250, 500));
 			}
 		}
+		
+		if(randNum == 3)
+			ctx.camera.turnTo(ctx.players.select().nearest().poll());
+		
 	}
 	
 	public void moveMouseOffScreen(){
@@ -34,7 +47,9 @@ public class Antiban extends Controller {
 		int y = Random.nextInt(-1000, -100);
 		ctx.input.move(x, y);
 		ctx.input.defocus();
+		
 		Condition.sleep(Random.nextInt(5000, 13000));
+		
 		ctx.input.focus();
 		x = Random.nextInt(16, 512);
 		y = Random.nextInt(45, 334);

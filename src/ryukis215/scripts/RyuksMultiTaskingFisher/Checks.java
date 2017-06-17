@@ -2,7 +2,6 @@ package ryukis215;
 
 import org.powerbot.script.Filter;
 import org.powerbot.script.Tile;
-import org.powerbot.script.rt4.GameObject;
 import org.powerbot.script.rt4.GroundItem;
 import org.powerbot.script.rt4.Npc;
 
@@ -12,7 +11,7 @@ import org.powerbot.script.rt4.Npc;
  */
 public class Checks extends Controller {
 	
-	private int[] chickenIds = {2692, 2693};
+	final private int[] chickenIds = {2692, 2693};
 	
 	/**
 	 * finds chicken which are in the fight area defined
