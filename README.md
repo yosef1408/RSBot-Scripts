@@ -23,14 +23,9 @@ Note:
 	- `git checkout -b [your branch name]`
 2. Commit your changes
 	- `git commit -a -m "Your update message"`
-3. Sync your local copy
-	- `git checkout scripts`
-	- `git pull upstream scripts`
-4. Merge your changes
-	- `git merge [your branch name]`
-5. Push the changes to your fork
-    - `git push origin scripts`
-6. Make a Pull Request from your forked repository
+3. Push the branch to your repository
+    - `git push origin [your branch name]`
+4. Make a Pull Request from your forked repository
 
 ### Guidelines for Scripts
 - Scripts **must** be packaged
