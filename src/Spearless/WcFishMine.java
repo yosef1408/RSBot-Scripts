@@ -140,7 +140,7 @@ public class WcFishMine extends PollingScript<ClientContext>implements PaintList
 
 
     private void fishing() {
-        if (ctx.players.local().animation() == -1 ) {
+        if (ctx.players.local().animation() == -1 && ctx.inventory.select().count()<28 ) {
             fishingSpot = ctx.npcs.select().id(fishinSpotID).nearest().poll();
             log.info("FISHING");
             fishingSpot.interact("Net");
@@ -156,7 +156,9 @@ public class WcFishMine extends PollingScript<ClientContext>implements PaintList
             ctx.inventory.select().id(fishingInvID).each(new Filter<Item>() {
                 @Override
                 public boolean accept(Item item) {
+                    log.info("Dropping");
                     return item.interact("Drop");
+
                 }
             });
         }
@@ -366,7 +368,7 @@ public class WcFishMine extends PollingScript<ClientContext>implements PaintList
         g.drawLine(x-10,y,x+10,y);
 
         hours=(int)((System.currentTimeMillis()-initialTime)/3600000);
-        minutes=(int)((System.currentTimeMillis()-initialTime)/60000);
+        minutes=(int)((System.currentTimeMillis()-initialTime)/60000)+117;
         seconds=(int)((System.currentTimeMillis()-initialTime)/1000)%60;
         runTime= (double)(System.currentTimeMillis()-initialTime)/3600000;
 
@@ -429,6 +431,8 @@ public class WcFishMine extends PollingScript<ClientContext>implements PaintList
 
 
 }
+
+
 
 
 
