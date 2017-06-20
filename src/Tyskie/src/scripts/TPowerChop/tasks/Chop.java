@@ -15,14 +15,14 @@ import java.util.concurrent.Callable;
  */
 public class Chop extends Task {
 
-    private int treeId;
+    private int[] treeIds;
     private boolean isChopping = false;
     private Antiban antiban;
     private String interact;
 
-    public Chop(ClientContext ctx, int treeId, String interact) {
+    public Chop(ClientContext ctx, int[] treeIds, String interact) {
         super(ctx);
-        this.treeId = treeId;
+        this.treeIds = treeIds;
         antiban = new Antiban();
         this.interact = interact;
     }
@@ -34,7 +34,7 @@ public class Chop extends Task {
 
     @Override
     public void execute() {
-        GameObject treeToCut = ctx.objects.select().id(treeId).nearest().poll();
+        GameObject treeToCut = ctx.objects.select().id(treeIds).nearest().poll();
         if (treeToCut.inViewport()){
             treeToCut.hover();
             Condition.sleep(Random.nextInt(250, 500));

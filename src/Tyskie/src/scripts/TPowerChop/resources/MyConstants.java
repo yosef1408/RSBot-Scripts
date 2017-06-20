@@ -12,9 +12,9 @@ public class MyConstants {
     /**
      * Tree ID's
      */
-    public static final int TREE_ID = 1276;
-    public static final int OAK_ID = 1751;
-    public static final int WILLOW_ID = 1756;
+    public static final int[] TREE_IDS = {1276};
+    public static final int[] OAK_IDS = {1751};
+    public static final int[] WILLOW_IDS = {1756, 1750, 1758};
 
     /**
      * Exp Each Log

@@ -22,7 +22,8 @@ import java.util.List;
 public class TPowerChop extends PollingScript<ClientContext> implements PaintListener {
 
     private List<Task> taskList = new ArrayList<Task>();
-    private int startExp, expGained, treeId;
+    private int startExp, expGained;
+    int[] treeIds;
     private double expEachLog = 1;
     private String interact;
 
@@ -32,15 +33,15 @@ public class TPowerChop extends PollingScript<ClientContext> implements PaintLis
         String userChoice = "" + JOptionPane.showInputDialog(null, "Select the essence you want to use.", "AIO TRuneCrafting", JOptionPane.PLAIN_MESSAGE, null, userOptions, userOptions[0]);
 
         if (userChoice.equals("Logs")){
-            treeId = MyConstants.TREE_ID;
+            treeIds = MyConstants.TREE_IDS;
             expEachLog = MyConstants.TREE_EXP;
             interact = "Tree";
         } else if (userChoice.equals("Oak logs")){
-            treeId = MyConstants.OAK_ID;
+            treeIds = MyConstants.OAK_IDS;
             expEachLog = MyConstants.OAK_EXP;
             interact = "Oak";
         } else if (userChoice.equals("Willow logs")){
-            treeId = MyConstants.WILLOW_ID;
+            treeIds = MyConstants.WILLOW_IDS;
             expEachLog = MyConstants.WILLOW_EXP;
             interact = "Willow";
         } else {
@@ -48,7 +49,7 @@ public class TPowerChop extends PollingScript<ClientContext> implements PaintLis
         }
 
         taskList.add(new Drop(ctx));
-        taskList.add(new Chop(ctx, treeId, interact));
+        taskList.add(new Chop(ctx, treeIds, interact));
 
         startExp = ctx.skills.experience(Constants.SKILLS_WOODCUTTING);
     }
