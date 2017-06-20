@@ -27,7 +27,6 @@ public class LogIncinerator extends PollingScript<ClientContext> {
     final static int mahoganyLogId = 6332;
     final static int teakLogId = 6333;
     final static int magicLogId = 1513;
-    final static int elderLogId = 29556;
 
     final static int tinder_id = 590;
 
