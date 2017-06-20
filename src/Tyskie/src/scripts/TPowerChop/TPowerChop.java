@@ -18,7 +18,7 @@ import java.util.List;
 /**
  * Created by Tyskie on 20-6-2017.
  */
-@Script.Manifest(name = "Tyskie's TPowerChop", description = "Tyskie's TPowerChop cuts any tree and drops the logs.", properties = "author=Tyskie; topic=999; client=4")
+@Script.Manifest(name = "Tyskie's TPowerChop", description = "Tyskie's TPowerChop cuts any tree and drops the logs.", properties = "author=Tyskie; topic=1334458; client=4")
 public class TPowerChop extends PollingScript<ClientContext> implements PaintListener {
 
     private List<Task> taskList = new ArrayList<Task>();
