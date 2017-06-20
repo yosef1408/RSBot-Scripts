@@ -22,8 +22,8 @@ import java.util.List;
 public class TRuneCrafting extends PollingScript<ClientContext> implements PaintListener {
 
     private List<Task> taskList = new ArrayList<Task>();
-    int startExp, expGained, essenceId, runeId, ruinsId, altarId, portalId;
-    Tile[] pathToRuins, pathToAltar;
+    private int startExp, expGained, essenceId, runeId, ruinsId, altarId, portalId;
+    private Tile[] pathToRuins, pathToAltar;
 
     @Override
     public void start(){
