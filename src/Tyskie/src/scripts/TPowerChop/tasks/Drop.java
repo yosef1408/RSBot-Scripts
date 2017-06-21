@@ -54,7 +54,7 @@ public class Drop extends Task {
                 public Boolean call() throws Exception {
                     return ctx.inventory.select().count() != startAmtInventory;
                 }
-            }, 25, 10);
+            }, 50, 10);
         }
 
         if (shiftClickOn){

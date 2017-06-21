@@ -30,7 +30,7 @@ public class TPowerChop extends PollingScript<ClientContext> implements PaintLis
     @Override
     public void start(){
         String userOptions[] = {"Logs", "Oak logs", "Willow logs", "Teak logs", "Maple logs"};
-        String userChoice = "" + JOptionPane.showInputDialog(null, "Select the essence you want to use.", "AIO TRuneCrafting", JOptionPane.PLAIN_MESSAGE, null, userOptions, userOptions[0]);
+        String userChoice = "" + JOptionPane.showInputDialog(null, "Select the logs you want to cut.", "TPowerChop", JOptionPane.PLAIN_MESSAGE, null, userOptions, userOptions[0]);
 
         if (userChoice.equals("Logs")){
             treeIds = MyConstants.TREE_IDS;
