@@ -10,7 +10,7 @@ import java.util.concurrent.Callable;
 
 
 @Script.Manifest(name="Log Incinerator",description="Burns all types of logs",
-        properties="author=powerkyle628; topic=1334429-freeos-log-incinerator; client=4;")
+        properties="author=powerkyle628; topic=1334429; client=4;")
 
 
 public class LogIncinerator extends PollingScript<ClientContext> {
