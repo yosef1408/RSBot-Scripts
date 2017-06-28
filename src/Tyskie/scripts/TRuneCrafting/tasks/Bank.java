@@ -1,11 +1,11 @@
-package scripts.TRuneCrafting.tasks;
+package Tyskie.scripts.TRuneCrafting.tasks;
 
+import Tyskie.scripts.TRuneCrafting.resources.Antiban;
+import Tyskie.scripts.TRuneCrafting.resources.MyConstants;
+import Tyskie.scripts.TRuneCrafting.resources.Task;
 import org.powerbot.script.Condition;
 import org.powerbot.script.Random;
 import org.powerbot.script.rt4.ClientContext;
-import scripts.TRuneCrafting.resources.Antiban;
-import scripts.TRuneCrafting.resources.MyConstants;
-import scripts.TRuneCrafting.resources.Task;
 
 import java.util.concurrent.Callable;
 

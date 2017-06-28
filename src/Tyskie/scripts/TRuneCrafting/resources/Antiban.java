@@ -1,9 +1,9 @@
-package scripts.TRuneCrafting.resources;
+package Tyskie.scripts.TRuneCrafting.resources;
 
+import Tyskie.scripts.TRuneCrafting.TRuneCrafting;
 import org.powerbot.script.Condition;
 import org.powerbot.script.Random;
 import org.powerbot.script.rt4.Player;
-import scripts.TRuneCrafting.TRuneCrafting;
 
 import java.awt.*;
 

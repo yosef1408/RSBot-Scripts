@@ -1,4 +1,4 @@
-package scripts.TRuneCrafting.resources;
+package Tyskie.scripts.TRuneCrafting.resources;
 
 import org.powerbot.script.rt4.ClientAccessor;
 import org.powerbot.script.rt4.ClientContext;

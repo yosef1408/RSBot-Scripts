@@ -1,14 +1,16 @@
-package scripts.TRuneCrafting;
+package Tyskie.scripts.TRuneCrafting;
 
+import Tyskie.scripts.TRuneCrafting.resources.Task;
+import Tyskie.scripts.TRuneCrafting.tasks.Bank;
+import Tyskie.scripts.TRuneCrafting.tasks.CraftRunes;
+import Tyskie.scripts.TRuneCrafting.tasks.WalkToRuins;
 import org.powerbot.script.PaintListener;
 import org.powerbot.script.PollingScript;
 import org.powerbot.script.Script;
 import org.powerbot.script.Tile;
 import org.powerbot.script.rt4.ClientContext;
 import org.powerbot.script.rt4.Constants;
-import scripts.TRuneCrafting.resources.MyConstants;
-import scripts.TRuneCrafting.resources.Task;
-import scripts.TRuneCrafting.tasks.*;
+import Tyskie.scripts.TRuneCrafting.resources.MyConstants;
 
 import javax.swing.*;
 import java.awt.*;

@@ -1,4 +1,4 @@
-package scripts.TRuneCrafting.resources;
+package Tyskie.scripts.TRuneCrafting.resources;
 
 import org.powerbot.script.Condition;
 import org.powerbot.script.Random;

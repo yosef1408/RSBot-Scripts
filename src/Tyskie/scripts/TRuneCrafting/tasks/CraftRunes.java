@@ -1,14 +1,14 @@
-package scripts.TRuneCrafting.tasks;
+package Tyskie.scripts.TRuneCrafting.tasks;
 
+import Tyskie.scripts.TRuneCrafting.resources.Antiban;
+import Tyskie.scripts.TRuneCrafting.resources.Task;
+import Tyskie.scripts.TRuneCrafting.resources.Walker;
 import org.powerbot.script.Condition;
 import org.powerbot.script.Random;
 import org.powerbot.script.Tile;
 import org.powerbot.script.rt4.ClientContext;
 import org.powerbot.script.rt4.GameObject;
-import scripts.TRuneCrafting.resources.Antiban;
-import scripts.TRuneCrafting.resources.MyConstants;
-import scripts.TRuneCrafting.resources.Task;
-import scripts.TRuneCrafting.resources.Walker;
+import Tyskie.scripts.TRuneCrafting.resources.MyConstants;
 
 import java.util.concurrent.Callable;
 
