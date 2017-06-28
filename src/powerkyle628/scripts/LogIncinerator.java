@@ -117,6 +117,7 @@ public class LogIncinerator extends PollingScript<ClientContext> {
     }
     // end Coma code
 
+
     public void populateStartTiles() {
         int j = 0;
         for (int i = 28; i <= 31; i++) {
@@ -186,11 +187,13 @@ public class LogIncinerator extends PollingScript<ClientContext> {
                 return ctx.players.local().animation() == -1 && !ctx.players.local().inMotion();
             }
         },100, 100);
+
         //check to see if we successfully burned anything
         int newLogAmount = ctx.inventory.select().id(logChoiceID).count();
         if (ogLogAmount == newLogAmount) {
             //must have been standing on something, find a new place to continue
             Tile bestOption = calcBestNewStartingSpot();
+
             TileMatrix bestMatrix = bestOption.matrix(ctx);
             if (bestMatrix.inViewport()) {
                 bestMatrix.interact("Walk here");
