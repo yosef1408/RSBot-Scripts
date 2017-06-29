@@ -69,8 +69,7 @@ public class LogIncinerator extends PollingScript<ClientContext> {
         ctx.input.click(Random.nextInt(626, 658), Random.nextInt(468, 497), true);
         Condition.sleep(Random.nextInt(0, 300));
         ctx.input.click(Random.nextInt(580, 704), Random.nextInt(407, 430), true);
-
-        ctx.controller.stop();
+        
     }
     @Override
     public void poll() {
