@@ -63,13 +63,7 @@ public class LogIncinerator extends PollingScript<ClientContext> {
     @Override
     public void stop() {
         System.out.println("stopped");
-        
-        ctx.input.click(Random.nextInt(480, 495), Random.nextInt(16, 31), true);
-        Condition.sleep(Random.nextInt(0, 300));
-        ctx.input.click(Random.nextInt(626, 658), Random.nextInt(468, 497), true);
-        Condition.sleep(Random.nextInt(0, 300));
-        ctx.input.click(Random.nextInt(580, 704), Random.nextInt(407, 430), true);
-        
+
     }
     @Override
     public void poll() {
@@ -88,6 +82,11 @@ public class LogIncinerator extends PollingScript<ClientContext> {
             bank();
         }
 
+    }
+
+    public void logout() {
+        ctx.game.tab(Game.Tab.LOGOUT);
+        ctx.widgets.component(182, 10).interact("Logout");
     }
 
     public void adjustCamera() {
@@ -115,7 +114,6 @@ public class LogIncinerator extends PollingScript<ClientContext> {
         }
     }
     // end Coma code
-
 
     public void populateStartTiles() {
         int j = 0;
@@ -186,13 +184,11 @@ public class LogIncinerator extends PollingScript<ClientContext> {
                 return ctx.players.local().animation() == -1 && !ctx.players.local().inMotion();
             }
         },100, 100);
-
         //check to see if we successfully burned anything
         int newLogAmount = ctx.inventory.select().id(logChoiceID).count();
         if (ogLogAmount == newLogAmount) {
             //must have been standing on something, find a new place to continue
             Tile bestOption = calcBestNewStartingSpot();
-
             TileMatrix bestMatrix = bestOption.matrix(ctx);
             if (bestMatrix.inViewport()) {
                 bestMatrix.interact("Walk here");
@@ -265,7 +261,15 @@ public class LogIncinerator extends PollingScript<ClientContext> {
             boolean tryAgain = ctx.bank.withdraw(logChoiceID, 27);
             if (!tryAgain) {
                 System.out.println("failed withdraw twice");
-                stop();
+                ctx.bank.close();
+                Condition.wait(new Callable<Boolean>() {
+                    @Override
+                    public Boolean call() throws Exception {
+                        return !ctx.bank.opened();
+                    }
+                });
+                logout();
+                ctx.controller.stop();
             }
         }
         Condition.wait(new Callable<Boolean>() {
