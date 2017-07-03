@@ -1,4 +1,4 @@
-package ryukis215;
+package scripts.RyuksTutorialIsland;
 
 import static org.powerbot.script.Condition.sleep;
 
