@@ -1,4 +1,4 @@
-package ryukis215;
+package scripts.RyuksTutorialIsland;
 
 import org.powerbot.script.PollingScript;
 import org.powerbot.script.Script;
