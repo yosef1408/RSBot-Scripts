@@ -1,4 +1,4 @@
-package ryukis215;
+package scripts.RyuksTutorialIsland;
 
 import org.powerbot.script.rt4.ClientContext;
 
