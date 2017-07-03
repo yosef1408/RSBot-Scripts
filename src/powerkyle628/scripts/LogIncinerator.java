@@ -1,15 +1,17 @@
 package powerkyle628.scripts;
 
 import org.powerbot.script.*;
+import org.powerbot.script.Random;
 import org.powerbot.script.rt4.*;
 import org.powerbot.script.rt4.ClientContext;
 
+
 import javax.swing.*;
-import java.util.Hashtable;
+import java.util.*;
 import java.util.concurrent.Callable;
 
 
-@Script.Manifest(name="Log Incinerator",description="Burns all types of logs",
+@Script.Manifest(name="Log Incinerator",description="(Firemaking) Burns all types of logs",
         properties="author=powerkyle628; topic=1334429; client=4;")
 
 
@@ -61,10 +63,15 @@ public class LogIncinerator extends PollingScript<ClientContext> {
     @Override
     public void stop() {
         System.out.println("stopped");
-        ctx.controller.stop();
+
     }
     @Override
     public void poll() {
+
+        //adjustCamera();
+        checkAndDismissRandoms();
+        toggleRun();
+
         if (getLogCount() > 0 && !inBank()) {
             burn();
         } else if (!inBank() && getLogCount() == 0){
@@ -77,14 +84,42 @@ public class LogIncinerator extends PollingScript<ClientContext> {
 
     }
 
+    public void logout() {
+        ctx.game.tab(Game.Tab.LOGOUT);
+        ctx.widgets.component(182, 10).interact("Logout");
+    }
+
+    public void adjustCamera() {
+        if (!ctx.players.local().inViewport()) {
+            ctx.camera.turnTo(ctx.players.local());
+        }
+    }
+
+    public void toggleRun() {
+        if(!ctx.movement.running() && ctx.movement.energyLevel() > 25) {
+            ctx.movement.running(true);
+        }
+    }
+
+    // random dismissal code from Coma at https://github.com/powerbot/powerbot/issues/996
+    public void checkAndDismissRandoms() {
+        ctx.npcs.select().action("Dismiss").select(new Filter<Npc>() {
+            @Override
+            public boolean accept(Npc npc) {
+                return npc.interacting().equals(ctx.players.local());
+            }
+        });
+        if (!ctx.npcs.isEmpty()) {
+            ctx.npcs.nearest().poll().interact("Dismiss");
+        }
+    }
+    // end Coma code
+
     public void populateStartTiles() {
         int j = 0;
         for (int i = 28; i <= 31; i++) {
             startTiles[j] = new Tile(3183, 3400 + i);
             j += 1;
-        }
-        for (Tile t : startTiles) {
-            System.out.println(t.toString());
         }
     }
 
@@ -119,6 +154,17 @@ public class LogIncinerator extends PollingScript<ClientContext> {
 
 
     public void burn() {
+        //are we standing on a fire?
+        GameObject objUnderPlayer = ctx.objects.select().select(new Filter<GameObject>() { @Override public boolean accept(GameObject go) {
+            if (go.tile().equals(ctx.players.local().tile()) && go.name().equals("Fire")) {
+                return true;
+            } return false;
+        } }).poll();
+
+        if (objUnderPlayer.name().equals("Fire")) {
+            ctx.movement.step(calcBestNewStartingSpot());
+            return;
+        }
         //how many logs we start with could be useful
         int ogLogAmount = ctx.inventory.select().id(logChoiceID).count();
 
@@ -137,13 +183,19 @@ public class LogIncinerator extends PollingScript<ClientContext> {
             public Boolean call() throws Exception {
                 return ctx.players.local().animation() == -1 && !ctx.players.local().inMotion();
             }
-        });
+        },100, 100);
         //check to see if we successfully burned anything
         int newLogAmount = ctx.inventory.select().id(logChoiceID).count();
         if (ogLogAmount == newLogAmount) {
             //must have been standing on something, find a new place to continue
             Tile bestOption = calcBestNewStartingSpot();
-            ctx.movement.step(bestOption);
+            TileMatrix bestMatrix = bestOption.matrix(ctx);
+            if (bestMatrix.inViewport()) {
+                bestMatrix.interact("Walk here");
+            } else {
+                ctx.movement.step(bestOption);
+            }
+
             Condition.wait(new Callable<Boolean>() {
                 @Override
                 public Boolean call() throws Exception {
@@ -157,6 +209,9 @@ public class LogIncinerator extends PollingScript<ClientContext> {
         Tile bestOption = startTiles[0];
         int num_fires = arbitraryLargeNumber;
         for (int t = 0; t < startTiles.length; t++) {
+            if (ctx.controller.isStopping()) {
+                break;
+            }
             final int finalT = t;
             int curr_num_fires = ctx.objects.select().select(new Filter<GameObject>() { @Override public boolean accept(GameObject go) {
                 if (go.tile().y() == startTiles[finalT].y() && go.name().equals("Fire")) {
@@ -206,7 +261,15 @@ public class LogIncinerator extends PollingScript<ClientContext> {
             boolean tryAgain = ctx.bank.withdraw(logChoiceID, 27);
             if (!tryAgain) {
                 System.out.println("failed withdraw twice");
-                stop();
+                ctx.bank.close();
+                Condition.wait(new Callable<Boolean>() {
+                    @Override
+                    public Boolean call() throws Exception {
+                        return !ctx.bank.opened();
+                    }
+                });
+                logout();
+                ctx.controller.stop();
             }
         }
         Condition.wait(new Callable<Boolean>() {
@@ -215,6 +278,8 @@ public class LogIncinerator extends PollingScript<ClientContext> {
                 return ctx.inventory.count() > 1;
             }
         });
-        ctx.bank.close();
+        if (Random.nextInt(0,1) == 1) {
+            ctx.bank.close();
+        }
     }
 }
