@@ -1,4 +1,4 @@
-package ryukis215;
+package scripts.RyuksMultiTaskingFisher;
 
 import java.awt.Point;
 
