@@ -1,10 +1,12 @@
-package scripts;
+package baikai00.scripts;
 
 import org.powerbot.script.*;
+import org.powerbot.script.rt6.Bank;
 import org.powerbot.script.rt6.ClientAccessor;
 import org.powerbot.script.rt6.ClientContext;
 import org.powerbot.script.rt6.GameObject;
 import org.powerbot.script.rt6.Item;
+import org.powerbot.script.rt6.Player;
 
 import java.util.Iterator;
 import java.util.concurrent.Callable;
@@ -53,31 +55,31 @@ public class Utils extends ClientAccessor{
     }
 
     public void running(){
-        if (ctx.movement.energyLevel() > 50 && !ctx.movement.running()){
+        if (ctx.movement.energyLevel() > 35 && !ctx.movement.running()){
             ctx.movement.running(true);
         }
     }
 
-    public Tile getTile(){
-        return ctx.players.local().tile();
-    }
-
-    public int getAnimation(){
+    public int animation(){
         return ctx.players.local().animation();
     }
     
     public boolean distance(Tile t1, Tile t2, int offset){
-        int step = ctx.movement.distance(t1, t2);
-        return step <= offset;
+        return t1.distanceTo(t2) <= offset;
     }
     
     public boolean distance(Tile t, int offset){
-        int step = ctx.movement.distance(t, getTile());
-        return step <= offset;
+        return t.distanceTo(player()) <= offset;
     }
 
-    public GameObject findObject(int id){
+    public GameObject find(int id){
         return ctx.objects.select().id(id).nearest().poll();
+    }
+    
+    public void closeBank(){
+    	if (ctx.bank.opened()){
+    		ctx.bank.close();
+    	}
     }
 
     public void sleep(long millis) {
@@ -116,10 +118,56 @@ public class Utils extends ClientAccessor{
 //            deleteCount++;
         }
     }
+    
+    public Locatable bank(){
+    	return ctx.bank.nearest();
+    }
+    
+    public Player player(){
+    	return ctx.players.local();
+    }
 
+    public void storeAndTake(int runeId){
+    	if(ctx.bank.opened()){
+        	if(count(ESS_ID) != 0){
+        		ctx.bank.close();
+        		return;
+        	}
+            if(ctx.bank.depositInventory()){
+            	Condition.wait(new Callable<Boolean>(){
+                    @Override
+                    public Boolean call() throws Exception {
+                        return count(runeId) == 0;
+                    }
+                }, 250, 20);
+            }
+            if (ctx.bank.withdraw(ESS_ID, 28)){
+            	 Condition.wait(new Callable<Boolean>() {
+ 					@Override
+ 					public Boolean call() throws Exception {
+ 						return count(ESS_ID) > 0;
+ 					}
+ 				}, 250, 20);
+            	recordTime();
+            }
+            ctx.bank.close();
+        } else {
+            if(ctx.bank.inViewport()) {
+                if(ctx.bank.open()){
+                    Condition.wait(new Callable<Boolean>(){
+                        @Override
+                        public Boolean call() throws Exception {
+                            return ctx.bank.opened();
+                        }
+                    }, 250, 20);
+                }
+            }
+        }
+    }
+    
     public void setCamera(){
         ctx.camera.angle(0);
-        ctx.camera.pitch(47);
+        ctx.camera.pitch(72);
     }
 
     public static final long TIME_OFFSET = 8 * 60 * 60 * 1000;
@@ -145,12 +193,10 @@ public class Utils extends ClientAccessor{
         }
     }
     public long lastTime = 0 - TIME_OFFSET;
+
+    /******************fire begin******************/
     public static final int ESS_ID = 7936;
     public static final int FIRE_RUNE_ID = 554;
-    public static final Area pathArea = new Area(new Tile(3289, 3205, 0),
-            new Tile(3391, 3271, 0));
-    public static final Area makeArea = new Area(new Tile(2572, 4832, 0),
-            new Tile(2592, 4850, 0));
     
     public static final Tile[] PATH_FIRE_BANK = new Tile[]{
             new Tile(3309,3241,0),
@@ -183,35 +229,215 @@ public class Utils extends ClientAccessor{
 
     public void fireBanking(){
         status = "BANKING";
-        GameObject gameObject;
-        if ((gameObject = findObject(OUT_FIRE_ID)).floor() == 0){
-        	gameObject.interact("Enter");
+        final GameObject out = find(OUT_FIRE_ID);
+        if (out.floor() == 0){
+        	if (distance(out.tile(), 4)){
+	       		 out.interact("Enter");
+	           	 sleep(1000);
+	     	 }else{
+	     		 walk(out.tile());
+	     	 }
         }else{
-        	if (ctx.bank.nearest().tile().distanceTo(ctx.players.local())<10){
-        		if(ctx.bank.opened()){
-                	if(ctx.backpack.select().id(ESS_ID).count() != 0){
-                		ctx.bank.close();
-                		return;
-                	}
+        	if (bank().tile().distanceTo(player()) < 10){
+        		storeAndTake(FIRE_RUNE_ID);
+        	}else {
+        		walker.walkPath(PATH_FIRE_BANK);
+        	}
+        }
+    }
+
+    public void fireMaking(){
+    	status = "MAKING";
+    	closeBank();
+    	setCamera();
+    	final GameObject firCraft = find(MAKE_FIRE_ID);
+    	if (firCraft.floor() == 0){
+    		if (distance(firCraft.tile(), 4)){
+    			firCraft.interact("Craft-rune");
+                sleep(500);
+    		}else{
+    			walk(firCraft.tile());
+    		}
+    	}else{
+    		if (distance(FIRE_ENTER_TILE, 7)){
+    			find(ENTER_FIRE_ID).interact("Enter");
+    		}else{
+    			walker.walkPath(PATH_FIRE_MAKE);
+        	}
+    	}
+    }
+    /******************fire end******************/
+    
+    /******************air begin******************/
+    public static final int AIR_CRAFT_ID = 2478;
+    public static final int AIR_ENTER_ID = 2452;
+    public static final int AIR_OUT_ID = 2465;
+    public static final int AIR_RUNE_ID = 556;
+    public static final Tile[] PATH_AIR_CRAFT = {
+    		new Tile(3185, 3432),
+    		new Tile(3174, 3429),
+    		new Tile(3161, 3420),
+    		new Tile(3144, 3413),
+    		new Tile(3133, 3408)
+    };
+    public static final Tile[] PATH_AIR_BANK = {
+    		new Tile(3133, 3408),
+    		new Tile(3144, 3413),
+    		new Tile(3161, 3420),
+    		new Tile(3174, 3429),
+    		new Tile(3185, 3432)
+    };
+    
+    public void airCraft(){
+    	status = "MAKING";
+    	closeBank();
+    	setCamera();
+    	final GameObject airCraft = find(AIR_CRAFT_ID);
+    	if (airCraft.floor() == 0){
+    		if (distance(airCraft.tile(), 4)){
+    			airCraft.interact("Craft-rune");
+                sleep(500);
+    		}else{
+    			walk(airCraft.tile());
+    		}
+    	}else{
+    		final GameObject enter = find(AIR_ENTER_ID);
+    		if (distance(enter.tile(), 7)){
+    			enter.interact("Enter");
+    		}else{
+    			walker.walkPath(PATH_AIR_CRAFT);
+        	}
+    	}
+    }
+    
+    public void airBank(){
+    	 status = "BANKING";
+         final GameObject out = find(AIR_OUT_ID);
+         if (out.floor() == 0){
+        	 if (distance(out.tile(), 4)){
+        		 out.interact("Enter");
+            	 sleep(1000);
+	     	 }else{
+	     		 walk(out.tile());
+	     	 }
+         }else{
+         	if (bank().tile().distanceTo(player())<10){
+         		storeAndTake(AIR_RUNE_ID);
+         	}else {
+         		walker.walkPath(PATH_AIR_BANK);
+         	}
+         }
+    }
+    /******************air end******************/
+    
+    /******************go to trade start******************/
+    public static final Tile Tile_V = new Tile(3213, 3376);
+    public static final Tile[] PATH_TO_TRADE = {
+    		new Tile(3211, 3391),
+    		new Tile(3211, 3404),
+    		new Tile(3201, 3413),
+    		new Tile(3198, 3426),
+    		new Tile(3187, 3430),
+    		new Tile(3187, 3444),
+    		new Tile(3175, 3451),
+    		new Tile(3167, 3460),
+    		new Tile(3175, 3468),
+    		new Tile(3181, 3473)
+    };
+    private int tState = 0;
+    private long clickStart = 0;
+    private int clickState = 0;
+    public void dh(){
+    	if (distance(Tile_V, 10)){
+			tState = 1;
+		}
+    	
+    	if (distance(PATH_TO_TRADE[PATH_TO_TRADE.length-1], 7)){
+			tState = 2;
+		}
+    	
+    	if (tState == 0 && clickState != 0){
+    		if (clickState == 1){
+    			if (now() - clickStart < 3000){
+    				return;
+    			}
+    		}else if (clickState == 2){
+    			if (now() - clickStart < 12000){
+    				return;
+    			}
+    		}
+    	}
+    	
+    	if (tState == 0){
+    		status = "dh Home";
+    		if(ctx.input.click(647, 173, true)){
+    			clickState = 1;
+    			clickStart = now();
+				sleep(1000);
+				if (ctx.input.click(486, 256, true)){
+					clickState = 2;
+					clickStart = now();
+					sleep(1000);
+					if (distance(Tile_V, 10)){
+						tState = 1;
+						clickState = 0;
+					}
+				}
+			}
+    	}else if (tState == 1){
+    		status = "dh Walk";
+    		if (distance(PATH_TO_TRADE[PATH_TO_TRADE.length-1], 7)){
+    			tState = 2;
+    		}else{
+    			walker.walkPath(PATH_TO_TRADE);
+    		}
+    	}else if (tState == 2){
+    		status = "dh Bank";
+    		Locatable bank = bank();
+    		if (distance(bank.tile(), 4)){
+    			if(ctx.bank.opened()){
                     if(ctx.bank.depositInventory()){
                     	Condition.wait(new Callable<Boolean>(){
                             @Override
                             public Boolean call() throws Exception {
-                                return ctx.backpack.select().id(FIRE_RUNE_ID).count() == 0;
-                                
+                                return ctx.backpack.select().count() == 0;
                             }
                         }, 250, 20);
                     }
-                    if (ctx.bank.withdraw(ESS_ID, 28)){
-                    	 Condition.wait(new Callable<Boolean>() {
-         					@Override
-         					public Boolean call() throws Exception {
-         						return ctx.backpack.select().id(ESS_ID).count() > 0;
-         					}
-         				}, 250, 20);
-                    	recordTime();
+                    if (ctx.bank.withdrawMode(true)){
+                    	Condition.wait(new Callable<Boolean>(){
+                            @Override
+                            public Boolean call() throws Exception {
+                                return ctx.bank.withdrawMode();
+                            }
+                        }, 250, 20);
+                    }
+                    if (ctx.bank.withdraw(ESS_ID, Bank.Amount.ALL)){
+                    	Condition.wait(new Callable<Boolean>(){
+                            @Override
+                            public Boolean call() throws Exception {
+                                return ctx.bank.select().id(ESS_ID).count() == 0;
+                            }
+                        }, 250, 20);
+                    }
+                    if (ctx.bank.withdraw(FIRE_RUNE_ID, Bank.Amount.ALL)){
+                    	Condition.wait(new Callable<Boolean>(){
+                            @Override
+                            public Boolean call() throws Exception {
+                                return ctx.bank.select().id(FIRE_RUNE_ID).count() == 0;
+                            }
+                        }, 250, 20);
+                    }
+                    if (ctx.bank.withdraw(AIR_RUNE_ID, Bank.Amount.ALL)){
+                    	Condition.wait(new Callable<Boolean>(){
+                            @Override
+                            public Boolean call() throws Exception {
+                                return ctx.bank.select().id(AIR_RUNE_ID).count() == 0;
+                            }
+                        }, 250, 20);
                     }
                     ctx.bank.close();
+                    ctx.controller.stop();
                 } else {
                     if(ctx.bank.inViewport()) {
                         if(ctx.bank.open()){
@@ -224,30 +450,13 @@ public class Utils extends ClientAccessor{
                         }
                     }
                 }
-        	}else {
-//        		walk(PATH_FIRE_BANK);
-        		walker.walkPath(PATH_FIRE_BANK);
-        	}
-        }
-    }
-
-    public void fireMaking(){
-    	status = "MAKING";
-    	if (findObject(MAKE_FIRE_ID).floor() == 0){
-    		if (distance(FIRE_MAKE_TILE, 3)){
-    			findObject(MAKE_FIRE_ID).interact("Craft-rune");
-                sleep(500);
     		}else{
-//    			walk(FIRE_MAKE_TILE);
-    			walker.walkPath(FIRE_MAKE_TILE);
+    			walk(bank.tile());
     		}
     	}else{
-    		if (distance(FIRE_ENTER_TILE, 7)){
-    			findObject(ENTER_FIRE_ID).interact("Enter");
-    		}else{
-//    			walk(PATH_FIRE_MAKE);
-    			walker.walkPath(PATH_FIRE_MAKE);
-        	}
+    		ctx.controller.stop();
     	}
     }
+    
+    /******************go to trade end******************/
 }

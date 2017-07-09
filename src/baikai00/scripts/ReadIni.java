@@ -1,4 +1,4 @@
-package scripts;
+package baikai00.scripts;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

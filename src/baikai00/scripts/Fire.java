@@ -1,4 +1,4 @@
-package scripts;
+package baikai00.scripts;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -22,9 +22,6 @@ public class Fire extends PollingScript<ClientContext> implements PaintListener{
 	@Override
 	public void start() {
 		utils = new Utils(ctx);
-//		ctx.lobby.world(20)
-		System.out.println("start"+Thread.currentThread());
-//		ctx.input.speed(10000);
 		dhChecker = DHChecker.getInstance();
 		if (dhChecker.getState() != Thread.State.RUNNABLE && !dhChecker.isStart()){
 			dhChecker.start();
@@ -38,7 +35,7 @@ public class Fire extends PollingScript<ClientContext> implements PaintListener{
 
 	@Override
 	public void poll() {
-		if (utils.getAnimation() == -1){
+		if (utils.animation() == -1){
 			play();
 		}
 	}
@@ -55,14 +52,15 @@ public class Fire extends PollingScript<ClientContext> implements PaintListener{
 				utils.fireMaking();
 				break;
 			case DH:
+				utils.dh();
 				break;
 		}
 	}
 	
 	public State getState() {
-//		if (dhChecker != null && dhChecker.getIniState() == 200){
-//			return State.DH;
-//		}
+		if (dhChecker != null && dhChecker.getIniState() == 200){
+			return State.DH;
+		}
 		if (utils.count(Utils.ESS_ID) <= 0) {
 			return State.BANKING;
 		}

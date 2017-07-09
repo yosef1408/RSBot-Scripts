@@ -1,4 +1,4 @@
-package scripts;
+package baikai00.scripts;
 
 import org.powerbot.script.Condition;
 import org.powerbot.script.Random;
@@ -220,7 +220,8 @@ public class Walker {
         if(nt.matrix(ctx).reachable()){
             return ctx.movement.step(nt);
         }
-        return ti.matrix(ctx).reachable() ? ctx.movement.step(ti) : handleObstacle(t);
+//        return ti.matrix(ctx).reachable() ? ctx.movement.step(ti) : handleObstacle(t);
+        return ctx.movement.step(ti);
     }
 
     /**
