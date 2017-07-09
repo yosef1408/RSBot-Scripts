@@ -22,7 +22,6 @@ public class DHChecker extends Thread{
 		isStart = true;
 		while(true){
 			try {
-				// 10秒钟检查一次
 				Thread.sleep(10000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
@@ -42,7 +41,6 @@ public class DHChecker extends Thread{
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		// 到货
 		if (dhValue != null && "1".equals(dhValue)){
 			return 200;
 		}

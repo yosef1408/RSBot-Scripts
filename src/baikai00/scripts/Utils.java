@@ -31,11 +31,8 @@ public class Utils extends ClientAccessor{
             }
 
             if (i != path.length-1){
-            	// 到第一个点的距离
                 int distance1 = ctx.movement.distance(path[i]);
-                // 到第二个点的距离
                 int distance2 = ctx.movement.distance(path[i+1]);
-                // 到最后一个点的记距离
                 int end = ctx.movement.distance(path[path.length-1]);
                 if (distance1 > end){
                 	continue;
@@ -148,8 +145,6 @@ public class Utils extends ClientAccessor{
         }
     }
     public long lastTime = 0 - TIME_OFFSET;
-
-    /******************火片制作开始******************/
     public static final int ESS_ID = 7936;
     public static final int FIRE_RUNE_ID = 554;
     public static final Area pathArea = new Area(new Tile(3289, 3205, 0),
@@ -255,5 +250,4 @@ public class Utils extends ClientAccessor{
         	}
     	}
     }
-    /******************火片制作结束******************/
 }
