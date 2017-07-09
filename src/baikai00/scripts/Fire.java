@@ -71,7 +71,6 @@ public class Fire extends PollingScript<ClientContext> implements PaintListener{
 	public void stop() {
 		super.stop();
 		System.out.println("Fire Stop");
-		ctx.controller.stop();
 	}
 
 	private SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss",
@@ -81,7 +80,8 @@ public class Fire extends PollingScript<ClientContext> implements PaintListener{
 	private Color color2 = Color.GREEN;
 	private Color color1 = Color.RED;
 	private Date date = new Date();
-
+	
+	@Override
 	public void repaint(Graphics graphics) {
 		if (utils == null){
 			return;
