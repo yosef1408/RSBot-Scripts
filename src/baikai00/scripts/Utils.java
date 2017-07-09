@@ -166,7 +166,7 @@ public class Utils extends ClientAccessor{
     }
     
     public void setCamera(){
-        ctx.camera.angle(0);
+        ctx.camera.angle('n');
         ctx.camera.pitch(72);
     }
 
@@ -229,6 +229,7 @@ public class Utils extends ClientAccessor{
 
     public void fireBanking(){
         status = "BANKING";
+        setCamera();
         final GameObject out = find(OUT_FIRE_ID);
         if (out.floor() == 0){
         	if (distance(out.tile(), 4)){
@@ -248,8 +249,8 @@ public class Utils extends ClientAccessor{
 
     public void fireMaking(){
     	status = "MAKING";
-    	closeBank();
     	setCamera();
+    	closeBank();
     	final GameObject firCraft = find(MAKE_FIRE_ID);
     	if (firCraft.floor() == 0){
     		if (distance(firCraft.tile(), 4)){
@@ -312,6 +313,7 @@ public class Utils extends ClientAccessor{
     
     public void airBank(){
     	 status = "BANKING";
+    	 setCamera();
          final GameObject out = find(AIR_OUT_ID);
          if (out.floor() == 0){
         	 if (distance(out.tile(), 4)){

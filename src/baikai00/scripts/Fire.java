@@ -3,7 +3,6 @@ package baikai00.scripts;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -18,7 +17,8 @@ public class Fire extends PollingScript<ClientContext> implements PaintListener{
 	private DHChecker dhChecker;
 	private String account = "0";
 	private Utils utils;
-	private int myWorld = 0;
+//	private int myWorld = 0;
+	private String username = "";
 	@Override
 	public void start() {
 		utils = new Utils(ctx);
@@ -30,6 +30,7 @@ public class Fire extends PollingScript<ClientContext> implements PaintListener{
 		System.out.println("Fire Begin");
 		utils.setCamera();
 		initTime = System.currentTimeMillis() + Utils.TIME_OFFSET;
+		username = ctx.properties.getProperty("login.account.username");
 	}
 
 
@@ -44,6 +45,7 @@ public class Fire extends PollingScript<ClientContext> implements PaintListener{
 		final State state = getState();
 		if (state == null){return;}
 		System.out.println("Fire state:" + state);
+		utils.setCamera();
 		switch (state){
 			case BANKING:
 				utils.fireBanking();
@@ -82,17 +84,16 @@ public class Fire extends PollingScript<ClientContext> implements PaintListener{
 	private Date date = new Date();
 	
 	@Override
-	public void repaint(Graphics graphics) {
+	public void repaint(Graphics g) {
 		if (utils == null){
 			return;
 		}
-		Graphics2D g = (Graphics2D)graphics;
 		long time = System.currentTimeMillis() - initTime;
 		g.setFont(font);
 		g.setColor(color2);
-		g.drawString("World: ", 5, 115 - 25 * 2);
+		g.drawString("Account: ", 5, 115 - 25 * 2);
 		g.setColor(color1);
-		g.drawString(myWorld + "", 5, 115 - 25 * 1);
+		g.drawString(username, 5, 115 - 25 * 1);
 		g.setColor(color2);
 		g.drawString("Time running: ", 5, 115 + 25 * 0);
 		g.setColor(color1);
