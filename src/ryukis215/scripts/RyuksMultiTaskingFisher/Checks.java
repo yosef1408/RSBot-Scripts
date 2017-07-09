@@ -1,4 +1,4 @@
-package ryukis215;
+package scripts.RyuksMultiTaskingFisher;
 
 import org.powerbot.script.Filter;
 import org.powerbot.script.Tile;
