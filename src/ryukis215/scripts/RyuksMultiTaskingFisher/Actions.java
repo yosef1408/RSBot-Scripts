@@ -1,4 +1,4 @@
-package ryukis215;
+package scripts.RyuksMultiTaskingFisher;
 
 import java.util.concurrent.Callable;
 
@@ -11,6 +11,7 @@ import org.powerbot.script.rt4.GameObject;
 import org.powerbot.script.rt4.Interactive;
 import org.powerbot.script.rt4.Item;
 import org.powerbot.script.rt4.Npc;
+import org.powerbot.script.rt4.TileMatrix;
 import org.powerbot.script.rt4.TilePath;
 
 /**
@@ -35,9 +36,13 @@ public class Actions extends Controller {
 	 */
 	public void interactWithNpc(org.powerbot.script.rt4.Npc theOne, String action){
 		if(!theOne.inViewport()){
-			gotoTile(theOne.tile());
+			ctx.camera.turnTo(theOne);
+			
+			if(player.tile().distanceTo(theOne.tile()) > 6)
+				gotoTile(theOne.tile());
+			else
+			theOne.tile().matrix(ctx).interact("Walk Here"); 
 		}
-		ctx.camera.turnTo(theOne);
 		theOne.interact(action);
 		Condition.sleep(Random.nextInt(400, 600));
 	}
@@ -60,8 +65,17 @@ public class Actions extends Controller {
 	}
 	
 	public void castLine(){
+		if (ctx.inventory.selectedItemIndex() > 0)
+			ctx.inventory.itemAt(ctx.inventory.selectedItemIndex()).click();
+		
 		Npc fishspot = ctx.npcs.select().name("Fishing spot").nearest().poll();
-		action.interactWithNpc(fishspot, fishingAction);
+		interactWithNpc(fishspot, fishingAction);
+		Condition.wait(new Callable<Boolean>() {
+			@Override
+			public Boolean call() throws Exception {
+				return player.animation() != -1;
+			}
+		}, 200, 10);
 	}
 	
 	/**
@@ -79,19 +93,26 @@ public class Actions extends Controller {
 		for(Item item : ctx.inventory.items()){
 			for(int id: fishList){
 				if(item.id() == id){
-						
-					if(ctx.inventory.selectedItemIndex() != -1)
-						ctx.inventory.itemAt(ctx.inventory.selectedItemIndex()).click();
-					
+							
 					if (shiftClickOn) {
-					    item.click(true);
+					    item.click(true);			
 					}else{
 						item.interact("Drop");
 					}
+					
+					if(ctx.inventory.selectedItemIndex() != -1)
+						ctx.inventory.itemAt(ctx.inventory.selectedItemIndex()).click();
 				}
 			}
 		}
+		Condition.sleep(Random.nextInt(100, 250));
 		if(shiftClickOn)ctx.input.send("{VK_SHIFT up}");
+		
+		if (ctx.inventory.selectedItemIndex() > 0){
+			ctx.inventory.itemAt(ctx.inventory.selectedItemIndex()).click();
+			dropFishes();
+		}
+		
 	}
 	
 	public void cookFishes(){

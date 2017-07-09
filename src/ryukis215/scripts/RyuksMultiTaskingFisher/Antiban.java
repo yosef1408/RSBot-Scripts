@@ -1,4 +1,4 @@
-package ryukis215;
+package scripts.RyuksMultiTaskingFisher;
 
 import java.awt.Point;
 
@@ -9,11 +9,12 @@ public class Antiban extends Controller {
 	
 	
 	public void runAntiban(){
-		int randNum = Random.nextInt(1, 11);
+		int randNum = Random.nextInt(1, 15);
 		if(randNum == 1) antiban.checkXP();
-		if(randNum >= 2 && randNum <= 5) randomCameraTurn();
-		if(randNum >= 6 && randNum <= 8) moveMouseOffScreen();
-		if(randNum >= 9 && randNum <= 11) randomMouseMovement(100,300);
+		if(randNum >= 2 && randNum <= 4) randomCameraTurn();
+		if(randNum >= 6 && randNum <= 8) randomMouseMovement(100,300);
+		if(randNum >= 9 && randNum <= 15) moveMouseOffScreen();
+		
 	}
 		
 	/**
@@ -33,7 +34,6 @@ public class Antiban extends Controller {
 			randNum = Random.nextInt(2, 6);
 			for(int i = 0; i<randNum; i++){
 				ctx.camera.angle(ctx.camera.yaw() + Random.nextInt(-100, 100));
-				Condition.sleep(Random.nextInt(250, 500));
 			}
 		}
 		
@@ -43,17 +43,21 @@ public class Antiban extends Controller {
 	}
 	
 	public void moveMouseOffScreen(){
-		int x = Random.nextInt(-1000, -100);
-		int y = Random.nextInt(-1000, -100);
+		int x = Random.nextInt(-500, -50);
+		int y = Random.nextInt(500, -300);
 		ctx.input.move(x, y);
 		ctx.input.defocus();
 		
-		Condition.sleep(Random.nextInt(5000, 13000));
-		
-		ctx.input.focus();
-		x = Random.nextInt(16, 512);
-		y = Random.nextInt(45, 334);
-		ctx.input.move(x, y);
+		Condition.sleep(Random.nextInt(4300, 20000));
+		if (check.inventoryLength() == 28){
+			ctx.input.focus();
+			action.dropFishes();
+		}else{			
+			ctx.input.focus();
+			x = Random.nextInt(16, 512);
+			y = Random.nextInt(45, 334);
+			ctx.input.move(x, y);
+		}
 	}
 		
 	/**

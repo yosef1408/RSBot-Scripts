@@ -1,5 +1,4 @@
-package ryukis215;
-
+package scripts.RyuksMultiTaskingFisher;
 
 
 import java.awt.Color;
@@ -71,9 +70,10 @@ public class Controller extends PollingScript<ClientContext> implements MessageL
 	final static Checks check = new Checks();
 	final static ControllerGUI gui = new ControllerGUI();
 
-	
 	@Override
 	public void start(){
+		ctx.camera.pitch(true);
+		
 		if((ctx.varpbits.varpbit(1055) & 131072) > 0){
 			action.shiftClickOn = true; 
 		}
@@ -105,15 +105,14 @@ public class Controller extends PollingScript<ClientContext> implements MessageL
 
 		if(mode == "fish"){
 			currentlyFishing = check.checkIfFishing();//establish whether we're currently fishing or not
-			if(featherCount == 0 || featherCount == -1){
-				action.dropFishes();
+			if(featherCount == 0 || featherCount == -1){			
 				if(location == "barbarianVillage"){
+					action.dropFishes();
 					mode = "travel_to_fight";
 					featherCountAim = Random.nextInt(featherCountAimLower,featherCountAimUpper);
 				}else if(location == "barbarianFishing"){
 					mode = "derp";//unidentified mode leads to controller.stop() as default
-				}
-				
+				}			
 			}
 		}
 
@@ -130,9 +129,9 @@ public class Controller extends PollingScript<ClientContext> implements MessageL
 			
 		
 		final State state = getState();
-		if (state == null) {
+		if (state == null)
 			return;
-		}
+		
 		
 		switch (state) {
 			case FISH:
@@ -200,7 +199,7 @@ public class Controller extends PollingScript<ClientContext> implements MessageL
 					ctx.controller.stop();
 				break;
 			case DEBUG:
-			
+
 				break;
 		}
 	}
@@ -225,13 +224,12 @@ public class Controller extends PollingScript<ClientContext> implements MessageL
 			return State.TRAVEL_FISH;
 		}else if(mode == "fish"){
 			if (check.inventoryLength() == 28) return State.FULL;
-			if(currentlyFishing && Random.nextInt(1, 1000) > 994){
+			if(currentlyFishing && Random.nextInt(1, 1000) > 980){
 				return State.ANTIBAN;
 			}else{
 				return State.FISH;
 			}
 		}else if(mode == "debug"){
-			System.out.println("debug");
 			return State.DEBUG;
 		}else{
 			
