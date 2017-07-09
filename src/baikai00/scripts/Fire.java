@@ -13,7 +13,7 @@ import org.powerbot.script.PollingScript;
 import org.powerbot.script.Script.Manifest;
 import org.powerbot.script.rt6.ClientContext;
 
-@Manifest(name="AutoFireCraft", description="make fire rune",  properties = "client=6;topic=55516166;author=weylen;")
+@Manifest(name="AutoFireCraft", description="make fire rune",  properties = "client=6;topic=1335104;author=weylen;")
 public class Fire extends PollingScript<ClientContext> implements PaintListener{
 	private DHChecker dhChecker;
 	private String account = "0";
