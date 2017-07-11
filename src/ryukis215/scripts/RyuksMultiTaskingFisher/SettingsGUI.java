@@ -1,4 +1,4 @@
-package scripts.RyuksMultiTaskingFisher;
+package ryukis215.scripts.RyuksMultiTaskingFisher;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;

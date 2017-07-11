@@ -1,4 +1,4 @@
-package scripts.RyuksMultiTaskingFisher;
+package ryukis215.scripts.RyuksMultiTaskingFisher;
 
 import java.util.concurrent.Callable;
 
