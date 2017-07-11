@@ -12,9 +12,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Random;
 
-/**
- * Created by Gaston on 31/05/2017.
- */
+
 @Script.Manifest(name = "SYewChopper", properties = "author=Spearless; topic=1333332; client=4;", description = "The objective of the script is for new accounts to level up Mining, Woodcutting. Start at Lumbridge with an axe, a pickaxe and a net, nothing else")
 public class SYewChopper extends PollingScript<ClientContext> implements PaintListener,MessageListener {
     Area EDGEVILLE_AREA= new Area(new Tile(3083,3481),new Tile(3092,3466));
