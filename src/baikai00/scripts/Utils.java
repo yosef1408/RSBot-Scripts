@@ -127,7 +127,7 @@ public class Utils extends ClientAccessor{
     	return ctx.players.local();
     }
 
-    public void storeAndTake(int runeId){
+    public void storeAndTake(final int runeId){
     	if(ctx.bank.opened()){
         	if(count(ESS_ID) != 0){
         		ctx.bank.close();
