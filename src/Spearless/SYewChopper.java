@@ -13,7 +13,7 @@ import java.awt.event.ActionListener;
 import java.util.Random;
 
 
-@Script.Manifest(name = "SYewChopper", properties = "author=Spearless; topic=1333332; client=4;", description = "The objective of the script is for new accounts to level up Mining, Woodcutting. Start at Lumbridge with an axe, a pickaxe and a net, nothing else")
+@Script.Manifest(name = "SYewChopper", properties = "author=Spearless; topic=1333332; client=4;", description = "Cuts Yews and banks in East Varrock,DraynorV,GE,SouthFalador,Edgeville")
 public class SYewChopper extends PollingScript<ClientContext> implements PaintListener,MessageListener {
     Area EDGEVILLE_AREA= new Area(new Tile(3083,3481),new Tile(3092,3466));
     Tile TileToTreesEDG[]={new Tile(3093, 3489, 0), new Tile(3090, 3486, 0), new Tile(3093, 3483, 0), new Tile(3093, 3479, 0), new Tile(3093, 3475, 0), new Tile(3093, 3471, 0), new Tile(3089, 3470, 0)};
