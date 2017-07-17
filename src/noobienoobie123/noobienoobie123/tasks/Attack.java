@@ -1,4 +1,4 @@
-package NoobieNoobieSlayer.tasks;
+package noobienoobie123.tasks;
 
 import org.powerbot.script.*;
 import org.powerbot.script.rt4.ClientContext;

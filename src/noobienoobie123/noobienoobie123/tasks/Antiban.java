@@ -1,4 +1,4 @@
-package NoobieNoobieSlayer.tasks;
+package noobienoobie123.tasks;
 
 import org.powerbot.script.*;
 import org.powerbot.script.rt4.ClientContext;
@@ -35,6 +35,9 @@ public class Antiban extends Task{
         if (random==3){
             if(ctx.game.tab(Game.Tab.STATS)!= true) {
                 ctx.game.tab(Game.Tab.STATS);
+                Condition.sleep((int) (Math.random() * 1000 + 500));
+            }
+            else{
                 Condition.sleep((int) (Math.random() * 1000 + 500));
             }
         }

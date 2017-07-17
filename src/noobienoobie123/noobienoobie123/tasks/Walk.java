@@ -1,4 +1,4 @@
-package NoobieNoobieSlayer.tasks;
+package noobienoobie123.tasks;
 
 import org.powerbot.script.Condition;
 import org.powerbot.script.Tile;

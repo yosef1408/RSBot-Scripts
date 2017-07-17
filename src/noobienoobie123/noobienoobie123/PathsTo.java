@@ -1,4 +1,4 @@
-package NoobieNoobieSlayer;
+package noobienoobie123;
 
 import org.powerbot.script.Tile;
 

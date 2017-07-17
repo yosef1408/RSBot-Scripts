@@ -1,12 +1,12 @@
-package NoobieNoobieSlayer;
+package noobienoobie123;
 
 import org.powerbot.script.*;
 import org.powerbot.script.rt4.ClientContext;
 import org.powerbot.script.rt4.Constants;
 import osrs.Task;
-import NoobieNoobieSlayer.tasks.Antiban;
-import NoobieNoobieSlayer.tasks.Attack;
-import NoobieNoobieSlayer.tasks.Walk;
+import noobienoobie123.tasks.Antiban;
+import noobienoobie123.tasks.Attack;
+import noobienoobie123.tasks.Walk;
 
 import javax.swing.JOptionPane;
 import java.awt.*;
