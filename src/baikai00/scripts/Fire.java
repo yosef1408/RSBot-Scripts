@@ -15,9 +15,7 @@ import org.powerbot.script.rt6.ClientContext;
 @Manifest(name="AutoFireCraft", description="make fire rune",  properties = "client=6;topic=1335104;author=baikai00;")
 public class Fire extends PollingScript<ClientContext> implements PaintListener{
 	private DHChecker dhChecker;
-	private String account = "0";
 	private Utils utils;
-//	private int myWorld = 0;
 	private String username = "";
 	@Override
 	public void start() {
@@ -44,7 +42,6 @@ public class Fire extends PollingScript<ClientContext> implements PaintListener{
 	private void play(){
 		final State state = getState();
 		if (state == null){return;}
-		System.out.println("Fire state:" + state);
 		utils.setCamera();
 		switch (state){
 			case BANKING:
@@ -104,9 +101,10 @@ public class Fire extends PollingScript<ClientContext> implements PaintListener{
 		g.setColor(color1);
 		g.drawString(utils.status, 5, 115 + 25 * 3);
 		g.setColor(color2);
-		g.drawString("Account: ", 5, 115 + 25 * 4);
+		g.drawString("Count/Price: ", 5, 115 + 25 * 4);
 		g.setColor(color1);
-		g.drawString(account, 5, 115 + 25 * 5);
+		g.drawString(""+utils.getFireRuneCount()+"/"+
+				(utils.getPrice()/1000)+"k", 5, 115 + 25 * 5);
 		g.setColor(color2);
 		g.drawString("LastTime: ", 5, 115 + 25 * 6);
 		g.setColor(color1);

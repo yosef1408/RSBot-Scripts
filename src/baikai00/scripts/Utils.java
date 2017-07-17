@@ -5,6 +5,7 @@ import org.powerbot.script.rt6.Bank;
 import org.powerbot.script.rt6.ClientAccessor;
 import org.powerbot.script.rt6.ClientContext;
 import org.powerbot.script.rt6.GameObject;
+import org.powerbot.script.rt6.GeItem;
 import org.powerbot.script.rt6.Item;
 import org.powerbot.script.rt6.Player;
 
@@ -13,10 +14,11 @@ import java.util.concurrent.Callable;
 
 public class Utils extends ClientAccessor{
 	private Walker walker = null;
-
+	private GeItem geItem = null;
     public Utils(ClientContext ctx) {
         super(ctx);
         walker = new Walker(ctx);
+        geItem = new GeItem(FIRE_RUNE_ID);
     }
 
     public int count(int id){
@@ -141,6 +143,7 @@ public class Utils extends ClientAccessor{
                     }
                 }, 250, 20);
             }
+            selectFireRuneCount();
             if (ctx.bank.withdraw(ESS_ID, 28)){
             	 Condition.wait(new Callable<Boolean>() {
  					@Override
@@ -168,6 +171,26 @@ public class Utils extends ClientAccessor{
     public void setCamera(){
         ctx.camera.angle('n');
         ctx.camera.pitch(72);
+    }
+    
+    private int fireRuneCount = 0;
+    public int getFireRuneCount(){
+    	return fireRuneCount;
+    }
+    
+    public void setFireRuneCount(int count){
+    	this.fireRuneCount = count;
+    }
+    
+    private void selectFireRuneCount(){
+    	int count = ctx.bank.select().id(FIRE_RUNE_ID).count(true);
+    	if (count != 0){
+    		fireRuneCount = count;
+    	}
+    }
+    
+    public int getPrice(){
+    	return geItem == null ? 0 : geItem.price * fireRuneCount;
     }
 
     public static final long TIME_OFFSET = 8 * 60 * 60 * 1000;
@@ -199,16 +222,13 @@ public class Utils extends ClientAccessor{
     public static final int FIRE_RUNE_ID = 554;
     
     public static final Tile[] PATH_FIRE_BANK = new Tile[]{
-            new Tile(3309,3241,0),
             new Tile(3323,3233,0),
             new Tile(3340,3233,0),
-            new Tile(3344,3235,0),
             new Tile(3345,3236,0)
     };
     public static final Tile[] PATH_FIRE_MAKE = new Tile[]{
             new Tile(3338,3232,0),
             new Tile(3321,3236,0),
-            new Tile(3315,3247,0),
             new Tile(3314,3253,0)
     };
 
