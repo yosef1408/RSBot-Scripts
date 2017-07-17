@@ -16,7 +16,7 @@ import java.util.List;
 /**
  * Created by larry on 7/10/2017.
  */
-@Script.Manifest(name="LumbridgeSlayer", description = "Kills monsters in Lumbridge", properties = "author=noobienoobie123; topic=999; client=4;")
+@Script.Manifest(name="LumbridgeSlayer", description = "Kills monsters in Lumbridge", properties = "author=noobienoobie123; topic=1335353; client=4;")
 
 public class LumbridgeSlayer extends PollingScript<ClientContext> implements PaintListener{
 
