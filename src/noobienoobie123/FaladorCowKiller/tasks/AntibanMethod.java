@@ -1,17 +1,18 @@
-package noobienoobie123.tasks;
-
-import org.powerbot.script.*;
-import org.powerbot.script.rt4.ClientContext;
-import org.powerbot.script.rt4.Game;
-import osrs.Task;
+package noobienoobie123.FaladorCowKiller.tasks;
 
 /**
- * Created by larry on 7/16/2017.
+ * Created by larry on 7/17/2017.
  */
-public class Antiban extends Task{
+
+import noobienoobie123.FaladorCowKiller.Task;
+import org.powerbot.script.Condition;
+import org.powerbot.script.rt4.ClientContext;
+import org.powerbot.script.rt4.Game;
 
 
-    public Antiban(ClientContext ctx) {
+public class AntibanMethod extends Task
+{
+    public AntibanMethod(ClientContext ctx) {
         super(ctx);
     }
 
@@ -26,7 +27,6 @@ public class Antiban extends Task{
 
         if (random ==1){
             Condition.sleep((int )(Math. random() * 1800 + 1000));
-
         }
         if (random==2){
             ctx.camera.turnTo(ctx.players.select().nearest().poll());
