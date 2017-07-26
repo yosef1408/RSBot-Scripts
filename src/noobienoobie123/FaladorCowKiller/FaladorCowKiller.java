@@ -5,18 +5,15 @@ package noobienoobie123.FaladorCowKiller;
  */
 
 
-import noobienoobie123.FaladorCowKiller.tasks.CowKiller;
-import noobienoobie123.FaladorCowKiller.tasks.FaladorBank;
-import noobienoobie123.FaladorCowKiller.tasks.Looter;
-import noobienoobie123.FaladorCowKiller.tasks.WalkToCowPen;
+import noobienoobie123.FaladorCowKiller.tasks.*;
 import org.powerbot.script.PaintListener;
 import org.powerbot.script.PollingScript;
 import org.powerbot.script.Script;
 import org.powerbot.script.rt4.ClientContext;
 import org.powerbot.script.rt4.Constants;
-import noobienoobie123.FaladorCowKiller.Task;
 
 
+import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -71,10 +68,17 @@ public class FaladorCowKiller extends PollingScript<ClientContext> implements Pa
     @Override
     public void start(){
 
+        String userChoices [] = {"Lumbridge", "Falador"};
+        String userSelection = (String) JOptionPane.showInputDialog(null, "Where do you wish to kill cows?","LumbridgeKiller",JOptionPane.PLAIN_MESSAGE, null, userChoices,userChoices[0]);
 
+        if(userSelection.equals("Lumbridge")){
+            tasklist.add(new WalkToCowPenLumbridge(ctx));
+        }
+        if(userSelection.equals("Falador")){
+            tasklist.add(new WalkToCowPenFalador(ctx));
+        }
 
-        tasklist.add(new FaladorBank(ctx));
-        tasklist.add(new WalkToCowPen(ctx));
+        tasklist.add(new Bank(ctx));
         tasklist.add(new Looter(ctx));
         tasklist.add(new CowKiller(ctx));
 
