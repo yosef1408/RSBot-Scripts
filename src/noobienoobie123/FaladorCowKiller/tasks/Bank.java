@@ -11,9 +11,9 @@ import org.powerbot.script.rt4.ClientContext;
 
 import java.util.concurrent.Callable;
 
-public class FaladorBank extends Task{
+public class Bank extends Task{
 
-    public FaladorBank(ClientContext ctx) {
+    public Bank(ClientContext ctx) {
         super(ctx);
     }
 

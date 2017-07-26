@@ -17,6 +17,8 @@ public class Looter extends Task{
 
     final static int cowHide =  1739;
     public static int cowHideTotal;
+    final int inventoryTemp = ctx.inventory.select().count();
+
 
     public Looter(ClientContext ctx) {
         super(ctx);
@@ -25,13 +27,19 @@ public class Looter extends Task{
     @Override
     public boolean activate() {
         GroundItem cowHide = ctx.groundItems.select().id(1739).nearest().poll();
-        return ctx.inventory.select().count()<28 && cowHide.valid();
+        return ctx.inventory.select().count()<28 && cowHide.valid() && ctx.players.local().inCombat() == false;
     }
 
     @Override
     public void execute() {
+
+        int cowHideTempCounter = ctx.inventory.select().count();
         final GroundItem cowHide = ctx.groundItems.select().id(1739).nearest().poll();
-        final int inventoryTemp = ctx.inventory.select().count();
+
+
+        if(ctx.movement.energyLevel()>20 && !ctx.movement.running()){
+            ctx.movement.running(true);
+        }
 
         if(!cowHide.inViewport())
         {
@@ -49,7 +57,7 @@ public class Looter extends Task{
         }
 
         cowHide.interact("Take","Cowhide");
-        cowHideTotal = cowHideTotal + 1;
+
 
 
 
@@ -60,7 +68,15 @@ public class Looter extends Task{
 
                 return inventoryTemp != ctx.inventory.select().count();
             }
-        },200,10);
+        },600,10);
+
+        Condition.sleep(1050);
+
+    if(cowHideTempCounter!= ctx.inventory.select().count()){
+        cowHideTotal = cowHideTotal + 1;
+    }
+
+
     }
 
     public int getCowHideTotal(){

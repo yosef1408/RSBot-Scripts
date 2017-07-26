@@ -17,7 +17,7 @@ import java.util.concurrent.Callable;
  */
 public class CowKiller extends Task{
 
-    final static int COW_IDS [] = {2805,2808,2816,2806};
+    final static int COW_IDS [] = {2805,2808,2809,2816,2806,2808,2807};
     Area cowPen = new Area(new Tile(3043,3313,0),new Tile(3021,3297,0));
 
 
@@ -63,7 +63,7 @@ public class CowKiller extends Task{
         Condition.wait(new Callable<Boolean>() {
             @Override
             public Boolean call() throws Exception {
-                return ctx.players.local().inCombat();
+                return ctx.players.local().inCombat() && ctx.players.local().animation() == -1;
             }
         },250,20);
 
