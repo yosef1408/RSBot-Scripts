@@ -27,7 +27,7 @@ public class Looter extends Task{
     @Override
     public boolean activate() {
         GroundItem cowHide = ctx.groundItems.select().id(1739).nearest().poll();
-        return ctx.inventory.select().count()<28 && cowHide.valid() && ctx.players.local().inCombat() == false;
+        return ctx.inventory.select().count()<28 && cowHide.valid() && ctx.players.local().inCombat() == false ;
     }
 
     @Override

@@ -94,7 +94,7 @@ public class WalkToCowPenFalador extends Task{
 
 
 
-                ctx.camera.angleTo(3580);
+                ctx.camera.angleTo(358);
                 Condition.sleep(500);
 
                 ctx.camera.pitch(35);
