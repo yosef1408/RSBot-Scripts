@@ -6,7 +6,10 @@ package noobienoobie123.FaladorCowKiller.tasks;
 
 import noobienoobie123.FaladorCowKiller.Task;
 import org.powerbot.script.Condition;
+import org.powerbot.script.Tile;
 import org.powerbot.script.rt4.ClientContext;
+import org.powerbot.script.rt4.GameObject;
+import org.powerbot.script.rt4.Npc;
 
 
 import java.util.concurrent.Callable;
@@ -19,11 +22,16 @@ public class Bank extends Task{
 
     @Override
     public boolean activate() {
-        return ctx.inventory.select().count()>27 && ctx.bank.nearest().tile().distanceTo(ctx.players.local())<3;
+
+
+        return (ctx.inventory.select().count()>27 && ctx.bank.nearest().tile().distanceTo(ctx.players.local())<4)  ;
     }
 
     @Override
     public void execute() {
+
+
+
 
         if(ctx.bank.opened()){
             if (ctx.bank.depositInventory()){

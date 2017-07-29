@@ -71,6 +71,8 @@ public class FaladorCowKiller extends PollingScript<ClientContext> implements Pa
         String userChoices [] = {"Lumbridge", "Falador"};
         String userSelection = (String) JOptionPane.showInputDialog(null, "Where do you wish to kill cows?","LumbridgeKiller",JOptionPane.PLAIN_MESSAGE, null, userChoices,userChoices[0]);
 
+        tasklist.add(new Bank(ctx));
+
         if(userSelection.equals("Lumbridge")){
             tasklist.add(new WalkToCowPenLumbridge(ctx));
         }
@@ -81,6 +83,7 @@ public class FaladorCowKiller extends PollingScript<ClientContext> implements Pa
         tasklist.add(new Bank(ctx));
         tasklist.add(new Looter(ctx));
         tasklist.add(new CowKiller(ctx));
+
 
         startingHpExp = ctx.skills.experience(Constants.SKILLS_HITPOINTS);
         startingStrExp = ctx.skills.experience(Constants.SKILLS_STRENGTH);
