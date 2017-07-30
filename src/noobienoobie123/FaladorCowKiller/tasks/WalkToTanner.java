@@ -20,7 +20,11 @@ public class WalkToTanner extends Task {
     TilePath backDoor = ctx.movement.newTilePath(pathToDoor).reverse();
     Area tanHouse = new Area(new Tile(3278,3194,0),new Tile(3270,3190,0));
     Area AlBank = new Area(new Tile(3272,3171,0),new Tile(3269,3161,0));
-
+    final static int coins =  995;
+    final static int cowHides = 1739;
+    final static int softLeather =  1741;
+    final static int hardLeather =  1743;
+    final static int door = 1535;
 
     public WalkToTanner(ClientContext ctx) {
         super(ctx);
@@ -28,7 +32,7 @@ public class WalkToTanner extends Task {
 
     @Override
     public boolean activate() {
-        return ((ctx.inventory.select().id(1739).count()>0 && !tanHouse.contains(ctx.players.local())) || ctx.inventory.select().id(1743).count() > 0 && tanHouse.contains(ctx.players.local()) );
+        return ((ctx.inventory.select().id(cowHides).count()>0 && !tanHouse.contains(ctx.players.local())) || ctx.inventory.select().id(hardLeather).count() > 0 && tanHouse.contains(ctx.players.local()) );
     }
 
     @Override
@@ -36,7 +40,7 @@ public class WalkToTanner extends Task {
 
         if(!tanHouse.contains(ctx.players.local())){
             toDoor.traverse();
-            final GameObject closedDoor = ctx.objects.select().id(1535).nearest().poll();
+            final GameObject closedDoor = ctx.objects.select().id(door).nearest().poll();
             if(closedDoor.valid()){
                 closedDoor.interact("Open", "Door");
                 Condition.sleep(750);
@@ -47,7 +51,7 @@ public class WalkToTanner extends Task {
         }
 
         else if(tanHouse.contains(ctx.players.local())){
-            final GameObject closedDoor = ctx.objects.select().id(1535).nearest().poll();
+            final GameObject closedDoor = ctx.objects.select().id(door).nearest().poll();
             if(closedDoor.valid()){
                 closedDoor.interact("Open", "Door");
                 Condition.sleep(750);

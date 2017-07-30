@@ -18,6 +18,7 @@ public class Tan extends Task {
     final static int cowHides = 1739;
     final static int softLeather =  1741;
     final static int hardLeather =  1743;
+    public static int tanHideTotal;
 
     public Tan(ClientContext ctx) {
         super(ctx);
@@ -39,9 +40,13 @@ public class Tan extends Task {
             Condition.sleep(1000);
             ctx.widgets.widget(324).component(101).interact("Tan All");
             Condition.sleep(500);
+            tanHideTotal = tanHideTotal + ctx.inventory.select().id(hardLeather).count();
         }
 
 
 
+    }
+    public int getTanTotal(){
+        return tanHideTotal;
     }
 }

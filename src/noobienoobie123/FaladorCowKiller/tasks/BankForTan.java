@@ -15,6 +15,10 @@ import java.util.concurrent.Callable;
 public class BankForTan extends Task {
 
     Area AlBank = new Area(new Tile(3272,3171,0),new Tile(3269,3161,0));
+    final static int coins =  995;
+    final static int cowHides = 1739;
+    final static int softLeather =  1741;
+    final static int hardLeather =  1743;
 
 
     public BankForTan(ClientContext ctx) {
@@ -24,7 +28,7 @@ public class BankForTan extends Task {
     @Override
     public boolean activate() {
 
-        return (((ctx.inventory.select().id(1741).count()>0 || ctx.inventory.select().id(1743).count()>0) && ctx.bank.nearest().tile().distanceTo(ctx.players.local())<4) || (ctx.inventory.select().id(1739).count()==0 && ctx.bank.nearest().tile().distanceTo(ctx.players.local())<4))  ;
+        return (((ctx.inventory.select().id(softLeather).count()>0 || ctx.inventory.select().id(hardLeather).count()>0) && ctx.bank.nearest().tile().distanceTo(ctx.players.local())<4) || (ctx.inventory.select().id(cowHides).count()==0 && ctx.bank.nearest().tile().distanceTo(ctx.players.local())<4))  ;
 
     }
 
@@ -43,16 +47,16 @@ public class BankForTan extends Task {
                 }, 200, 20);
 
             }
-            if(ctx.inventory.select().id(995).count()==0){
+            if(ctx.inventory.select().id(coins).count()==0){
                 Condition.sleep(750);
 
-                ctx.bank.withdraw(995, Bank.Amount.ALL);
+                ctx.bank.withdraw(coins, Bank.Amount.ALL);
             }
-            if(ctx.inventory.select().id(1739).count() == 0){
+            if(ctx.inventory.select().id(cowHides).count() == 0){
                    Condition.sleep(500);
-                    ctx.bank.withdraw(1739, 27);
+                    ctx.bank.withdraw(cowHides, 27);
 
-                if(ctx.bank.select().id(1739).count()==0){
+                if(ctx.bank.select().id(cowHides).count()==0){
                     ctx.controller.stop();
                 }
             }

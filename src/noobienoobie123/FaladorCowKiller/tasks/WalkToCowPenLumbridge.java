@@ -52,13 +52,13 @@ public class WalkToCowPenLumbridge extends Task {
             staircase.interact("Climb-down");
 
         }
-        if (ctx.inventory.select().count() == 0 && ctx.players.local().tile().equals(floor1Castle[0]) ){
+        else if (ctx.inventory.select().count() == 0 && ctx.players.local().tile().equals(floor1Castle[0]) ){
             Condition.sleep(2000);
             final GameObject staircase = ctx.objects.select().id(16672).nearest().poll();
             staircase.interact("Climb-down");
 
         }
-        if ((ctx.inventory.select().count() == 0 && ctx.players.local().tile().equals(pathToCowPen[0])) || ((ctx.inventory.select().count() == 0 && !cowPenP1.contains(ctx.players.local())) && (!lumbBank.contains(ctx.players.local()) && !ctx.players.local().tile().equals(floor1Castle[1]))        ) ){
+        else if ((ctx.inventory.select().count() == 0 && ctx.players.local().tile().equals(pathToCowPen[0])) || ((ctx.inventory.select().count() == 0 && !cowPenP1.contains(ctx.players.local())) && (!lumbBank.contains(ctx.players.local()) && !ctx.players.local().tile().equals(floor1Castle[1]))        ) ){
 
 
 
@@ -127,20 +127,20 @@ public class WalkToCowPenLumbridge extends Task {
 
 
         }
-        if (ctx.inventory.select().count() == 28 && ctx.players.local().tile().equals(pathToCowPen[0]) ){
+        else if (ctx.inventory.select().count() == 28 && ctx.players.local().tile().equals(pathToCowPen[0]) ){
             Condition.sleep(1000);
             final GameObject staircase = ctx.objects.select().id(16671).nearest().poll();
             staircase.interact("Climb-up");
 
 
         }
-        if (ctx.inventory.select().count() == 28 && ctx.players.local().tile().equals(floor1Castle[1]) ){
+        else if (ctx.inventory.select().count() == 28 && ctx.players.local().tile().equals(floor1Castle[1]) ){
             Condition.sleep(1750);
             final GameObject staircase = ctx.objects.select().id(16672).nearest().poll();
             staircase.interact("Climb-up");
 
         }
-        if (ctx.inventory.select().count() == 28 && ctx.players.local().tile().equals(path2ndFloorCastle[path2ndFloorCastle.length-1]) ){
+        else if (ctx.inventory.select().count() == 28 && ctx.players.local().tile().equals(path2ndFloorCastle[path2ndFloorCastle.length-1]) ){
             Condition.sleep(1000);
             while(!ctx.players.local().tile().equals(path2ndFloorCastle[0])) {
                 (to2ndFloor.reverse()).traverse();
