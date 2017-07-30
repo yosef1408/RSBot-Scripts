@@ -18,7 +18,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-@Script.Manifest(name= "Falador Cow Killer", description = "Kills cows and banks in Falador", properties = "author=noobienoobie123; topic=1335434; client=4;")
+@Script.Manifest(name= "[NOOBIE]AllInOneCow", description = "Kills cows, banks, and tans. All in one cow script", properties = "author=noobienoobie123; topic=1335434; client=4;")
 
 
 public class FaladorCowKiller extends PollingScript<ClientContext> implements PaintListener {
@@ -68,21 +68,30 @@ public class FaladorCowKiller extends PollingScript<ClientContext> implements Pa
     @Override
     public void start(){
 
-        String userChoices [] = {"Lumbridge", "Falador"};
-        String userSelection = (String) JOptionPane.showInputDialog(null, "Where do you wish to kill cows?","LumbridgeKiller",JOptionPane.PLAIN_MESSAGE, null, userChoices,userChoices[0]);
+        String userChoices [] = {"Lumbridge", "Falador", "Tan"};
+        String userSelection = (String) JOptionPane.showInputDialog(null, "Where do you wish to kill cows?","CowOptions",JOptionPane.PLAIN_MESSAGE, null, userChoices,userChoices[0]);
 
-        tasklist.add(new Bank(ctx));
+
 
         if(userSelection.equals("Lumbridge")){
             tasklist.add(new WalkToCowPenLumbridge(ctx));
+            tasklist.add(new Bank(ctx));
+            tasklist.add(new Looter(ctx));
+            tasklist.add(new CowKiller(ctx));
         }
         if(userSelection.equals("Falador")){
             tasklist.add(new WalkToCowPenFalador(ctx));
+            tasklist.add(new Bank(ctx));
+            tasklist.add(new Looter(ctx));
+            tasklist.add(new CowKiller(ctx));
+        }
+        if(userSelection.equals("Tan")){
+            tasklist.add(new BankForTan(ctx));
+            tasklist.add(new WalkToTanner(ctx));
+            tasklist.add(new Tan(ctx));
         }
 
-        tasklist.add(new Bank(ctx));
-        tasklist.add(new Looter(ctx));
-        tasklist.add(new CowKiller(ctx));
+
 
 
         startingHpExp = ctx.skills.experience(Constants.SKILLS_HITPOINTS);
