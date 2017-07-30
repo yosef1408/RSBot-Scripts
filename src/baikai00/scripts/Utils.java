@@ -460,6 +460,7 @@ public class Utils extends ClientAccessor{
                     }
                     ctx.bank.close();
                     ctx.controller.suspend();
+                    status = "PAUSE";
                 } else {
                     if(ctx.bank.inViewport()) {
                         if(ctx.bank.open()){
@@ -477,6 +478,7 @@ public class Utils extends ClientAccessor{
     		}
     	}else{
     		ctx.controller.suspend();
+    		status = "PAUSE";
     	}
     }
     
