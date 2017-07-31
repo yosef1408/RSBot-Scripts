@@ -86,16 +86,16 @@ public class FaladorCowKiller extends PollingScript<ClientContext> implements Pa
 
 
         if(userSelection.equals("Lumbridge")){
-            tasklist.add(new WalkToCowPenLumbridge(ctx));
             tasklist.add(new Bank(ctx));
+            tasklist.add(new WalkToCowPenLumbridge(ctx));
             tasklist.add(new Looter(ctx));
             tasklist.add(new CowKiller(ctx));
 
 
         }
         if(userSelection.equals("Falador")){
-            tasklist.add(new WalkToCowPenFalador(ctx));
             tasklist.add(new Bank(ctx));
+            tasklist.add(new WalkToCowPenFalador(ctx));
             tasklist.add(new Looter(ctx));
             tasklist.add(new CowKiller(ctx));
         }
