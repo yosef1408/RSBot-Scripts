@@ -25,6 +25,8 @@ public class FaladorCowKiller extends PollingScript<ClientContext> implements Pa
 
     List<Task> tasklist = new ArrayList<Task>();
     private Looter cowhide= new Looter(ctx);
+    private Tan tanHide = new Tan(ctx);
+    private static Boolean tan = false;
     int startingHpExp = 0;
     int startingStrExp = 0;
     int startingAttExp = 0;
@@ -50,18 +52,28 @@ public class FaladorCowKiller extends PollingScript<ClientContext> implements Pa
         int attLvlGained = ctx.skills.level(Constants.SKILLS_ATTACK) - startingAttLvl;
         int defLvlGained = ctx.skills.level(Constants.SKILLS_DEFENSE) - startingDefLvl;
         int cowhideCounter = cowhide.getCowHideTotal();
+        int tanHideCounter = tanHide.getTanTotal();
 
 
+        if (tan == false) {
+            Graphics2D g = (Graphics2D) graphics;
+            g.drawString("Cow Slayer", 20, 40);
+            g.drawString("Running: " + String.format("%02d:%02d:%02d", hours, minutes, seconds), 20, 60);
+            g.drawString("Hitpoints Exp/Hour " + (int) (hpExpGained * (3600000 / milliseconds)) + "     Levels(" + hpLvlGained + ")", 20, 80);
+            g.drawString("Strength Exp/Hour " + (int) (strExpGained * (3600000 / milliseconds)) + "     Levels(" + strLvlGained + ")", 20, 100);
+            g.drawString("Attack Exp/Hour " + (int) (attExpGained * (3600000 / milliseconds)) + "     Levels(" + attLvlGained + ")", 20, 120);
+            g.drawString("Defense Exp/Hour " + (int) (defExpGained * (3600000 / milliseconds)) + "     Levels(" + defLvlGained + ")", 20, 140);
+            g.drawString("CowHides/Hour " + (int) (cowhideCounter * (3600000 / milliseconds)) + "     Total(" + cowhideCounter + ")", 20, 160);
+        }
+        else if(tan == true){
+            Graphics2D g = (Graphics2D) graphics;
+            g.drawString("Cow Slayer", 20, 40);
+            g.drawString("Running: " + String.format("%02d:%02d:%02d", hours, minutes, seconds), 20, 60);
+            g.drawString("Tan/Hour " + (int) (tanHideCounter * (3600000 / milliseconds)) + "     Total(" + tanHideCounter + ")", 20, 80);
+
+        }
 
 
-        Graphics2D g = (Graphics2D)graphics;
-        g.drawString("Falador Cow Slayer", 20,40);
-        g.drawString("Running: " + String.format("%02d:%02d:%02d", hours,minutes,seconds),20,60);
-        g.drawString("Hitpoints Exp/Hour "+ (int)(hpExpGained * (3600000 / milliseconds))+ "     Levels(" + hpLvlGained + ")", 20,80);
-        g.drawString("Strength Exp/Hour "+ (int)(strExpGained * (3600000 / milliseconds))+ "     Levels(" + strLvlGained + ")", 20,100);
-        g.drawString("Attack Exp/Hour "+ (int)(attExpGained * (3600000 / milliseconds))+ "     Levels(" + attLvlGained + ")", 20,120);
-        g.drawString("Defense Exp/Hour "+ (int)(defExpGained * (3600000 / milliseconds))+ "     Levels(" + defLvlGained + ")", 20,140);
-        g.drawString("CowHides/Hour "+ (int)(cowhideCounter * (3600000 / milliseconds))+ "     Total(" + cowhideCounter + ")", 20,160);
 
     }
 
@@ -78,6 +90,8 @@ public class FaladorCowKiller extends PollingScript<ClientContext> implements Pa
             tasklist.add(new Bank(ctx));
             tasklist.add(new Looter(ctx));
             tasklist.add(new CowKiller(ctx));
+
+
         }
         if(userSelection.equals("Falador")){
             tasklist.add(new WalkToCowPenFalador(ctx));
@@ -89,6 +103,7 @@ public class FaladorCowKiller extends PollingScript<ClientContext> implements Pa
             tasklist.add(new BankForTan(ctx));
             tasklist.add(new WalkToTanner(ctx));
             tasklist.add(new Tan(ctx));
+            tan = true;
         }
 
 
