@@ -1,4 +1,4 @@
-package scripts.ArrowFletcher;
+package nomivore.ArrowFletcher;
 
 import org.powerbot.script.*;
 import org.powerbot.script.rt4.GeItem;
@@ -12,7 +12,7 @@ import java.util.concurrent.Callable;
 
 @Script.Manifest(
         name = "ArrowFletcher", properties = "author=Nomivore; topic=1336089; client=4;",
-        description = "Does various GE stand still activities")
+        description = "Fletches headless arrows and tips them")
 
 public class ArrowFletcher extends PollingScript<ClientContext> implements PaintListener, MessageListener
 {
@@ -61,7 +61,7 @@ public class ArrowFletcher extends PollingScript<ClientContext> implements Paint
         }
     }
 
-    public static final Font TAHOMA = new Font("Tahoma", Font.PLAIN, 12);
+    private static final Font TAHOMA = new Font("Tahoma", Font.PLAIN, 12);
 
     public void repaint(Graphics graphics)
     {

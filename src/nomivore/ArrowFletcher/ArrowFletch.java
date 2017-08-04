@@ -1,4 +1,4 @@
-package scripts.ArrowFletcher;
+package nomivore.ArrowFletcher;
 
 import org.powerbot.script.Condition;
 import org.powerbot.script.MessageEvent;
@@ -92,7 +92,10 @@ public class ArrowFletch extends Task<ClientContext> {
     @Override
     public void execute() {
         action();
-        if (resourceLeft1 == 0 || resourceLeft2 == 0) epilogue();
+        if (resourceLeft1 == 0 || resourceLeft2 == 0) {
+            openNearbyBank();
+            depositInventory();
+        }
     }
 
     @Override
@@ -106,7 +109,6 @@ public class ArrowFletch extends Task<ClientContext> {
     }
 
     private void action() {
-        closeBank();
         ctx.game.tab(Game.Tab.INVENTORY);
         final Item resource1 = ctx.inventory.select().id(resourceID1).poll();
         final Item resource2 = ctx.inventory.select().id(resourceID2).poll();

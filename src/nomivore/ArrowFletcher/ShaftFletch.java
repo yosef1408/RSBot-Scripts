@@ -1,4 +1,4 @@
-package scripts.ArrowFletcher;
+package nomivore.ArrowFletcher;
 
 import org.powerbot.script.Condition;
 import org.powerbot.script.MessageEvent;
@@ -66,8 +66,7 @@ public class ShaftFletch extends Task<ClientContext> {
     @Override
     public int profit() {
         int margin = productGE.price - (resourceGE2.price + resourceGE1.price);
-        int profit = productDone *margin;
-        return profit;
+        return productDone*margin;
     }
 
 
@@ -86,7 +85,6 @@ public class ShaftFletch extends Task<ClientContext> {
     }
 
     private void action() {
-        closeBank();
         ctx.game.tab(Game.Tab.INVENTORY);
         final Item resource1 = ctx.inventory.select().id(resourceID1).poll();
         final Item resource2 = ctx.inventory.select().id(resourceID2).poll();
