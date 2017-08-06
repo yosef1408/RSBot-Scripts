@@ -23,7 +23,7 @@ public class WelcomeWindow extends ClientAccessor {
 	private JCheckBox members = new JCheckBox("Members");
 	private JCheckBox deadman = new JCheckBox("Deadman");
 	private JCheckBox all = new JCheckBox("All");
-	private Button confirm = new Button("Confirm");
+	private JButton confirm = new JButton("Confirm");
 
 	private Label headerLabel;
 	private Panel controlPanel;
@@ -55,6 +55,9 @@ public class WelcomeWindow extends ClientAccessor {
 
 		mainFrame.add(headerLabel);
 		mainFrame.add(controlPanel);
+
+		JRootPane rootPane = mainFrame.getRootPane();
+		rootPane.setDefaultButton(confirm);
 	}
 
 	public void show(){
