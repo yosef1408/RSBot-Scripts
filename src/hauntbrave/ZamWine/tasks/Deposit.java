@@ -20,7 +20,10 @@ public class Deposit extends Task<ClientContext> {
 	@Override
 	public boolean activate(){
 		int count = ctx.inventory.select().count();
-		return count == 28;
+		boolean full = count == 28;
+		
+		if (!full) { teleported = false; }
+		return full;
 	}
 
 	@Override
@@ -32,9 +35,10 @@ public class Deposit extends Task<ClientContext> {
 			if (!teleported) {
 
 				//cast tele, turn run on, locate and run to bank
-				int randInt = Random.nextInt(3000, 5000);
+				int randInt = Random.nextInt(2000, 3000);
 
 				ctx.magic.cast(Magic.Spell.FALADOR_TELEPORT);
+				teleported = true;
 
 				Thread.sleep(randInt);
 				
@@ -43,7 +47,6 @@ public class Deposit extends Task<ClientContext> {
 				bankLocation = ctx.bank.nearest().tile();
 				bank = ctx.bank;
 
-				teleported = true;
 			}
 
 
@@ -77,7 +80,6 @@ public class Deposit extends Task<ClientContext> {
 				bank.depositAllExcept("Law rune", "Water rune");
 				Thread.sleep(sleep_time);
 				bank.close();
-				teleported = false;
 			}
 
 		}

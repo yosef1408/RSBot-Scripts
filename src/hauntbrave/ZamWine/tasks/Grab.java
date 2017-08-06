@@ -88,7 +88,7 @@ public class Grab extends Task<ClientContext>{
 				//run to tile outside of altar
 
 				wine = null;
-				randInt = Random.nextInt(4000, 4500);
+				randInt = Random.nextInt(5000, 5500);
 				Thread.sleep(randInt);
 				//checks if wine is grabbed and sets appropriate variable
 				if (wineCount < ctx.inventory.select().id(wineId).count())
@@ -126,7 +126,7 @@ public class Grab extends Task<ClientContext>{
       private void randCamera() {
 
 		int angle = Random.nextInt(0, 180);
-		int pitch = Random.nextInt(50, 99);
+		int pitch = Random.nextInt(70, 99);
 
 		ctx.camera.pitch(pitch);
 		ctx.camera.angle(angle);

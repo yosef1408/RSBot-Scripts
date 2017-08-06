@@ -44,7 +44,7 @@ public class ZamWine extends PollingScript<ClientContext>  implements PaintListe
 	public void start(){
 		win.show();
 
-		System.out.println("Started...");
+		System.out.println("Started script...");
 		started = true;
 
 		taskList.addAll(Arrays.asList(walk, grab, deposit));
