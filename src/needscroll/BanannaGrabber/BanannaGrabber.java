@@ -18,7 +18,7 @@ import Tasks.Gather;
 import Tasks.GeBank;
 
 
-@Script.Manifest(name = "Banana Grabber", properties = "author=needscroll; topic=1335857; client=6;", description = "Collects bananas for 500k/h")
+@Script.Manifest(name = "Banana Grabber", description = "Collects bananas for 500k/h", properties = "author=needscroll; topic=1335857; client=6;", )
 
 public class BanannaGrabber extends PollingScript<ClientContext> implements PaintListener{
 	
