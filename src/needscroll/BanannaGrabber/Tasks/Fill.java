@@ -1,4 +1,4 @@
-package Tasks;
+package needscroll.BanannaGrabber.Tasks;
 
 import org.powerbot.script.Condition;
 import org.powerbot.script.rt6.ClientContext;
