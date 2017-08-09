@@ -2,6 +2,14 @@ package needscroll.BanannaGrabber;
 
 import org.powerbot.script.*;
 import org.powerbot.script.rt6.ClientContext;
+
+import needscroll.BanannaGrabber.Tasks.Antiban;
+import needscroll.BanannaGrabber.Tasks.CastleWarsBank;
+import needscroll.BanannaGrabber.Tasks.EdgevilleBank;
+import needscroll.BanannaGrabber.Tasks.Fill;
+import needscroll.BanannaGrabber.Tasks.Gather;
+import needscroll.BanannaGrabber.Tasks.GeBank;
+
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -9,14 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JOptionPane;
-
-import Tasks.Antiban;
-import Tasks.CastleWarsBank;
-import Tasks.EdgevilleBank;
-import Tasks.Fill;
-import Tasks.Gather;
-import Tasks.GeBank;
-
 
 @Script.Manifest(name = "Banana Grabber", description = "Collects bananas for 500k/h", properties = "author=needscroll; topic=1335857; client=6;")
 
