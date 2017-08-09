@@ -16,7 +16,7 @@ import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.List;
 
-@Script.Manifest(description = "gets grapes and apples", name = "Grape Grabber")
+@Script.Manifest(name = "Grape and Apple Grabber", description = "Collects grapes and apples in the cooking guild", properties = "author=needscroll; topic=1335857; client=6;")
 
 public class GrapeGrabber extends PollingScript<ClientContext> implements PaintListener{
 	
