@@ -3,13 +3,13 @@ package needscroll.FreeRunecrafter;
 import org.powerbot.script.*;
 import org.powerbot.script.rt6.ClientContext;
 
-import Tasks.Air;
-import Tasks.Antiban;
-import Tasks.Body;
-import Tasks.Earth;
-import Tasks.Fire;
-import Tasks.Mind;
-import Tasks.Water;
+import needscroll.FreeRunecrafter.Tasks.Air;
+import needscroll.FreeRunecrafter.Tasks.Antiban;
+import needscroll.FreeRunecrafter.Tasks.Body;
+import needscroll.FreeRunecrafter.Tasks.Earth;
+import needscroll.FreeRunecrafter.Tasks.Fire;
+import needscroll.FreeRunecrafter.Tasks.Mind;
+import needscroll.FreeRunecrafter.Tasks.Water;
 
 import java.awt.Color;
 import java.awt.Graphics;
