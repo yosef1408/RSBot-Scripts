@@ -1,4 +1,4 @@
-package Curse;
+package hauntbrave.Curse;
 import org.powerbot.script.ClientAccessor;
 import org.powerbot.script.ClientContext;
 

@@ -1,4 +1,4 @@
-package HigherAlch;
+package hauntbrave.HigherAlch;
 
 import org.powerbot.script.rt4.GameObject;
 import org.powerbot.script.Random;

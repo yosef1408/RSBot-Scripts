@@ -1,4 +1,4 @@
-package HigherAlch;
+package hauntbrave.HigherAlch;
 import org.powerbot.script.ClientAccessor;
 import org.powerbot.script.ClientContext;
 

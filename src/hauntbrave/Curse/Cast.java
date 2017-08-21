@@ -1,4 +1,4 @@
-package Curse;
+package hauntbrave.Curse;
 
 import org.powerbot.script.rt4.GameObject;
 import org.powerbot.script.Random;

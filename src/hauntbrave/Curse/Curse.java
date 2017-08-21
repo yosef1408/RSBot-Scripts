@@ -1,4 +1,4 @@
-package Curse;
+package hauntbrave.curse;
 import org.powerbot.script.PollingScript;
 import org.powerbot.script.Script;
 import org.powerbot.script.rt4.ClientContext;

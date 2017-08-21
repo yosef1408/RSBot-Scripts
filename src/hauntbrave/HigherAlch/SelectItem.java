@@ -1,4 +1,4 @@
-package HigherAlch;
+package hauntbrave.HigherAlch;
 
 import org.powerbot.script.rt4.World.Type;
 import org.powerbot.script.rt4.ClientAccessor;
