@@ -85,8 +85,6 @@ public class Grab extends Task<ClientContext>{
 				wine.bounds(bounds);
 				wine.click(true);
 
-				//run to tile outside of altar
-
 				wine = null;
 				randInt = Random.nextInt(5000, 5500);
 				Thread.sleep(randInt);
