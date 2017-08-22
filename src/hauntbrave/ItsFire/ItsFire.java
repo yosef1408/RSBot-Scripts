@@ -1,4 +1,4 @@
-/* ItsFire by haunt brave. Grabs wines with world hopping support, banking, random camera movements, and more. */
+/* ItsFire by haunt brave. lights any kind of logs in Draynor village. */
 package hauntbrave.ItsFire;
 
 import org.powerbot.script.PollingScript;
