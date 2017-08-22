@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-@Script.Manifest(name="Curses", description = "Curses the zammy monk at varrock castle", properties = "author=Everett; topic=999; client = 4;")
+@Script.Manifest(name="Curses", description = "Curses the zammy monk at varrock castle", properties = "author=hauntbrave; topic=999; client = 4;")
 public class Curse extends PollingScript<ClientContext> {
 	private List<Task> taskList = new ArrayList<Task>();
 
