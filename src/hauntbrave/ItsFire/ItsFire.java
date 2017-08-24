@@ -18,7 +18,7 @@ import java.util.List;
 //import java.awt.BasicStroke;
 //import java.awt.Font;
 
-@Script.Manifest(name="ItsFire", description = "makes fire", properties = "author=hauntbrave; topic=1336245; client = 4;")
+@Script.Manifest(name="ItsFire", description = "makes fire", properties = "author=hauntbrave; topic=1337137; client = 4;")
 
 public class ItsFire extends PollingScript<ClientContext> {
 	private List<Task> taskList = new ArrayList<Task>();
