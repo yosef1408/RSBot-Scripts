@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-@Script.Manifest(name="HigherAlch", description = "Just alchs", properties = "author=hauntbrave; topic=999; client = 4;")
+@Script.Manifest(name="HigherAlch", description = "Just alchs", properties = "author=hauntbrave; topic=1337138; client = 4;")
 public class HigherAlch extends PollingScript<ClientContext> {
 	private List<Task> taskList = new ArrayList<Task>();
 	SelectItem selectItem = new SelectItem(ctx);
