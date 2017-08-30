@@ -1,13 +1,22 @@
 package hauntbrave.ZamWine.utils;
 
-import org.powerbot.script.rt4.World.Type;
 import org.powerbot.script.rt4.ClientAccessor;
 import org.powerbot.script.rt4.ClientContext;
+import org.powerbot.script.rt4.World.Type;
 
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JFrame;
+import javax.swing.JRootPane;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GridLayout;
+import java.awt.Label;
+import java.awt.Panel;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -108,15 +117,24 @@ public class WelcomeWindow extends ClientAccessor {
 
 	private void handleCommand(String type){
 
-			switch (type){
+		//Java 6 cannot do switch-case on strings
+		List<String> options = new ArrayList<String>();
+		options.add("free");
+		options.add("members");
+		options.add("deadman");
+		options.add("pvp");
+		options.add("all");
+		options.add("confirm");
 
-				case "free":
+		switch (options.indexOf(type)){
+
+				case 0:
 					if (free.isSelected())
 						typeList.add(Type.FREE);
 					else
 						typeList.remove(Type.FREE);
 					break;
-				case "members":
+				case 1:
 					if (members.isSelected())
 						typeList.add(Type.MEMBERS);
 					else
@@ -124,20 +142,20 @@ public class WelcomeWindow extends ClientAccessor {
 					break;
 
 				//deadman and pvp enums are switched. plz fix that lol
-				case "deadman":
+				case 2:
 					if (deadman.isSelected())
 						typeList.add(Type.PVP);
 					else
 						typeList.remove(Type.PVP);
 					break;
-				case "pvp":
+				case 3:
 					if (pvp.isSelected())
 						typeList.add(Type.DEAD_MAN);
 					else
 						typeList.remove(Type.DEAD_MAN);
 					break;
 
-				case "all":
+				case 4:
 					if (all.isSelected())
 					{
 
@@ -155,7 +173,7 @@ public class WelcomeWindow extends ClientAccessor {
 					}
 					break;
 
-				case "confirm":
+				case 5:
 					if (!typeList.isEmpty())
 					{
 						printList(typeList);
