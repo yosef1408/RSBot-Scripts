@@ -3,8 +3,6 @@ import org.powerbot.script.PollingScript;
 import org.powerbot.script.Script;
 import org.powerbot.script.rt4.ClientContext;
 
-import HigherAlch.SelectItem;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;

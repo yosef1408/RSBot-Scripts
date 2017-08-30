@@ -1,4 +1,5 @@
-package hauntbrave.curse;
+package hauntbrave.Curse;
+
 import org.powerbot.script.PollingScript;
 import org.powerbot.script.Script;
 import org.powerbot.script.rt4.ClientContext;
@@ -18,7 +19,7 @@ public class Curse extends PollingScript<ClientContext> {
 
 	@Override
 	public void poll(){
-		for (Task task: taskList){ 
+		for (Task task: taskList){
 			if (task.activate()) {
 				task.execute();
 			}
