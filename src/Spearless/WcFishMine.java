@@ -227,107 +227,118 @@ public class WcFishMine extends PollingScript<ClientContext>implements PaintList
 
     public void poll() {
 
-        switch (state()) {
-            case WALKTOFISHING:
+            switch (state()) {
+                case WALKTOFISHING:
 
-               if(!LUMB_AREA.contains(ctx.players.local())&& minutes<120&& minutes>=119&& seconds<50&&ctx.players.local().animation()==-1||ctx.players.local().animation()==-1&&!LUMB_AREA.contains(ctx.players.local())&& minutes>=299&& seconds<13) {
-                   try {
-                       teleportToLumbridge();
-                   } catch (InterruptedException e) {
-                       e.printStackTrace();
-                   }
-               }
-                TilePath path = ctx.movement.newTilePath(TILE_TO_FISHINGZONE);
-                path.randomize(2, 2);
-                path.traverse();
-                log.info("Walking to fishing zone");
-                break;
+                    if (!LUMB_AREA.contains(ctx.players.local()) && minutes < 120 && minutes >= 119 && seconds < 50 && ctx.players.local().animation() == -1 || ctx.players.local().animation() == -1 && !LUMB_AREA.contains(ctx.players.local()) && minutes >= 299 && seconds < 13) {
+                        try {
+                            teleportToLumbridge();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    TilePath path = ctx.movement.newTilePath(TILE_TO_FISHINGZONE);
+                    path.randomize(2, 2);
+                    path.traverse();
+                    log.info("Walking to fishing zone");
+                    break;
 
-            case WALKBACKLUMB:
+                case WALKBACKLUMB:
 
-                if(minutes>180) {
-                    walkingFromFishing();
-                }
-                break;
-            case FISH:
-                fishing();
-                break;
-            case WALKLUMB:
+                    if (minutes > 180) {
+                        walkingFromFishing();
+                    }
+                    break;
+                case FISH:
+                    fishing();
+                    break;
+                case WALKLUMB:
 
-                if (LUMB_AREA.contains(ctx.players.local()))
+                    if (LUMB_AREA.contains(ctx.players.local()))
+                        try {
+                            walkingToMining();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    log.info("Walking to mine");
+                    break;
+                case CHOP:
+
+                    chop();
+                    if (ctx.inventory.select().count() == 28) {
+                        ctx.inventory.select().id(logsINVID).each(new Filter<Item>() {
+                            @Override
+                            public boolean accept(Item item) {
+                                return item.interact("Drop");
+                            }
+                        });
+                    }
+
+
+                    break;
+
+                case MINE:
+
+                    Random random = new Random();
+                    int x = random.nextInt(29);
+                    switch (x) {
+                        case 4:
+                            antiBan();
+                            break;
+                        case 5:
+                            antiBan();
+                            break;
+                        case 10:
+                            try {
+                                checkMiningSkill();
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                            break;
+                        case 20:
+                            antiBan();
+                            break;
+                        case 21:
+                            antiBan();
+                            break;
+                        default:
+                            mineRocks();
+
+                    }
+                    if (ctx.inventory.select().count() == 28) {
+                        ctx.inventory.select().id(copperINVID).each(new Filter<Item>() {
+                            @Override
+                            public boolean accept(Item item) {
+                                return item.interact("Drop");
+
+                            }
+                        });
+                        log.info("Drop");
+                    }
+                    break;
+                case NOTHING:
+
                     try {
                         walkingToMining();
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    log.info("Walking to mine");
-                break;
-            case CHOP:
 
-                chop();
-                if (ctx.inventory.select().count() == 28) {
-                    ctx.inventory.select().id(logsINVID).each(new Filter<Item>() {
-                        @Override
-                        public boolean accept(Item item) {
-                            return item.interact("Drop");
-                        }
-                    });
-                }
+                    break;
 
-
-                break;
-
-            case MINE:
-
-                Random random = new Random();
-                int x = random.nextInt(29);
-                switch (x) {
-                    case 4:
-                        antiBan();
-                        break;
-                    case 5:
-                        antiBan();
-                        break;
-                    case 10:
-                        try {
-                            checkMiningSkill();
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                        break;
-                    case 20:
-                        antiBan();
-                        break;
-                    case 21:
-                        antiBan();
-                        break;
-                    default: mineRocks();
-
-                }
-                if (ctx.inventory.select().count() == 28) {
-                    ctx.inventory.select().id(copperINVID).each(new Filter<Item>() {
-                        @Override
-                        public boolean accept(Item item) {
-                            return item.interact("Drop");
-
-                        }
-                    });
-                    log.info("Drop");
-                }
-                break;
-
+            }
         }
-    }
+
 
     private State state() {
         fishingSpot = ctx.npcs.id(fishinSpotID).select().poll();
         GameObject rock = ctx.objects.select().id(clayID).nearest().poll();
-        if (LUMB_AREA.contains(ctx.players.local()) && minutes < 5 && !rock.inViewport()  || LUMB_AREA.contains(ctx.players.local()) && minutes>181 && minutes<189&& !rock.inViewport()) {
+        if (LUMB_AREA.contains(ctx.players.local()) && minutes < 5 && !MINING_AREA.contains(ctx.players.local()) || LUMB_AREA.contains(ctx.players.local()) && minutes>181 && minutes<189&& !rock.inViewport()) {
             log.info("walking to mine");
             return State.WALKLUMB;
 
         } else if (rock.inViewport() && ctx.inventory.select().id(logsINVID).count() == 0 && minutes < 60&& MINING_AREA.contains(ctx.players.local()) || minutes >180 && minutes<= 240&& MINING_AREA.contains(ctx.players.local()) ) {
-
+log.info("MINE");
             dropFish();
             return State.MINE;
         } else if (minutes >= 60 && minutes < 119|| minutes>240&& minutes<300) {
@@ -348,6 +359,8 @@ public class WcFishMine extends PollingScript<ClientContext>implements PaintList
               dropFish();
                 return State.WALKBACKLUMB;
             } else {
+
+                log.info("NOTHING");
                 return State.NOTHING;
             }
         }
@@ -368,7 +381,7 @@ public class WcFishMine extends PollingScript<ClientContext>implements PaintList
         g.drawLine(x-10,y,x+10,y);
 
         hours=(int)((System.currentTimeMillis()-initialTime)/3600000);
-        minutes=(int)((System.currentTimeMillis()-initialTime)/60000);
+        minutes=(int)((System.currentTimeMillis()-initialTime)/60000)  ;
         seconds=(int)((System.currentTimeMillis()-initialTime)/1000)%60;
         runTime= (double)(System.currentTimeMillis()-initialTime)/3600000;
 
@@ -431,6 +444,7 @@ public class WcFishMine extends PollingScript<ClientContext>implements PaintList
 
 
 }
+
 
 
 
