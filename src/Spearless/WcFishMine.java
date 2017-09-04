@@ -31,7 +31,7 @@ public class WcFishMine extends PollingScript<ClientContext>implements PaintList
     public int treeID[] = {1278, 1276};
     public int logsINVID = 1511;
     public int fishinSpotID = 1530;
-    public int fishingInvID[]={317,319};
+    public int fishingInvID[]={317,319,321};
     public Color fishingColorBox= new Color(44, 200, 196);
     public Color woodColorBox = new Color(46, 200, 27);
     public Color mouseColor = new Color(209, 37, 16), boxColor = new Color(209, 30, 12), textColor = new Color(0, 0, 0);
