@@ -102,11 +102,7 @@ public class Paths {
             new Tile(3099, 3412, 0),
             new Tile(3098, 3415, 0),
             new Tile(3098, 3418, 0),
-            new Tile(3098, 3421, 0),
-            new Tile(3098, 3424, 0),
-            new Tile(3100, 3427, 0),
-            new Tile(3101, 3430, 0),
-            new Tile(3104, 3430, 0)
+            new Tile(3098, 3421, 0)
     };
 
     public static final Tile[] FISHING_TO_BANK = {
