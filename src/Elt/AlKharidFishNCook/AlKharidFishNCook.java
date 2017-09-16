@@ -12,7 +12,7 @@ import Elt.AlKharidFishNCook.tasks.*;
 
 @Script.Manifest(name="AlKharidFishNCook", description="This bot fishes, cooks, and banks or drops in Al Kharid.", properties="author=Elt; client=4;")
 
-public class AlKharidFisher extends PollingScript<ClientContext> implements PaintListener, MessageListener {
+public class AlKharidFishNCook extends PollingScript<ClientContext> implements PaintListener, MessageListener {
 
     private int numFishCaught = 0;
     private int fishingLevelsGained = 0;
@@ -26,7 +26,7 @@ public class AlKharidFisher extends PollingScript<ClientContext> implements Pain
 
     @Override
     public void start() {
-        System.out.println("AlKharidFishNCook starting. TEST NEW START");
+        System.out.println("AlKharidFishNCook starting.");
         String userOptions[] = {"Bank", "Drop"};
         String userChoice = ""+(String)JOptionPane.showInputDialog(null, "Bank or Drop cooked fish?", "Fishing", JOptionPane.PLAIN_MESSAGE, null, userOptions, userOptions[0]);
 
