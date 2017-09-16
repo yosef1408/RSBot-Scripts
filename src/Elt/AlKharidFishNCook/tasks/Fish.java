@@ -1,10 +1,10 @@
-package osrs.tasks;
+package tasks;
 
 import org.powerbot.script.*;
 import org.powerbot.script.rt4.ClientContext;
 import org.powerbot.script.rt4.Constants;
 import org.powerbot.script.rt4.Npc;
-import osrs.Task;
+import scripts.Task;
 
 public class Fish extends Task {
 

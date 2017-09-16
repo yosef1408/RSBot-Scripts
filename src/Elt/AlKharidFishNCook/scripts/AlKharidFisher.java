@@ -2,13 +2,13 @@ package scripts;
 
 import org.powerbot.script.*;
 import org.powerbot.script.rt4.ClientContext;
-import osrs.Task;
-import osrs.tasks.*;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import scripts.Task;
+import tasks.*;
 
 @Script.Manifest(name="AlKharidFisher", description="This bot fishes, cooks, and banks or drops in Al Kharid.", properties="author=Elt; client=4;")
 
@@ -26,7 +26,7 @@ public class AlKharidFisher extends PollingScript<ClientContext> implements Pain
 
     @Override
     public void start() {
-        System.out.println("AlKharidFisher starting.");
+        System.out.println("AlKharidFisher starting. TEST NEW START");
         String userOptions[] = {"Bank", "Drop"};
         String userChoice = ""+(String)JOptionPane.showInputDialog(null, "Bank or Drop cooked fish?", "Fishing", JOptionPane.PLAIN_MESSAGE, null, userOptions, userOptions[0]);
 

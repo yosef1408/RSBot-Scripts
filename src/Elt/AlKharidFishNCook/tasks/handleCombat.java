@@ -1,9 +1,9 @@
-package osrs.tasks;
+package tasks;
 
 import org.powerbot.script.Condition;
 import org.powerbot.script.rt4.ClientContext;
 import org.powerbot.script.rt4.Npc;
-import osrs.Task;
+import scripts.Task;
 
 import java.util.concurrent.Callable;
 

@@ -1,9 +1,9 @@
-package osrs.tasks;
+package tasks;
 
 import org.powerbot.script.Filter;
 import org.powerbot.script.rt4.ClientContext;
 import org.powerbot.script.rt4.Item;
-import osrs.Task;
+import scripts.Task;
 
 public class Drop extends Task {
 
