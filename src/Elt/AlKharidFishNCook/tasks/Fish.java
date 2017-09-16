@@ -1,10 +1,10 @@
-package tasks;
+package Elt.AlKharidFishNCook.tasks;
 
 import org.powerbot.script.*;
 import org.powerbot.script.rt4.ClientContext;
 import org.powerbot.script.rt4.Constants;
 import org.powerbot.script.rt4.Npc;
-import scripts.Task;
+import Elt.AlKharidFishNCook.Task;
 
 public class Fish extends Task {
 

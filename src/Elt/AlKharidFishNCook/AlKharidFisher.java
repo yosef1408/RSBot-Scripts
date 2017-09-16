@@ -1,4 +1,4 @@
-package scripts;
+package Elt.AlKharidFishNCook;
 
 import org.powerbot.script.*;
 import org.powerbot.script.rt4.ClientContext;
@@ -7,10 +7,10 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
-import scripts.Task;
-import tasks.*;
+import Elt.AlKharidFishNCook.Task;
+import Elt.AlKharidFishNCook.tasks.*;
 
-@Script.Manifest(name="AlKharidFisher", description="This bot fishes, cooks, and banks or drops in Al Kharid.", properties="author=Elt; client=4;")
+@Script.Manifest(name="AlKharidFishNCook", description="This bot fishes, cooks, and banks or drops in Al Kharid.", properties="author=Elt; client=4;")
 
 public class AlKharidFisher extends PollingScript<ClientContext> implements PaintListener, MessageListener {
 
@@ -26,7 +26,7 @@ public class AlKharidFisher extends PollingScript<ClientContext> implements Pain
 
     @Override
     public void start() {
-        System.out.println("AlKharidFisher starting. TEST NEW START");
+        System.out.println("AlKharidFishNCook starting. TEST NEW START");
         String userOptions[] = {"Bank", "Drop"};
         String userChoice = ""+(String)JOptionPane.showInputDialog(null, "Bank or Drop cooked fish?", "Fishing", JOptionPane.PLAIN_MESSAGE, null, userOptions, userOptions[0]);
 
@@ -48,7 +48,7 @@ public class AlKharidFisher extends PollingScript<ClientContext> implements Pain
 
     @Override
     public void stop() {
-        System.out.println("AlKharidFisher stopping.");
+        System.out.println("AlKharidFishNCook stopping.");
     }
 
     @Override
@@ -64,7 +64,7 @@ public class AlKharidFisher extends PollingScript<ClientContext> implements Pain
         g.setColor(new Color(255, 45, 45));
         g.drawRect(0, 0, 170, 130);
         g.setColor(new Color(255, 255, 255));
-        g.drawString("AlKharid Fish N Cook", 10, 20);
+        g.drawString("AlKharidFishNCook", 10, 20);
         g.drawString("Run time: " + String.format("%02d:%02d:%02d", hours, minutes, seconds), 10, 40);
         g.drawString("Fish caught: " + this.numFishCaught, 10, 80);
         g.drawString("Fishing levels gained: " + this.fishingLevelsGained, 10, 100);

@@ -1,9 +1,9 @@
-package tasks;
+package Elt.AlKharidFishNCook.tasks;
 
 import org.powerbot.script.Filter;
 import org.powerbot.script.rt4.ClientContext;
 import org.powerbot.script.rt4.Item;
-import scripts.Task;
+import Elt.AlKharidFishNCook.Task;
 
 public class Drop extends Task {
 

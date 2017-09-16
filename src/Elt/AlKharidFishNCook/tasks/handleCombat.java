@@ -1,9 +1,9 @@
-package tasks;
+package Elt.AlKharidFishNCook.tasks;
 
 import org.powerbot.script.Condition;
 import org.powerbot.script.rt4.ClientContext;
 import org.powerbot.script.rt4.Npc;
-import scripts.Task;
+import Elt.AlKharidFishNCook.Task;
 
 import java.util.concurrent.Callable;
 
