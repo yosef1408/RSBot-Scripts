@@ -10,7 +10,7 @@ import java.util.List;
 import Elt.AlKharidFishNCook.Task;
 import Elt.AlKharidFishNCook.tasks.*;
 
-@Script.Manifest(name="AlKharidFishNCook", description="This bot fishes, cooks, and banks or drops in Al Kharid.", properties="author=Elt; client=4;")
+@Script.Manifest(name="AlKharidFishNCook", description="This bot fishes, cooks, and banks or drops in Al Kharid.", properties="author=Elt; topic=1337953; client=4;")
 
 public class AlKharidFishNCook extends PollingScript<ClientContext> implements PaintListener, MessageListener {
 
