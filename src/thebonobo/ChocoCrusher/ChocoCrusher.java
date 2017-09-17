@@ -26,8 +26,8 @@ import java.util.List;
  */
 
 @Script.Manifest(
-        name = "ChocoCrusher", properties = "author=thebonobo; client=4;",
-        description = "Takes Chocolate bars out of your bank and uses a knife to make chocolate dust. Start at grand exchange"
+        name = "ChocoCrusher", properties = "author=thebonobo; topic=1338005; client=4;",
+        description = "Takes Chocolate bars out of your bank and uses a knife to make chocolate dust. Start at grand exchange with the knife in the right bottom slot for best profitably"
 )
 public class ChocoCrusher extends PollingScript<ClientContext> implements PaintListener, InventoryListener {
 
