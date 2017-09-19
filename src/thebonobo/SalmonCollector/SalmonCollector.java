@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit;
 
 @Script.Manifest(name = "SalmonCollector",
         description = "Goes to Barbarian Village, picks up cooked fish and banks it at Edgeville Bank",
-        properties = "client=4; topic=1337839; author=thebonobo;")
+        properties = "client=4; author=thebonobo;")
 
 public class SalmonCollector extends PollingScript<ClientContext> implements MessageListener, PaintListener, InventoryListener {
     public static final Font TAHOMA = new Font("Tahoma", Font.PLAIN, 12);
