@@ -12,12 +12,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-@Script.Manifest(name = "SGAltar", description = "Gilded Altar Bot for Yanille!", properties = "author=sscripts; topic=1338021; client=4")
+@Script.Manifest(name = "SGAltar", description = "Gilded Altar Bot for Yanille! Fast Prayer EXP", properties = "author=sscripts; topic=1338021; client=4")
 public class SGAltar extends PollingScript<ClientContext> implements PaintListener, MessageListener{
 
     public static int boneID, bonesBurned, startEXP, startLVL, expGain, failSaves;
 
-    public List<Task> tasks = Collections.synchronizedList(new ArrayList<Task>());
+    public final List<Task> tasks = Collections.synchronizedList(new ArrayList<Task>());
 
     public static String status = "Waiting for Input";
     public static String playername;
