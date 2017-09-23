@@ -7,8 +7,8 @@ import sscripts.sgaltar.SGAltar;
 import java.util.concurrent.Callable;
 
 public class PortalChat extends Task {
-    public PortalChat(ClientContext arg0) {
-        super(arg0);
+    public PortalChat(ClientContext ctx) {
+        super(ctx);
     }
 
     @Override
@@ -18,16 +18,15 @@ public class PortalChat extends Task {
 
     @Override
     public void execute() {
-        if (ctx.widgets.component(162, 32).component(0).valid() && ctx.widgets.component(162,32).component(0).visible()) {
+        if (SGAltar.stop){
+            ctx.controller.stop();
+            System.out.println("Stop - Host offline - restart and enter new host name");
+        }if(ctx.widgets.component(162,32).component(0).visible() && ctx.widgets.component(162,32).toString().contains(SGAltar.playername)) {
             ctx.widgets.component(162, 32).component(0).click();
-            SGAltar.inHouse = true;
-        } else if (SGAltar.stop){
-           //Stop Script
         }
         else {
             if (ctx.widgets.component(162, 33).visible()) {
                 if (ctx.input.sendln(SGAltar.playername)) {
-                    SGAltar.inHouse = true;
                     Condition.wait(new Callable<Boolean>() {
                         @Override
                         public Boolean call() throws Exception {

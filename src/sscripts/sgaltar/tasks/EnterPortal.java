@@ -8,8 +8,8 @@ import sscripts.sgaltar.SGAltar;
 import java.util.concurrent.Callable;
 
 public class EnterPortal extends Task {
-    public EnterPortal(ClientContext arg0) {
-        super(arg0);
+    public EnterPortal(ClientContext ctx) {
+        super(ctx);
     }
 
     @Override
@@ -33,7 +33,7 @@ public class EnterPortal extends Task {
                     public Boolean call() throws Exception {
                         return !portal.inViewport() && ctx.widgets.component(162, 33).visible();
                     }
-                }, 2500, 2);
+                }, 750, 2);
             }
         }
     }

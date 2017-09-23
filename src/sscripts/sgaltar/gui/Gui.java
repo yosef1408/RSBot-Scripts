@@ -3,9 +3,10 @@ package sscripts.sgaltar.gui;
 import org.powerbot.script.rt4.ClientAccessor;
 import org.powerbot.script.rt4.ClientContext;
 import sscripts.sgaltar.tasks.PortalChat;
-import out.production.src.sgaltar.tasks.WalkToPortal;
 import sscripts.sgaltar.SGAltar;
 import sscripts.sgaltar.tasks.*;
+import sscripts.sgaltar.tasks.walk.WalkToPortal;
+import sscripts.sgaltar.tasks.walk.Walking;
 
 import javax.swing.*;
 import javax.swing.text.NumberFormatter;
@@ -28,6 +29,7 @@ public class Gui extends ClientAccessor {
 
 
     public void init() {
+        frame.setSize(500,200);
         frame.setVisible(true);
 
         final JPanel mainPanel = new JPanel();
@@ -68,7 +70,7 @@ public class Gui extends ClientAccessor {
             @Override
             public void actionPerformed(ActionEvent arg0) {
                 if (boneid.getValue() != null){
-                    SGAltar.boneID = (int) boneid.getValue();
+                    SGAltar.boneID = (Integer) boneid.getValue();
                 }
                 if (playerid.getText() != null){
                     SGAltar.playername = playerid.getText();
