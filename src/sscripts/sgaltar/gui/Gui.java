@@ -5,6 +5,7 @@ import org.powerbot.script.rt4.ClientContext;
 import sscripts.sgaltar.tasks.PortalChat;
 import sscripts.sgaltar.SGAltar;
 import sscripts.sgaltar.tasks.*;
+import sscripts.sgaltar.tasks.walk.WalkEnergy;
 import sscripts.sgaltar.tasks.walk.WalkToPortal;
 import sscripts.sgaltar.tasks.walk.Walking;
 
@@ -38,6 +39,9 @@ public class Gui extends ClientAccessor {
         final JPanel centerPanel = new JPanel();
         centerPanel.setLayout(new FlowLayout());
 
+        final JPanel lowPanel = new JPanel();
+        lowPanel.setLayout(new FlowLayout());
+
         final JLabel label = new JLabel("Enter Bone ID");
         label.add(centerPanel);
 
@@ -64,6 +68,8 @@ public class Gui extends ClientAccessor {
         boneid.setColumns(6);
         playerid.setColumns(15);
 
+        final JCheckBox fountain = new JCheckBox("Refresh Run-Energy?");
+        lowPanel.add(fountain);
         final JButton startButton = new JButton("Start");
         startButton.addActionListener(new ActionListener() {
 
@@ -74,8 +80,9 @@ public class Gui extends ClientAccessor {
                 }
                 if (playerid.getText() != null){
                     SGAltar.playername = playerid.getText();
-                }
+                } if (fountain.isSelected()){
                 synchronized (tasks) {
+                    SGAltar.useFountain = true;
                     tasks.add(new Bank(ctx));
                     tasks.add(new Walking(ctx));
                     tasks.add(new EnterPortal(ctx));
@@ -85,8 +92,25 @@ public class Gui extends ClientAccessor {
                     tasks.add(new WalkToPortal(ctx));
                     tasks.add(new PortalChat(ctx));
                     tasks.add(new LeaveHouse(ctx));
+                    tasks.add(new WalkEnergy(ctx));
                     tasks.notifyAll();
                 }
+                }else {
+                    synchronized (tasks) {
+                        tasks.add(new Bank(ctx));
+                        tasks.add(new Walking(ctx));
+                        tasks.add(new EnterPortal(ctx));
+                        tasks.add(new Altar(ctx));
+                        tasks.add(new Banking(ctx));
+                        tasks.add(new CloseBank(ctx));
+                        tasks.add(new WalkToPortal(ctx));
+                        tasks.add(new PortalChat(ctx));
+                        tasks.add(new LeaveHouse(ctx));
+                        tasks.notifyAll();
+                        // add task without fountain usage
+                    }
+                }
+
                 frame.dispose();
             }
 
@@ -94,7 +118,8 @@ public class Gui extends ClientAccessor {
         mainPanel.add(label, BorderLayout.NORTH);
         mainPanel.add(centerPanel, BorderLayout.CENTER);
         centerPanel.add(label2, BorderLayout.SOUTH);
-        mainPanel.add(startButton, BorderLayout.SOUTH);
+        lowPanel.add(startButton, BorderLayout.SOUTH);
+        mainPanel.add(lowPanel, BorderLayout.SOUTH);
 
         frame.getContentPane().add(mainPanel);
         frame.pack();

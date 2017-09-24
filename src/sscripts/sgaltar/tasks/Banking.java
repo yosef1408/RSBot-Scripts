@@ -22,7 +22,7 @@ public class Banking extends Task {
     public void execute() {
         SGAltar.status="Withdrawing Bones";
         final Item i = ctx.bank.select().id(SGAltar.boneID).first().poll();
-        if (ctx.bank.select().id(SGAltar.boneID).select().count() < 27) {
+        if (ctx.bank.select().id(SGAltar.boneID).select().count() < 27 || i.stackSize() < 27) {
             ctx.controller.stop();
             System.out.println("Stop - Out of bones - restart and enter new bone id");
 

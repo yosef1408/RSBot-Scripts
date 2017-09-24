@@ -21,8 +21,9 @@ public class Altar extends Task {
     public boolean activate() {
         final GameObject portalIn = ctx.objects.select().id(4525).nearest().poll();
         final GameObject altar = ctx.objects.select().name("Altar").nearest().poll();
+        final GameObject fountain = ctx.objects.select().name("Ornate rejuvenation pool").nearest().poll();
 
-        return (portalIn.inViewport() || altar.inViewport()) && !ctx.inventory.select().isEmpty();
+        return (portalIn.inViewport() || altar.inViewport() || ctx.client().getFloor() == 1) && !ctx.inventory.select().isEmpty() && (ctx.movement.energyLevel() > 70 || !SGAltar.useFountain);
     }
 
     @Override
