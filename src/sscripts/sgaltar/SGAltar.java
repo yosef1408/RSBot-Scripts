@@ -10,17 +10,25 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+/*
 
+SOME NOTES !!
+V1.1 NEED TO FIX STOP IN BANK WHEN NO MORE BONES IN BANK
+     FIX PORTALCHAT LAST NAME WIDGET SELECTION
+
+
+ */
 @Script.Manifest(name = "SGAltar", description = "Gilded Altar Bot for Yanille! Fast Prayer EXP", properties = "author=sscripts; topic=1338021; client=4")
 public class SGAltar extends PollingScript<ClientContext> implements PaintListener, MessageListener{
 
-    public static int boneID, bonesBurned, startEXP, startLVL, expGain, failSaves, floor;
+    public static int boneID, bonesBurned, startEXP, startLVL, expGain, failSaves, floor, prayerLvl;
 
     public final List<Task> tasks = Collections.synchronizedList(new ArrayList<Task>());
 
     public static String status = "Waiting for Input";
     public static String playername;
     public static boolean failSave = false;
+    public static boolean useFountain = false;
     public static boolean stop = false;
     private long startTime;
 
@@ -46,7 +54,7 @@ public class SGAltar extends PollingScript<ClientContext> implements PaintListen
 
     @Override
     public void messaged(MessageEvent msg) {
-        if (msg.text().contains("The gods are")){
+        if (msg.text().contains("The gods")){
             bonesBurned++;
             failSave = false;
         }
@@ -57,6 +65,9 @@ public class SGAltar extends PollingScript<ClientContext> implements PaintListen
             ctx.camera.pitch(99);
         }
         if (msg.text().contains("That player is offline")){
+            stop = true;
+        }
+        if (msg.text().contains("Their house is")){
             stop = true;
         }
     }
@@ -91,18 +102,20 @@ public class SGAltar extends PollingScript<ClientContext> implements PaintListen
     @Override
     public void repaint (Graphics g) {
         expGain =  ctx.skills.experience(Constants.SKILLS_PRAYER) - startEXP;
+        prayerLvl = ctx.skills.level(Constants.SKILLS_PRAYER);
+        g.setColor(Color.RED);
+        g.fillRect(5,10,190,20);
         g.setColor(Color.BLUE);
-        g.fillRect(10,10,175,170);
-
+        g.fillRect(10,30,180,150);
+        g.drawString("SGAltar - v1.1",60,25);
         g.setColor(Color.WHITE);
-        g.drawString("RunTime: " + formatTime(getTotalRuntime()),20,30);
-        g.drawString("Status: " + status, 20, 50);
-        g.drawString("Bone-ID: " + boneID, 20, 70);
-        g.drawString("Host-Name: " + playername, 20, 90);
-        g.drawString("Bones used: " + bonesBurned, 20, 110);
-        g.drawString("Prayer Lvl´s: " + (ctx.skills.level(Constants.SKILLS_PRAYER)-startLVL),20,130);
-        g.drawString("Prayer EXP (H): "+ expGain + " ("+perHour(expGain)+")",20,150);
-        g.drawString("Version: 1.0 ", 20, 170);
+        g.drawString("RunTime: " + formatTime(getTotalRuntime()),20,50);
+        g.drawString("Status: " + status, 20, 70);
+        g.drawString("Bone-ID: " + boneID, 20, 90);
+        g.drawString("Host-Name: " + playername, 20, 110);
+        g.drawString("Bones used (H): " + bonesBurned+" ("+perHour(bonesBurned)+")", 20, 130);
+        g.drawString("Prayer Lvl: " + prayerLvl + " (+" + (ctx.skills.level(Constants.SKILLS_PRAYER)-startLVL) + ")",20,150);
+        g.drawString("Prayer EXP (H): "+ expGain + " ("+perHour(expGain)+")",20,170);
         //g.drawString("Fail-Save = " + failSave + " ("+failSaves+")",50,190);
         g.setColor(Color.WHITE);
         g.drawLine(ctx.input.getLocation().x, ctx.input.getLocation().y - 5, ctx.input.getLocation().x, ctx.input.getLocation().y + 5);

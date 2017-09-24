@@ -13,7 +13,7 @@ public class PortalChat extends Task {
 
     @Override
     public boolean activate() {
-        return ctx.widgets.component(162,32).valid();
+        return ctx.widgets.widget(162).component(32).valid();
     }
 
     @Override
@@ -21,11 +21,12 @@ public class PortalChat extends Task {
         if (SGAltar.stop){
             ctx.controller.stop();
             System.out.println("Stop - Host offline - restart and enter new host name");
-        }if(ctx.widgets.component(162,32).component(0).visible() && ctx.widgets.component(162,32).toString().contains(SGAltar.playername)) {
+        }
+        if(ctx.widgets.component(162,32).component(0).visible() && ctx.widgets.component(162, 32).component(0).toString().contains(SGAltar.playername)) {
             ctx.widgets.component(162, 32).component(0).click();
         }
         else {
-            if (ctx.widgets.component(162, 33).visible()) {
+            if (ctx.widgets.component(162, 33).visible() && !ctx.widgets.component(162,32).toString().contains(SGAltar.playername)) {
                 if (ctx.input.sendln(SGAltar.playername)) {
                     Condition.wait(new Callable<Boolean>() {
                         @Override
