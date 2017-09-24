@@ -8,15 +8,18 @@ import sscripts.sgaltar.SGAltar;
 import java.util.concurrent.Callable;
 
 public class LeaveHouse extends Task {
-    public LeaveHouse(ClientContext arg0) {
-        super(arg0);
+    public LeaveHouse(ClientContext ctx) {
+        super(ctx);
     }
+
 
     @Override
     public boolean activate() {
         final GameObject portal = ctx.objects.select().id(4525).nearest().poll();
+        final GameObject altar = ctx.objects.select().name("Altar").nearest().poll();
 
-        return ctx.inventory.select().isEmpty() && SGAltar.inHouse || portal.inViewport() && ctx.inventory.select().isEmpty();
+
+        return (ctx.inventory.select().isEmpty() && altar.inViewport()) || (portal.inViewport() && ctx.inventory.select().isEmpty());
     }
 
     @Override
@@ -25,13 +28,12 @@ public class LeaveHouse extends Task {
         if (portal.inViewport()){
             SGAltar.status="Leaving House";
             if (portal.interact("Enter", "Portal")) {
-                SGAltar.inHouse = false;
                 Condition.wait(new Callable<Boolean>() {
                     @Override
                     public Boolean call() throws Exception {
                         return ctx.players.local().inMotion() && ctx.players.local().animation() != -1;
                     }
-                }, 1000, 2);
+                }, 500, 2);
                 SGAltar.failSave = false;
             }
         } else {

@@ -7,8 +7,8 @@ import sscripts.sgaltar.SGAltar;
 import java.util.concurrent.Callable;
 
 public class Bank extends Task {
-    public Bank(ClientContext arg0) {
-        super(arg0);
+    public Bank(ClientContext ctx) {
+        super(ctx);
     }
 
     @Override

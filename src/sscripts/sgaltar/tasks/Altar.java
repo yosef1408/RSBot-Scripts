@@ -11,13 +11,18 @@ import java.util.concurrent.Callable;
 
 public class Altar extends Task {
 
-    public Altar(ClientContext arg0) {
-        super(arg0);
+    public Altar(ClientContext ctx) {
+        super(ctx);
     }
+
+
 
     @Override
     public boolean activate() {
-        return SGAltar.inHouse && !ctx.inventory.select().isEmpty();
+        final GameObject portalIn = ctx.objects.select().id(4525).nearest().poll();
+        final GameObject altar = ctx.objects.select().name("Altar").nearest().poll();
+
+        return (portalIn.inViewport() || altar.inViewport()) && !ctx.inventory.select().isEmpty();
     }
 
     @Override
@@ -27,6 +32,7 @@ public class Altar extends Task {
         final int[] bounds = {-44, 4, -108, 28, -80, 84};
         final GameObject altar = ctx.objects.select().name("Altar").each(Interactive.doSetBounds(bounds)).nearest().poll();
         if (altar.inViewport()) {
+
             if (!ctx.players.local().inMotion() && ctx.players.local().animation() == -1 || SGAltar.failSave) {
                 if (b.interact("Use")) {
                     if (altar.interact("Use")) {
@@ -50,6 +56,7 @@ public class Altar extends Task {
                     }
                 }, 500, 3);
         }
+
     }
 
 }
