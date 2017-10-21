@@ -3,7 +3,6 @@ package thebonobo.SalmonCollector;
 import org.powerbot.script.*;
 import org.powerbot.script.rt4.ClientContext;
 import org.powerbot.script.rt4.Magic;
-import org.powerbot.script.rt4.Npc;
 import thebonobo.listeners.EventDispatcher;
 import thebonobo.listeners.InventoryEvent;
 import thebonobo.listeners.InventoryListener;
@@ -16,7 +15,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.Callable;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created with IntelliJ IDEA
@@ -59,7 +57,7 @@ public class SalmonCollector extends PollingScript<ClientContext> implements Mes
     @Override
     public void poll() {
         if (firstLogin && ctx.game.loggedIn()){
-            if (!thebonobo.Paths.LUMBRIDGE_CASTLE_AREA.contains(ctx.players.local())){
+            if (!thebonobo.Paths.LUMBRIDGE_CASTLE_AREA.contains(ctx.players.local()) && !thebonobo.Paths.BARBARIAN_AREA.contains(ctx.players.local())){
                 Condition.wait(new Callable<Boolean>() {
                     @Override
                     public Boolean call() throws Exception {
@@ -102,27 +100,6 @@ public class SalmonCollector extends PollingScript<ClientContext> implements Mes
         g.drawString(String.format("Salmon collected: %,d", Info.getInstance().getSalmonCollected()), 10, 60);
         g.drawString(String.format("Raw Salmon collected: %,d", Info.getInstance().getRawSalmonCollected()), 10, 75);
         g.drawString(String.format("GP (GP/HR): %,d (%,d)", gp, gpPerHour), 10, 90);
-    }
-
-    public void dismissRandomEvent() {
-        /* Credit to @laputa.  URL: https://www.powerbot.org/community/topic/1292825-random-event-dismisser/  */
-        Npc randomNpc = ctx.npcs.select().within(4.4).select(new Filter<Npc>() {
-
-            @Override
-            public boolean accept(Npc npc) {
-                return npc.overheadMessage().contains(ctx.players.local().name());
-            }
-        }).poll();
-
-        if (randomNpc.valid()) {
-            String action = randomNpc.name().equalsIgnoreCase("genie") ? "Talk-to" : "Dismiss";
-            try {
-                TimeUnit.MILLISECONDS.sleep((long) (org.powerbot.script.Random.nextDouble(3, 3.5) * 1000));
-            } catch (InterruptedException e) {
-                e.getMessage();
-            }
-            randomNpc.interact(action);
-        }
     }
 
     @Override

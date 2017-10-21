@@ -61,7 +61,8 @@ public class UserProfile{
         List<Bank.Amount> bankAmount = Arrays.asList(Bank.Amount.values()); //Bank.Amount.values()[Random.nextInt(0,Bank.Amount.values().length)].name())
         Collections.shuffle(bankAmount);
         String amount = bankAmount.iterator().next().name();
-        if (amount.equals("BUT_ONE"))
+
+        if (amount.contains("BUT_ONE"))
             return  bankAmount.iterator().next().name();
         else
             return amount;

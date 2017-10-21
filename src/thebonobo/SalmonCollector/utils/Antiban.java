@@ -5,7 +5,6 @@ import org.powerbot.script.Random;
 import org.powerbot.script.rt4.ClientContext;
 import org.powerbot.script.rt4.GameObject;
 import org.powerbot.script.rt4.Npc;
-import thebonobo.SalmonCollector.tasks.Loot;
 
 import java.awt.*;
 import java.util.concurrent.TimeUnit;
