@@ -5,10 +5,7 @@ import org.powerbot.script.rt4.Bank;
 import org.powerbot.script.rt4.ClientContext;
 
 import java.io.*;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 public class UserProfile{
     private Properties userProperties = null;
@@ -60,10 +57,11 @@ public class UserProfile{
     public String getBankAmount(){
         List<Bank.Amount> bankAmount = Arrays.asList(Bank.Amount.values()); //Bank.Amount.values()[Random.nextInt(0,Bank.Amount.values().length)].name())
         Collections.shuffle(bankAmount);
-        String amount = bankAmount.iterator().next().name();
+        Iterator iter = bankAmount.iterator();
+        String amount = ((Bank.Amount) iter.next()).name();
 
         if (amount.contains("BUT_ONE"))
-            return  bankAmount.iterator().next().name();
+            return  ((Bank.Amount) iter.next()).name();
         else
             return amount;
     }

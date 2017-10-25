@@ -22,6 +22,7 @@ import java.util.concurrent.Callable;
 
 public class Bank extends Task<ClientContext> {
     private Properties userProperties;
+    private GameObject bank;
 
     public Bank(ClientContext ctx, Properties userProperties) {
         super(ctx);
@@ -37,7 +38,7 @@ public class Bank extends Task<ClientContext> {
     @Override
     public void execute() {
         Info.getInstance().setCurrentTask("Banking");
-        GameObject bank = ctx.objects.select(3).id(Objects.BANK_BOOTH).nearest().poll();
+        bank = ctx.objects.select(3).id(Objects.BANK_BOOTH).nearest().poll();
         if (bank.inViewport()) {
 
             if (ctx.bank.opened()) {
@@ -47,11 +48,24 @@ public class Bank extends Task<ClientContext> {
 
             } else {
                 bank.interact("Bank", bank.name());
-                Condition.wait(() -> ctx.bank.opened(),200,10);
+                Condition.wait(new Callable<Boolean>() {
+                    @Override
+                    public Boolean call() throws Exception {
+                        return ctx.bank.opened();
+                    }
+                },200,10);
+                //Condition.wait(() -> ctx.bank.opened(),200,10);
             }
 
         } else {
-            Condition.wait(() -> {ctx.camera.turnTo(bank); return bank.inViewport();}, 300, 5);
+            Condition.wait(new Callable<Boolean>() {
+                @Override
+                public Boolean call() throws Exception {
+                    ctx.camera.turnTo(bank);
+                    return bank.inViewport();
+                }
+            }, 300, 5);
+            //Condition.wait(() -> {ctx.camera.turnTo(bank); return bank.inViewport();}, 300, 5);
         }
     }
 
