@@ -1,12 +1,14 @@
 package thebonobo.SalmonCollector.utils;
 
 import org.powerbot.script.Condition;
+import org.powerbot.script.Filter;
 import org.powerbot.script.Random;
 import org.powerbot.script.rt4.ClientContext;
 import org.powerbot.script.rt4.GameObject;
 import org.powerbot.script.rt4.Npc;
 
 import java.awt.*;
+import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -103,9 +105,15 @@ public class Antiban {
         randomMouseMovement(ctx,100,250);
     }
 
-    public static void dismissRandomEvent(ClientContext ctx) {
+    public static void dismissRandomEvent(final ClientContext ctx) {
         /* Credit to @laputa.  URL: https://www.powerbot.org/community/topic/1292825-random-event-dismisser/  */
-        Npc randomNpc = ctx.npcs.select().within(4).select(npc -> npc.overheadMessage().contains(ctx.players.local().name())).poll();
+        //Npc randomNpc = ctx.npcs.select().within(4).select(npc -> npc.overheadMessage().contains(ctx.players.local().name())).poll();
+        Npc randomNpc = ctx.npcs.select().within(4).select(new Filter<Npc>() {
+            @Override
+            public boolean accept(Npc npc) {
+                return npc.overheadMessage().contains(ctx.players.local().name());
+            }
+        }).poll();
         if (randomNpc.valid()) {
             String action = randomNpc.name().equalsIgnoreCase("genie") ? "Talk-to" : "Dismiss";
             try {

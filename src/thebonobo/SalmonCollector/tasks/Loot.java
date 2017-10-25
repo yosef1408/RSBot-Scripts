@@ -8,6 +8,7 @@ import org.powerbot.script.rt4.GroundItem;
 import thebonobo.SalmonCollector.utils.*;
 
 import java.util.Properties;
+import java.util.concurrent.Callable;
 
 /**
  * Created with IntelliJ IDEA
@@ -18,6 +19,7 @@ import java.util.Properties;
 public class Loot extends Task<ClientContext> {
     private WorldHelper worldHelp;
     private Properties userProperties;
+    private GroundItem fishOnGround;
 
     public Loot(ClientContext ctx, Properties userProperties) {
         super(ctx);
@@ -33,7 +35,7 @@ public class Loot extends Task<ClientContext> {
     @Override
     public void execute() {
         Info.getInstance().setCurrentTask("Looting salmon");
-        GroundItem fishOnGround = ctx.groundItems.select().within(Paths.BARBARIAN_TILE, 10.0).id(Items.SALMONS).nearest().poll();
+        fishOnGround = ctx.groundItems.select().within(Paths.BARBARIAN_TILE, 10.0).id(Items.SALMONS).nearest().poll();
         if (fishOnGround.inViewport()) {
             if (fishOnGround.tile().distanceTo(ctx.players.local().tile()) == 0) {
                 // standing on fish, click to take it
@@ -44,7 +46,13 @@ public class Loot extends Task<ClientContext> {
                 // fish is not under player
                 fishOnGround.interact("Take", fishOnGround.name());
                 // wait until we arrived at fish destination
-                Condition.wait(() -> fishOnGround.tile().distanceTo(ctx.players.local().tile()) == 0 || !fishOnGround.valid(), 300, 40);
+                Condition.wait(new Callable<Boolean>() {
+                    @Override
+                    public Boolean call() throws Exception {
+                        return fishOnGround.tile().distanceTo(ctx.players.local().tile()) == 0 || !fishOnGround.valid();
+                    }
+                }, 300, 40);
+                // Condition.wait(() -> fishOnGround.tile().distanceTo(ctx.players.local().tile()) == 0 || !fishOnGround.valid(), 300, 40);
 
             }
         } else {
