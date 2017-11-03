@@ -1,5 +1,9 @@
 package m0tionl3ss.CharterBuyer.tasks;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.powerbot.script.Area;
 import org.powerbot.script.Condition;
 import org.powerbot.script.MessageEvent;
@@ -11,8 +15,6 @@ import org.powerbot.script.rt4.Npc;
 import org.powerbot.script.rt4.Player;
 import org.powerbot.script.rt4.World;
 import org.powerbot.script.rt4.Worlds;
-
-import m0tionl3ss.CharterBuyer.util.Info;
 import m0tionl3ss.CharterBuyer.util.Options;
 import m0tionl3ss.CharterBuyer.util.Tools;
 
@@ -21,7 +23,7 @@ public class BuyFromCharterShop extends Task implements MessageListener {
 	private Area charterMemberArea = new Area(new Tile(2803, 3416), new Tile(2791, 3413));
 	private int[] charterNpcs = { 1334, 1331 };
 	private int[] itemsToBuy;
-	private int oldAmount;
+	private int counter = 0;
 
 	public BuyFromCharterShop(ClientContext ctx) {
 		super(ctx);
@@ -46,51 +48,53 @@ public class BuyFromCharterShop extends Task implements MessageListener {
 		Component shopInterface = ctx.widgets.widget(300).component(0);
 		if (charterMember.inViewport())
 		{
+			System.out.println(!shopInterface.visible() && !ctx.players.local().inMotion());
 			if (!shopInterface.visible() && !ctx.players.local().inMotion())
 			{
 				charterMember.interact("Trade");
+				Condition.wait(() -> shopInterface.visible(),400,5);
 			}
 			else
 			{		
-				Component[] shopItems = ctx.widgets.widget(300).component(2).components();
-				for (int itemToBuy : itemsToBuy)
+				for(int itemToBuy : itemsToBuy)
 				{
-					for (Component shopItem : shopItems)
+					// 401,1781,1783
+					Component item = itemComponent(itemToBuy);
+					if (item != null)
 					{
-						if (itemToBuy == shopItem.itemId() && shopItem.itemStackSize() > 1)
+						if (counter != itemsToBuy.length && item.itemStackSize() > 0 && ctx.inventory.select().count() < 28)
 						{
-							while(shopItem.itemStackSize() > 0 && ctx.inventory.select().count() < 28 && ctx.inventory.select().name("Coins").count(true) > 4)
-							{
-								if (shopItem.interact("Buy 10"))	
-								{
-									// add a delay?
-									//									int newAmount = ctx.inventory.select().id(itemsToBuy).count();
-									//									if (oldAmount != newAmount)
-									//									{
-									//										int x = newAmount - oldAmount;
-									//										Info.getInstance().addItemsBought(x);
-									//										oldAmount = newAmount;
-									//									}
-									//									
-
-
-								}
-							}
-
-
+							item.interact("Buy 10");
 						}
-						else if(itemToBuy == shopItem.itemId() && shopItem.itemStackSize() < 2)
+						if (item.itemStackSize() < 1 && counter < itemsToBuy.length)
 						{
-							// Add option so user can select true or false
-							boolean isShopInterfaceClosed = ctx.widgets.close(ctx.widgets.widget(300).component(1).components(),Options.getInstance().getUseEscape());
-							if (isShopInterfaceClosed)
-								hopWorld();
-							break;
+							
+							counter++;
+							System.err.println(counter);
 						}
-
-
+						
 					}
+						
+					/*if (item != null && counter != itemsToBuy.length && item.itemStackSize() > 0 && ctx.inventory.select().count() < 28)
+					{
+						item.interact("Buy 10");
+					}
+					if (item.itemStackSize() < 1 && counter < itemsToBuy.length && item != null)
+					{
+						
+						counter++;
+						System.err.println(counter);
+					}*/
+					
 				}
+				// dont switch when world has supplies
+				if (counter == itemsToBuy.length)
+				{
+					ctx.widgets.close(ctx.widgets.widget(300),Options.getInstance().getUseEscape());
+					hopWorld();
+					counter = 0;
+				}
+				
 			}
 		}
 		else
@@ -100,21 +104,25 @@ public class BuyFromCharterShop extends Task implements MessageListener {
 
 
 	}
+	private Component itemComponent(int itemId)
+	{
+		
+		for(Component c : ctx.widgets.widget(300).component(2).components())
+		{
+			if (c.itemId() == itemId )
+			{
+				return c;
+			}
+		}
+		return null;
+	}
 	private void hopWorld()
 	{
 
 		ctx.worlds.open();
-
-		//boolean status =ctx.widgets.scroll(list(), ctx.widgets.widget(69).component(7).component(396), bar());
-		//boolean status = ctx.widgets.scroll(ctx.widgets.widget(69).component(7).component(396),ctx.widgets.widget(69).component(7), bar(), true);
-		//boolean status = ctx.widgets.scroll(ctx.widgets.widget(69).component(7).component(396),ctx.widgets.widget(69).component(7), ctx.widgets.widget(69).component(15), false);
-		//System.out.println("Scrolled or in view :" + status);
-		World world = ctx.worlds.select().joinable().types(World.Type.MEMBERS).shuffle().poll();
+		World world = ctx.worlds.select(w -> w.id() < 100 && w.id() != Tools.getCurrentWorld(ctx)).joinable().types(World.Type.MEMBERS).poll();
 		boolean worldIsVisible = ctx.widgets.scroll(worldComponent(world.id()), ctx.widgets.widget(69).component(7), ctx.widgets.widget(69).component(15), Options.getInstance().getUseScroll());
 		Condition.wait(() -> worldIsVisible,450,3);
-		//System.out.println(world.id());
-		//System.out.println(world.valid());
-
 		world.hop();
 	}
 	private Component worldComponent(int number)
@@ -128,11 +136,11 @@ public class BuyFromCharterShop extends Task implements MessageListener {
 		}
 		return null;
 	}
-	
+
 	public void setItemsToBuy(int... ids)
 	{
 		itemsToBuy = ids;
-		oldAmount = ctx.inventory.select().id(itemsToBuy).count();
+		
 	}
 
 	@Override
@@ -142,7 +150,7 @@ public class BuyFromCharterShop extends Task implements MessageListener {
 			Tools.logout(ctx);
 			ctx.controller.stop();
 		}
-		
+
 	}
 
 }
