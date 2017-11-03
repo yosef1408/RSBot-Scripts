@@ -1,10 +1,6 @@
 package m0tionl3ss.JewelEnchanter.tasks;
 
-import java.util.Arrays;
-
 import org.powerbot.script.rt4.ClientContext;
-import org.powerbot.script.rt4.Magic;
-
 import m0tionl3ss.JewelEnchanter.util.Info;
 import m0tionl3ss.JewelEnchanter.util.Tools;
 

@@ -21,7 +21,7 @@ import m0tionl3ss.JewelEnchanter.util.Experience;
 import m0tionl3ss.JewelEnchanter.util.Info;
 import m0tionl3ss.JewelEnchanter.util.Tools;
 @Script.Manifest(description = "Enchants jewels!", name = "M0tionl3ss Jewel Enchanter" , properties = "author=m0tionl3ss;topic=1339601;client=4;")
-public class Main extends PollingScript<ClientContext> implements PaintListener
+public class JewelEnchanter extends PollingScript<ClientContext> implements PaintListener
 {
 	private GUI gui = new GUI(ctx);
 	private List<Task> tasks = new ArrayList<>();

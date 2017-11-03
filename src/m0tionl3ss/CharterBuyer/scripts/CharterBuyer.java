@@ -22,7 +22,7 @@ import m0tionl3ss.CharterBuyer.util.Tools;
 import org.powerbot.script.Script;
 
 @Script.Manifest(description = "Buy items from charter crewmembers in catherby", name = "CharterBuyer" , properties = "author=m0tionl3ss;topic=1339589;client=4;")
-public class Main extends PollingScript<ClientContext> implements PaintListener {
+public class CharterBuyer extends PollingScript<ClientContext> implements PaintListener {
 	List<Task> tasks = new ArrayList<>();
 	Frame frame = new Frame(ctx);
 	@Override

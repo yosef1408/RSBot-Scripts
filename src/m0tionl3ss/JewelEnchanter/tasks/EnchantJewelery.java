@@ -2,8 +2,6 @@ package m0tionl3ss.JewelEnchanter.tasks;
 
 import org.powerbot.script.Condition;
 import org.powerbot.script.rt4.ClientContext;
-import org.powerbot.script.rt4.Component;
-import org.powerbot.script.rt4.GeItem;
 import org.powerbot.script.rt4.Item;
 import org.powerbot.script.rt4.Magic.Spell;
 
