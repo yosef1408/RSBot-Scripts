@@ -2,6 +2,7 @@ package m0tionl3ss.CharterBuyer.util;
 
 import org.powerbot.script.Locatable;
 import org.powerbot.script.rt4.ClientContext;
+import org.powerbot.script.rt4.Component;
 import org.powerbot.script.rt4.Game.Tab;
 import org.powerbot.script.rt4.Inventory;
 
@@ -10,32 +11,27 @@ public class Tools {
 
 	public static void closeBank(ClientContext ctx, boolean useEscape) {
 
-
 		if (useEscape) {
 			ctx.input.send("{VK_ESCAPE}");
 		} else {
 			ctx.bank.close();
 		}
 
-
 	}
-	public static boolean logout(ClientContext ctx)
-	{
+
+	public static boolean logout(ClientContext ctx) {
 		boolean clickLogout = ctx.game.tab(Tab.LOGOUT);
-		if (clickLogout)
-		{
-			if (ctx.widgets.widget(69).component(19).visible())
-			{
+		if (clickLogout) {
+			if (ctx.widgets.widget(69).component(19).visible()) {
 				return ctx.widgets.widget(69).component(19).click();
-			}
-			else
-			{
+			} else {
 				return ctx.widgets.widget(182).component(10).click();
 			}
 		}
 		return false;
 
 	}
+
 	public static void turnCamera(ClientContext ctx, Locatable locatable, boolean useScroll) {
 
 	}
@@ -82,7 +78,24 @@ public class Tools {
 			ctx.input.send("{VK_SHIFT up}");
 		}
 	}
+	
+	public static String getTimeRunning(long runtime) {
+		int seconds = (int) (runtime / 1000) % 60;
+		int minutes = (int) ((runtime / (1000 * 60)) % 60);
+		int hours = (int) ((runtime / (1000 * 60 * 60)) % 24);
+		String runtimeFormated = String.format("%02d:%02d:%02d", hours, minutes, seconds);
+		return runtimeFormated;
+	}
 
+	public static int getTimeRunningMinutes(long runtime) {
+		return (int) ((runtime / (1000 * 60)) % 60);
+	}
+	public static int getCurrentWorld(ClientContext ctx)
+	{
+		Component component = ctx.widgets.widget(69).component(2);
+		int worldID = Integer.parseInt(component.text().substring(16));
+		return worldID;
+	}
 	// TODO :
 	public static void dropDownUpAll(ClientContext ctx, boolean useShift) {
 		int counter = 0;
