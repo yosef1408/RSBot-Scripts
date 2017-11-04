@@ -1,9 +1,5 @@
 package m0tionl3ss.CharterBuyer.tasks;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import org.powerbot.script.Area;
 import org.powerbot.script.Condition;
 import org.powerbot.script.MessageEvent;
@@ -14,14 +10,12 @@ import org.powerbot.script.rt4.Component;
 import org.powerbot.script.rt4.Npc;
 import org.powerbot.script.rt4.Player;
 import org.powerbot.script.rt4.World;
-import org.powerbot.script.rt4.Worlds;
 import m0tionl3ss.CharterBuyer.util.Options;
 import m0tionl3ss.CharterBuyer.util.Tools;
 
 public class BuyFromCharterShop extends Task implements MessageListener {
 
 	private Area charterMemberArea = new Area(new Tile(2803, 3416), new Tile(2791, 3413));
-	private int[] charterNpcs = { 1334, 1331 };
 	private int[] itemsToBuy;
 	private int counter = 0;
 
@@ -32,8 +26,6 @@ public class BuyFromCharterShop extends Task implements MessageListener {
 	@Override
 	public boolean activate() {
 		Player localPlayer = ctx.players.local();
-		// OR nakijken
-		// member area veranderen naar docks2
 
 		if ((charterMemberArea.contains(localPlayer) && ctx.inventory.select().count() < 28) && ctx.inventory.select().name("Coins").count(true) > 4 ) {
 			return true;
@@ -74,20 +66,8 @@ public class BuyFromCharterShop extends Task implements MessageListener {
 						}
 						
 					}
-						
-					/*if (item != null && counter != itemsToBuy.length && item.itemStackSize() > 0 && ctx.inventory.select().count() < 28)
-					{
-						item.interact("Buy 10");
-					}
-					if (item.itemStackSize() < 1 && counter < itemsToBuy.length && item != null)
-					{
-						
-						counter++;
-						System.err.println(counter);
-					}*/
 					
 				}
-				// dont switch when world has supplies
 				if (counter == itemsToBuy.length)
 				{
 					ctx.widgets.close(ctx.widgets.widget(300),Options.getInstance().getUseEscape());

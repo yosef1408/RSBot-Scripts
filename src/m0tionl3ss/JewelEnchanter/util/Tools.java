@@ -2,6 +2,7 @@ package m0tionl3ss.JewelEnchanter.util;
 
 import org.powerbot.script.Locatable;
 import org.powerbot.script.rt4.ClientContext;
+import org.powerbot.script.rt4.Component;
 import org.powerbot.script.rt4.Game.Tab;
 import org.powerbot.script.rt4.Inventory;
 
@@ -89,7 +90,12 @@ public class Tools {
 	public static int getTimeRunningMinutes(long runtime) {
 		return (int) ((runtime / (1000 * 60)) % 60);
 	}
-
+	public static int getCurrentWorld(ClientContext ctx)
+	{
+		Component component = ctx.widgets.widget(69).component(2);
+		int worldID = Integer.parseInt(component.text().substring(0,16));
+		return worldID;
+	}
 	// TODO :
 	public static void dropDownUpAll(ClientContext ctx, boolean useShift) {
 		int counter = 0;
