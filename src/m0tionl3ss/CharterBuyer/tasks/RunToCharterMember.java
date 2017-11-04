@@ -1,7 +1,6 @@
 package m0tionl3ss.CharterBuyer.tasks;
 
 import org.powerbot.script.Area;
-import org.powerbot.script.Condition;
 import org.powerbot.script.Tile;
 import org.powerbot.script.rt4.ClientContext;
 import org.powerbot.script.rt4.Player;
@@ -31,5 +30,10 @@ public class RunToCharterMember extends Task {
 		System.out.println(this.getClass().getSimpleName());
 		ctx.movement.newTilePath(path).randomize(-1, 1).traverse();
 		}
+
+	@Override
+	public String status() {
+		return "Running to shop..";
+	}
 
 }

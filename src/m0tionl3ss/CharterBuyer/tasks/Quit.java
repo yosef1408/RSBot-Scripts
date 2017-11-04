@@ -23,4 +23,9 @@ public class Quit extends Task{
 		
 	}
 
+	@Override
+	public String status() {
+		return "Quiting..";
+	}
+
 }

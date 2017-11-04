@@ -93,8 +93,17 @@ public class Tools {
 	public static int getCurrentWorld(ClientContext ctx)
 	{
 		Component component = ctx.widgets.widget(69).component(2);
-		int worldID = Integer.parseInt(component.text().substring(16));
-		return worldID;
+		String worldID = component.text().substring(17);
+		if (worldID.indexOf(0) == '0')
+		{
+			
+			return (int) worldID.indexOf(1);
+		}
+		else
+		{
+			return Integer.parseInt(worldID);
+		}
+		
 	}
 	// TODO :
 	public static void dropDownUpAll(ClientContext ctx, boolean useShift) {

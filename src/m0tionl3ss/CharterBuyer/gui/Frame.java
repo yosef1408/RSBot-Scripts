@@ -3,8 +3,6 @@ package m0tionl3ss.CharterBuyer.gui;
 import javax.swing.JFrame;
 
 import java.util.Arrays;
-import java.util.List;
-
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JTextField;
@@ -19,6 +17,7 @@ public class Frame {
 	private JTextField textField;
 	private JCheckBox chckbxUseMouseWheel;
 	private JCheckBox chckbxUseEscapeTo;
+	private JCheckBox chckbxShuffleWorlds;
 	private ClientContext ctx;
 
 	/**
@@ -34,7 +33,7 @@ public class Frame {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-		frame = new JFrame("M0tionl3ss CharterBuyer v1.0");
+		frame = new JFrame("M0tionl3ss CharterBuyer v1.2");
 		frame.setBounds(100, 100, 450, 187);
 		frame.getContentPane().setLayout(null);
 		frame.setVisible(true);
@@ -44,7 +43,7 @@ public class Frame {
 		frame.getContentPane().add(btnStart);
 		
 		chckbxUseMouseWheel = new JCheckBox("Use mouse wheel to scroll");
-		chckbxUseMouseWheel.setBounds(8, 67, 213, 25);
+		chckbxUseMouseWheel.setBounds(8, 67, 171, 25);
 		frame.getContentPane().add(chckbxUseMouseWheel);
 		
 		chckbxUseEscapeTo = new JCheckBox("Use escape to close interface");
@@ -60,6 +59,10 @@ public class Frame {
 		JLabel lblItemIds = new JLabel("Item id(s)");
 		lblItemIds.setBounds(12, 13, 72, 16);
 		frame.getContentPane().add(lblItemIds);
+		
+		chckbxShuffleWorlds = new JCheckBox("Shuffle worlds");
+		chckbxShuffleWorlds.setBounds(181, 68, 119, 23);
+		frame.getContentPane().add(chckbxShuffleWorlds);
 	}
 	public boolean useMouseWheel()
 	{
@@ -68,6 +71,10 @@ public class Frame {
 	public boolean useEscape()
 	{
 		return chckbxUseEscapeTo.isSelected();
+	}
+	public boolean shuffleWorlds()
+	{
+		return chckbxShuffleWorlds.isSelected();
 	}
 	public int[] getIds()
 	{

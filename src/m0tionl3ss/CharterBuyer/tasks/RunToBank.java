@@ -33,4 +33,10 @@ public class RunToBank extends Task {
 		
 	}
 
+	@Override
+	public String status() {
+		// TODO Auto-generated method stub
+		return "Running to bank..";
+	}
+
 }

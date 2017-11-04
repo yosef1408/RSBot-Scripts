@@ -18,7 +18,6 @@ public class BuyFromCharterShop extends Task implements MessageListener {
 	private Area charterMemberArea = new Area(new Tile(2803, 3416), new Tile(2791, 3413));
 	private int[] itemsToBuy;
 	private int counter = 0;
-
 	public BuyFromCharterShop(ClientContext ctx) {
 		super(ctx);
 	}
@@ -40,14 +39,15 @@ public class BuyFromCharterShop extends Task implements MessageListener {
 		Component shopInterface = ctx.widgets.widget(300).component(0);
 		if (charterMember.inViewport())
 		{
-			System.out.println(!shopInterface.visible() && !ctx.players.local().inMotion());
 			if (!shopInterface.visible() && !ctx.players.local().inMotion())
 			{
 				charterMember.interact("Trade");
+				
 				Condition.wait(() -> shopInterface.visible(),400,5);
 			}
 			else
 			{		
+				
 				for(int itemToBuy : itemsToBuy)
 				{
 					// 401,1781,1783
@@ -62,19 +62,19 @@ public class BuyFromCharterShop extends Task implements MessageListener {
 						{
 							
 							counter++;
-							System.err.println(counter);
 						}
 						
 					}
 					
 				}
+
 				if (counter == itemsToBuy.length)
 				{
 					ctx.widgets.close(ctx.widgets.widget(300),Options.getInstance().getUseEscape());
 					hopWorld();
 					counter = 0;
 				}
-				
+								
 			}
 		}
 		else
@@ -100,10 +100,21 @@ public class BuyFromCharterShop extends Task implements MessageListener {
 	{
 
 		ctx.worlds.open();
-		World world = ctx.worlds.select(w -> w.id() < 100 && w.id() != Tools.getCurrentWorld(ctx)).joinable().types(World.Type.MEMBERS).poll();
-		boolean worldIsVisible = ctx.widgets.scroll(worldComponent(world.id()), ctx.widgets.widget(69).component(7), ctx.widgets.widget(69).component(15), Options.getInstance().getUseScroll());
-		Condition.wait(() -> worldIsVisible,450,3);
+		Condition.wait(() -> ctx.widgets.widget(69).component(7).visible(),500,3);
+		World world = ctx.worlds.nil();
+		if (Options.getInstance().getShuffleWorlds())
+		{
+			world = ctx.worlds.select(w -> w.id() < 100 && w.id() != Tools.getCurrentWorld(ctx)).joinable().types(World.Type.MEMBERS).shuffle().poll();
+		}
+		else
+		{
+			
+			world = ctx.worlds.select(w -> w.id() < 100 && w.id() != Tools.getCurrentWorld(ctx)).joinable().types(World.Type.MEMBERS).peek();
+		}
+		
+		ctx.widgets.scroll(worldComponent(world.id()), ctx.widgets.widget(69).component(7), ctx.widgets.widget(69).component(15), Options.getInstance().getUseScroll());	
 		world.hop();
+		
 	}
 	private Component worldComponent(int number)
 	{
@@ -131,6 +142,12 @@ public class BuyFromCharterShop extends Task implements MessageListener {
 			ctx.controller.stop();
 		}
 
+	}
+
+	@Override
+	public String status() {
+		// TODO Auto-generated method stub
+		return "Buying items from shop..";
 	}
 
 }

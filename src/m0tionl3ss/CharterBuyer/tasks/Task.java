@@ -11,4 +11,5 @@ public abstract class Task extends ClientAccessor {
 	
 	public abstract boolean activate();
 	public abstract void execute();
+	public abstract String status();
 }
