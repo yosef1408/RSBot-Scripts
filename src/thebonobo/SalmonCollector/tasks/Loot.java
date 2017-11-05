@@ -49,9 +49,11 @@ public class Loot extends Task<ClientContext> {
                 Condition.wait(new Callable<Boolean>() {
                     @Override
                     public Boolean call() throws Exception {
-                        return fishOnGround.tile().distanceTo(ctx.players.local().tile()) == 0 || !fishOnGround.valid();
+                        return fishOnGround.tile().distanceTo(ctx.players.local().tile()) == 0 || !fishOnGround.valid() || !ctx.players.local().inMotion();
                     }
                 }, 300, 40);
+                if (fishOnGround.tile().distanceTo(ctx.players.local().tile()) > 0)
+                    ctx.movement.findPath(fishOnGround).traverse();
                 // Condition.wait(() -> fishOnGround.tile().distanceTo(ctx.players.local().tile()) == 0 || !fishOnGround.valid(), 300, 40);
 
             }
@@ -61,7 +63,12 @@ public class Loot extends Task<ClientContext> {
             // drop accidental picked up trout
             ctx.inventory.select().id(Items.TROUT).shuffle().poll().interact("Drop");
             // fastest rate is 9/1000 chance so do it every 60000ms/111 = 1,6 chance per minute at the most
-            if (Random.nextInt(0, 1000) <= Integer.parseInt(userProperties.getProperty("right-click-player-rate"))) ;
+            int randomNumber = Random.nextInt(0, 1000);
+            int userNumber = Integer.parseInt(userProperties.getProperty("right-click-player-rate"));
+            if (randomNumber <= userNumber)
+                Antiban.rightClickPlayer(ctx);
+            randomNumber = Random.nextInt(0, 1000);
+            if (randomNumber <= userNumber)
                 Antiban.moveMouseOffScreen(ctx);
             Condition.sleep(Random.nextInt(2000, 4000));
 
