@@ -5,7 +5,20 @@ public class Options
 	private static Options options = new Options();
 	private boolean useEscape;
 	private boolean useScroll;
-	
+	private boolean outOfStock;
+	private boolean shuffleWorlds;
+	public boolean getShuffleWorlds() {
+		return shuffleWorlds;
+	}
+	public void setShuffleWorlds(boolean shuffleWorlds) {
+		this.shuffleWorlds = shuffleWorlds;
+	}
+	public boolean isOutOfStock() {
+		return outOfStock;
+	}
+	public void setOutOfStock(boolean outOfStock) {
+		this.outOfStock = outOfStock;
+	}
 	public boolean getUseEscape() {
 		return useEscape;
 	}

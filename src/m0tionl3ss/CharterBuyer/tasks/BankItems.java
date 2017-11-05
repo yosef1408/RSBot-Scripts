@@ -62,4 +62,9 @@ public class BankItems extends Task
 		}
 	}
 
+	@Override
+	public String status() {
+		return "Banking..";
+	}
+
 }
