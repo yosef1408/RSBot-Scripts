@@ -29,7 +29,7 @@ public class RunToBank extends Task {
 	public void execute() {
 		System.out.println(this.getClass().getSimpleName());
 		//ctx.movement.newTilePath(path).reverse().traverse();
-		ctx.movement.newTilePath(path).randomize(-1, 1).reverse().traverse();
+		ctx.movement.newTilePath(path).randomize(1, 1).reverse().traverse();
 		
 	}
 

@@ -1,4 +1,4 @@
-package m0tionl3ss.CharterBuyer.util;
+package m0tionl3ss.SandRunner.util;
 
 import org.powerbot.script.Locatable;
 import org.powerbot.script.rt4.ClientContext;
@@ -17,6 +17,11 @@ public class Tools {
 			ctx.bank.close();
 		}
 
+	}
+	public static void openInventoryIfClosed(ClientContext ctx) {
+		if (!ctx.game.tab().equals(Tab.INVENTORY)) {
+			ctx.game.tab(Tab.INVENTORY);
+		}
 	}
 	public static boolean logout(ClientContext ctx) {
 		boolean clickLogout = ctx.game.tab(Tab.LOGOUT);
@@ -92,17 +97,8 @@ public class Tools {
 	public static int getCurrentWorld(ClientContext ctx)
 	{
 		Component component = ctx.widgets.widget(69).component(2);
-		String worldID = component.text().substring(17);
-		if (worldID.indexOf(0) == '0')
-		{
-			
-			return (int) worldID.indexOf(1);
-		}
-		else
-		{
-			return Integer.parseInt(worldID);
-		}
-		
+		int worldID = Integer.parseInt(component.text().substring(16));
+		return worldID;
 	}
 	// TODO :
 	public static void dropDownUpAll(ClientContext ctx, boolean useShift) {

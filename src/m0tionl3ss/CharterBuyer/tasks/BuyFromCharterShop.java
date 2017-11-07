@@ -2,18 +2,19 @@ package m0tionl3ss.CharterBuyer.tasks;
 
 import org.powerbot.script.Area;
 import org.powerbot.script.Condition;
-import org.powerbot.script.MessageEvent;
-import org.powerbot.script.MessageListener;
 import org.powerbot.script.Tile;
 import org.powerbot.script.rt4.ClientContext;
 import org.powerbot.script.rt4.Component;
 import org.powerbot.script.rt4.Npc;
 import org.powerbot.script.rt4.Player;
 import org.powerbot.script.rt4.World;
+import org.powerbot.script.rt4.World.Type;
+import org.powerbot.script.rt4.Worlds;
+
 import m0tionl3ss.CharterBuyer.util.Options;
 import m0tionl3ss.CharterBuyer.util.Tools;
 
-public class BuyFromCharterShop extends Task implements MessageListener {
+public class BuyFromCharterShop extends Task  {
 
 	private Area charterMemberArea = new Area(new Tile(2803, 3416), new Tile(2791, 3413));
 	private int[] itemsToBuy;
@@ -39,22 +40,18 @@ public class BuyFromCharterShop extends Task implements MessageListener {
 		Component shopInterface = ctx.widgets.widget(300).component(0);
 		if (charterMember.inViewport())
 		{
-			if (!shopInterface.visible() && !ctx.players.local().inMotion())
+			if (!shopInterface.visible() && !ctx.players.local().inMotion() && counter < itemsToBuy.length)
 			{
-				charterMember.interact("Trade");
-				
+				charterMember.interact("Trade");			
 				Condition.wait(() -> shopInterface.visible(),400,5);
 			}
-			else
-			{		
-				
 				for(int itemToBuy : itemsToBuy)
 				{
 					// 401,1781,1783
 					Component item = itemComponent(itemToBuy);
 					if (item != null)
 					{
-						if (counter != itemsToBuy.length && item.itemStackSize() > 0 && ctx.inventory.select().count() < 28)
+						if (counter < itemsToBuy.length && item.itemStackSize() > 0 && ctx.inventory.select().count() < 28)
 						{
 							item.interact("Buy 10");
 						}
@@ -62,20 +59,21 @@ public class BuyFromCharterShop extends Task implements MessageListener {
 						{
 							
 							counter++;
+							break;
 						}
 						
 					}
 					
 				}
-
 				if (counter == itemsToBuy.length)
 				{
+					System.out.println("Hop");
 					ctx.widgets.close(ctx.widgets.widget(300),Options.getInstance().getUseEscape());
 					hopWorld();
 					counter = 0;
 				}
 								
-			}
+			
 		}
 		else
 		{
@@ -96,25 +94,41 @@ public class BuyFromCharterShop extends Task implements MessageListener {
 		}
 		return null;
 	}
+	
 	private void hopWorld()
 	{
 
-		ctx.worlds.open();
-		Condition.wait(() -> ctx.widgets.widget(69).component(7).visible(),500,3);
+		if(!ctx.widgets.widget(69).component(7).visible())
+		{
+			ctx.worlds.open();
+			Condition.wait(() -> ctx.widgets.widget(69).component(7).visible(),500,3);
+		}
+	
 		World world = ctx.worlds.nil();
+		Worlds query = ctx.worlds.select( w -> w.id() != Tools.getCurrentWorld(ctx) && w.id() != 65 && w.id() < 100).joinable().types(Type.MEMBERS);
 		if (Options.getInstance().getShuffleWorlds())
 		{
-			world = ctx.worlds.select(w -> w.id() < 100 && w.id() != Tools.getCurrentWorld(ctx)).joinable().types(World.Type.MEMBERS).shuffle().poll();
+			System.out.println("Q : " + query.size());
+			if (query.size() < 1)
+			{
+				query.select().joinable().types(Type.MEMBERS);
+			}
+		
+			world  = query.shuffle().peek();
+			//world = ctx.worlds.select(w -> w.id() < 100 && w.id() != Tools.getCurrentWorld(ctx) && w.id() != 65).joinable().types(World.Type.MEMBERS).shuffle().peek();
 		}
 		else
 		{
-			
-			world = ctx.worlds.select(w -> w.id() < 100 && w.id() != Tools.getCurrentWorld(ctx)).joinable().types(World.Type.MEMBERS).peek();
+			System.out.println("Q : " + query.size());
+			if (query.size() < 1)
+			{
+				query.select().types(Type.MEMBERS).joinable();
+			}
+			world  = query.peek();
+			//world = ctx.worlds.select(w -> w.id() < 100 && w.id() != Tools.getCurrentWorld(ctx) && w.id() != 65).joinable().types(World.Type.MEMBERS).peek();
 		}
-		
 		ctx.widgets.scroll(worldComponent(world.id()), ctx.widgets.widget(69).component(7), ctx.widgets.widget(69).component(15), Options.getInstance().getUseScroll());	
 		world.hop();
-		
 	}
 	private Component worldComponent(int number)
 	{
@@ -132,16 +146,6 @@ public class BuyFromCharterShop extends Task implements MessageListener {
 	{
 		itemsToBuy = ids;
 		
-	}
-
-	@Override
-	public void messaged(MessageEvent message) {
-		if (message.text().contains("enough coins"))
-		{
-			Tools.logout(ctx);
-			ctx.controller.stop();
-		}
-
 	}
 
 	@Override
