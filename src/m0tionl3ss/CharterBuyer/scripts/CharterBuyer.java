@@ -13,6 +13,7 @@ import org.powerbot.script.PaintListener;
 import org.powerbot.script.PollingScript;
 import org.powerbot.script.rt4.ClientContext;
 import org.powerbot.script.rt4.World;
+import org.powerbot.script.rt4.Worlds;
 
 import m0tionl3ss.CharterBuyer.gui.Frame;
 import m0tionl3ss.CharterBuyer.tasks.BankItems;
@@ -27,7 +28,7 @@ import m0tionl3ss.CharterBuyer.util.Tools;
 import org.powerbot.script.Script;
 
 @Script.Manifest(description = "Buy items from charter crewmembers in catherby", name = "CharterBuyer" , properties = "author=m0tionl3ss;topic=1339589;client=4;")
-public class CharterBuyer extends PollingScript<ClientContext> implements PaintListener, MessageListener {
+public class CharterBuyer extends PollingScript<ClientContext> implements PaintListener {
 	List<Task> tasks = new ArrayList<>();
 	Frame frame = new Frame(ctx);
 	String status = "";
@@ -69,20 +70,12 @@ public class CharterBuyer extends PollingScript<ClientContext> implements PaintL
 		g2.drawRect(25, 25, 250, 90);
 		g2.setColor(Color.WHITE);
 		g2.setFont(new Font("Bauhaus 93", Font.BOLD, 16));
-		g2.drawString("M0tionl3ss CharterBuyer V1.2", 30, 50);
+		g2.drawString("M0tionl3ss CharterBuyer V1.3", 30, 50);
 		g2.setFont(new Font("Tahoma",Font.PLAIN,12));
 		g2.drawString("Status : " + this.status, 30, 70);
 		g2.drawString("Time running :  " + Tools.getTimeRunning(getTotalRuntime()), 30, 90);
 		
 	}
-	@Override
-	public void messaged(MessageEvent message) {
-		if (message.text().contains("out of stock"))
-		{
-			Options.getInstance().setOutOfStock(true);
-		}
-		
-	}
-	
+
 
 }

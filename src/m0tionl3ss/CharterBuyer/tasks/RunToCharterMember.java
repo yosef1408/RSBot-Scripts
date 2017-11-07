@@ -28,7 +28,7 @@ public class RunToCharterMember extends Task {
 	@Override
 	public void execute() {
 		System.out.println(this.getClass().getSimpleName());
-		ctx.movement.newTilePath(path).randomize(-1, 1).traverse();
+		ctx.movement.newTilePath(path).randomize(1, 1).traverse();
 		}
 
 	@Override
