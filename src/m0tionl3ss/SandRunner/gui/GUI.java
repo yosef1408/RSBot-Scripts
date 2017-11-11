@@ -18,10 +18,8 @@ public class GUI {
 	// private JComboBox comboBox;
 	private JCheckBox chckbxUseEscapeTo;
 	private JCheckBox chckbxUseCompass;
-
-	public GUI(ClientContext ctx) {
-		this.ctx = ctx;
-		this.ctx.controller.suspend();
+	private boolean startScript = false;
+	public GUI() {
 		initialize();
 	}
 
@@ -35,8 +33,7 @@ public class GUI {
 		frame.setVisible(true);
 		frame.setTitle("M0tionl3ss SandRunner v1.0");
 		JButton btnStart = new JButton("Start");
-		btnStart.addActionListener(l -> {
-			ctx.controller.resume();
+		btnStart.addActionListener(l -> { startScript = true;
 			frame.dispose();
 		});
 		btnStart.setBounds(221, 73, 89, 23);
@@ -70,5 +67,9 @@ public class GUI {
 
 	public boolean useCompass() {
 		return chckbxUseCompass.isSelected();
+	}
+	public boolean startScript()
+	{
+		return startScript;
 	}
 }

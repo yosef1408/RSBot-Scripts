@@ -5,11 +5,13 @@ import org.powerbot.script.Condition;
 import org.powerbot.script.Tile;
 import org.powerbot.script.rt4.ClientContext;
 import org.powerbot.script.rt4.Equipment;
+import org.powerbot.script.rt4.Equipment.Slot;
 import org.powerbot.script.rt4.Game.Tab;
 import org.powerbot.script.rt4.Magic;
 
 import m0tionl3ss.SandRunner.util.Info;
 import m0tionl3ss.SandRunner.util.Options;
+import m0tionl3ss.SandRunner.util.Tools;
 import m0tionl3ss.SandRunner.util.Options.Mode;
 
 public class Dead extends Task {
@@ -28,16 +30,21 @@ public class Dead extends Task {
 
 	@Override
 	public void execute() {
+		Tools.openInventoryIfClosed(ctx);
+		
 		if(Options.getInstance().getMode() == Mode.PVP)
 		{
-			ctx.inventory.select().name("Staff of air").poll().interact("Wield");
 			
+			ctx.inventory.select().id(1381).poll().interact("Wield");
+			Condition.wait(() -> ctx.equipment.itemAt(Equipment.Slot.MAIN_HAND).id() == 1381, 400,3);
 			ctx.magic.cast(Magic.Spell.CAMELOT_TELEPORT);
 			Condition.wait(() -> bankArea.contains(ctx.players.local()),500,3);
 		}
 		else
 		{
+			ctx.inventory.select().id(1381).poll().interact("Wield");
 			ctx.inventory.select().id(rings).poll().interact("Wear");
+			Condition.wait(() -> ctx.equipment.itemAt(Slot.RING).id() == ctx.equipment.select().id(rings).poll().id(),400,3);
 			ctx.game.tab(Tab.EQUIPMENT);
 			ctx.equipment.itemAt(Equipment.Slot.RING).interact("Castle Wars");
 			Condition.wait(() -> cwarsArea.contains(ctx.players.local()),1000,3);

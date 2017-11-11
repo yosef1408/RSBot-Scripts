@@ -42,7 +42,7 @@ public class TeleportToBank extends Task{
 		{
 			ctx.magic.cast(Magic.Spell.CAMELOT_TELEPORT);
 			//ctx.inventory.select().name("Camelot teleport").poll().interact("Break");
-			Condition.wait(() -> bankArea.contains(ctx.players.local()),500,3);
+			Condition.wait(() -> bankArea.contains(ctx.players.local()),1000,3);
 		}
 		else
 		{

@@ -63,13 +63,11 @@ public class Bank extends Task {
 							ctx.bank.withdraw(ctx.bank.select().name("Law rune").poll().id(), 2);
 						else
 							ctx.bank.withdraw(ctx.bank.select().name("Law rune").poll().id(), 1);
-					} else
-						closeBankAndQuit();
+					} 
 					if (ctx.inventory.select().name("Earth rune").isEmpty()
 							&& !ctx.bank.select().name("Earth rune").isEmpty()) {
 						ctx.bank.withdraw(ctx.bank.select().name("Earth rune").poll().id(), 1);
-					} else
-						closeBankAndQuit();
+					} 
 
 					ctx.bank.withdraw(ctx.bank.select().name("Bucket").poll().id(),
 							org.powerbot.script.rt4.Bank.Amount.ALL);
@@ -81,6 +79,7 @@ public class Bank extends Task {
 
 			} else {
 				ctx.bank.open();
+				Condition.wait(() -> ctx.bank.opened(),200,5);
 			}
 		} else {
 			ctx.movement.step(ctx.bank.nearest());
