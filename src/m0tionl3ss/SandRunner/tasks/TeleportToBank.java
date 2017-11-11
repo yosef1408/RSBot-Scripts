@@ -11,7 +11,7 @@ import org.powerbot.script.rt4.Player;
 import m0tionl3ss.SandRunner.util.Options;
 
 public class TeleportToBank extends Task{
-	Area bankArea = new Area(new Tile(2761,3477), new Tile(2753,3483));
+	Area bankArea = new Area(new Tile(2761,3475), new Tile(2753,3483));
 	Area cwarsArea = new Area(new Tile(2438,3082), new Tile(2446,3097));
 	public TeleportToBank(ClientContext ctx) {
 		super(ctx);
