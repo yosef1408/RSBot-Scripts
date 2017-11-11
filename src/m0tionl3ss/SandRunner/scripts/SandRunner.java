@@ -30,10 +30,8 @@ import m0tionl3ss.SandRunner.util.Info;
 import m0tionl3ss.SandRunner.util.Options;
 import m0tionl3ss.SandRunner.util.Tools;
 
-
-@Script.Manifest(description = "Fills buckets!", name = "SandRunner" , properties = "author=m0tionl3ss;topic=1339772;client=4;")
+@Script.Manifest(description = "Fills buckets!", name = "SandRunner", properties = "author=m0tionl3ss;topic=1339772;client=4;")
 public class SandRunner extends PollingScript<ClientContext> implements MessageListener, PaintListener {
-
 	private List<Task> tasks = new ArrayList<>();
 	private String status = "";
 	private GUI gui;
