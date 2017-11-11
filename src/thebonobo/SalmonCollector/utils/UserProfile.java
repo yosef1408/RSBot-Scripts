@@ -35,6 +35,7 @@ public class UserProfile{
     public void generateRandomProfile(String fileLocation) throws IOException{
         Properties prop = new Properties();
 
+        prop.setProperty("afk-rate", Integer.toString(Random.nextInt(0,100)));
         prop.setProperty("click-speed", Integer.toString(Random.nextInt(0,100)));
         prop.setProperty("camera-turn-rate", Integer.toString(Random.nextInt(0,100)));
         prop.setProperty("double-click", Integer.toString(Random.nextInt(0,2)));
@@ -59,10 +60,9 @@ public class UserProfile{
         Collections.shuffle(bankAmount);
         Iterator iter = bankAmount.iterator();
         String amount = ((Bank.Amount) iter.next()).name();
+        while (amount.contains("ONE"))
+            amount  = ((Bank.Amount) iter.next()).name();
 
-        if (amount.contains("BUT_ONE"))
-            return  ((Bank.Amount) iter.next()).name();
-        else
-            return amount;
+        return amount;
     }
 }
