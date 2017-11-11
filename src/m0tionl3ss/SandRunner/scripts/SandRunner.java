@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Polygon;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,7 +16,8 @@ import org.powerbot.script.PollingScript;
 import org.powerbot.script.Script;
 import org.powerbot.script.Tile;
 import org.powerbot.script.rt4.ClientContext;
-import org.powerbot.script.rt4.GameObject;
+import org.powerbot.script.rt4.TileMatrix;
+
 import m0tionl3ss.SandRunner.gui.GUI;
 import m0tionl3ss.SandRunner.tasks.Bank;
 import m0tionl3ss.SandRunner.tasks.Dead;
@@ -26,16 +28,15 @@ import m0tionl3ss.SandRunner.tasks.TeleportToHouse;
 import m0tionl3ss.SandRunner.util.Info;
 import m0tionl3ss.SandRunner.util.Options;
 import m0tionl3ss.SandRunner.util.Tools;
-@Script.Manifest(description = "Fills buckets!", name = "SandRunner" , properties = "author=m0tionl3ss;topic=1339772;client=4;")
 
-public class SandRunner extends PollingScript<ClientContext> implements MessageListener, PaintListener{
+@Script.Manifest(description = "Fills buckets!", name = "SandRunner", properties = "author=m0tionl3ss;topic=1339772;client=4;")
+public class SandRunner extends PollingScript<ClientContext> implements MessageListener, PaintListener {
 	private List<Task> tasks = new ArrayList<>();
 	private String status = "";
 	private GUI gui = new GUI(ctx);
-	Area bankArea = new Area(new Tile(2761,3477), new Tile(2753,3483));
-	GameObject sandpit = ctx.objects.select().name("Sandpit").poll();
+	Area bankArea = new Area(new Tile(2761,3475), new Tile(2753,3483));
 	@Override
-	public void start() {	
+	public void start() {
 		Options.getInstance().setUseEscape(gui.useEscape());
 		Options.getInstance().setMode(gui.getMode());
 		Options.getInstance().setUseCompass(gui.useCompass());
@@ -49,22 +50,54 @@ public class SandRunner extends PollingScript<ClientContext> implements MessageL
 	@Override
 	public void poll() {
 		for (Task t : tasks) {
-			if (t.activate())
-			{
+			if (t.activate()) {
 				t.execute();
 				this.status = t.status();
-				
 			}
 		}
 
 	}
+	public void drawArea(Area area, Graphics g)
+	{
+		int bufferX[] =  area.getPolygon().xpoints;
+		int bufferY[] = area.getPolygon().ypoints;
 
+		int lenght = 0;
+		Tile tileArray[] = new Tile[bufferX.length];
+		List<TileMatrix> tileMatrices = new ArrayList<>();
+		for (int i = 0 ; i < tileArray.length ; i++)
+		{
+			tileArray[i] = new Tile(bufferX[i], bufferY[i]);
+		}
+		for (int i = 0; i < tileArray.length; i++)
+		{
+			tileMatrices.add(new TileMatrix(ctx, tileArray[i]));
+		}
+		lenght = tileMatrices.get(0).bounds().xpoints.length;
+		int screenX[] =  new int[lenght];
+		int screenY[] = new int[lenght];
+
+		for (int i = 0; i < tileMatrices.size(); i++)
+		{
+			screenX[i] = tileMatrices.get(i).triangles()[0].xpoints[0];
+			screenY[i] = tileMatrices.get(i).triangles()[0].ypoints[0];
+
+		}
+		Polygon pol = new Polygon(screenX, screenY, lenght);
+		for (int i = 0; i < lenght ; i++)
+		{
+			//System.out.println("X :" + screenX[i] + "[" + i + "]");
+			//System.out.println("Y :" + screenY[i]+ "[" + i + "]");
+		}
+		g.drawPolygon(pol);
+
+	}
 	@Override
 	public void messaged(MessageEvent message) {
-		
+
 		if (message.text().contains("crumbles"))
 			Info.getInstance().setWithdrawDuelRing(true);
-		if(message.text().contains("dead"))
+		if (message.text().contains("dead"))
 			Info.getInstance().setDead(true);
 	}
 
@@ -86,8 +119,7 @@ public class SandRunner extends PollingScript<ClientContext> implements MessageL
 		g2.drawString("Deaths : " + Info.getInstance().getDeadCounter(), 28, 400);
 		g2.drawString("Status : " + this.status, 28, 420);
 		g2.drawString("Time running : " + Tools.getTimeRunning(getTotalRuntime()), 28, 440);
-		// TODO Auto-generated method stub
-		
+
 	}
 
 }

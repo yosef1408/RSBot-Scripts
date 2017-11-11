@@ -9,7 +9,7 @@ import org.powerbot.script.rt4.Player;
 
 public class TeleportToHouse extends Task {
 
-	Area bankArea = new Area(new Tile(2761,3477), new Tile(2753,3483));
+	Area bankArea = new Area(new Tile(2761,3475), new Tile(2753,3483));
 	Area portalAndSandpitArea = new Area(new Tile(2539,3106),new Tile(2548,3093));
 	public TeleportToHouse(ClientContext ctx) {
 		super(ctx);
