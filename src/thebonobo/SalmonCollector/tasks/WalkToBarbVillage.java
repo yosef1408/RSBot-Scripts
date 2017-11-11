@@ -27,7 +27,7 @@ public class WalkToBarbVillage extends Task<ClientContext> {
 
     @Override
     public boolean activate() {
-        return (ctx.inventory.select().id(fishIds).count() == 0 && barbarianTile.distanceTo(ctx.players.local().tile()) > 10);
+        return (ctx.inventory.select().id(fishIds).count() == 0 && barbarianTile.distanceTo(ctx.players.local().tile()) > 10) || !Paths.BARBARIAN_AREA.contains(ctx.players.local());
     }
 
     @Override
