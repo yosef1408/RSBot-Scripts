@@ -1,11 +1,13 @@
 package m0tionl3ss.SandRunner.scripts;
 
 import java.awt.Color;
+import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.powerbot.script.Area;
@@ -17,7 +19,6 @@ import org.powerbot.script.Script;
 import org.powerbot.script.Tile;
 import org.powerbot.script.rt4.ClientContext;
 import org.powerbot.script.rt4.TileMatrix;
-
 import m0tionl3ss.SandRunner.gui.GUI;
 import m0tionl3ss.SandRunner.tasks.Bank;
 import m0tionl3ss.SandRunner.tasks.Dead;
@@ -29,19 +30,15 @@ import m0tionl3ss.SandRunner.util.Info;
 import m0tionl3ss.SandRunner.util.Options;
 import m0tionl3ss.SandRunner.util.Tools;
 
-
-@Script.Manifest(description = "Fills buckets!", name = "SandRunner" , properties = "author=m0tionl3ss;topic=1339772;client=4;")
+@Script.Manifest(description = "Fills buckets!", name = "SandRunner", properties = "author=m0tionl3ss;topic=1339772;client=4;")
 public class SandRunner extends PollingScript<ClientContext> implements MessageListener, PaintListener {
-
 	private List<Task> tasks = new ArrayList<>();
 	private String status = "";
-	private GUI gui = new GUI(ctx);
+	private GUI gui;
 	Area bankArea = new Area(new Tile(2761,3475), new Tile(2753,3483));
 	@Override
 	public void start() {
-		Options.getInstance().setUseEscape(gui.useEscape());
-		Options.getInstance().setMode(gui.getMode());
-		Options.getInstance().setUseCompass(gui.useCompass());
+		EventQueue.invokeLater(() -> gui = new GUI());
 		tasks.add(new TeleportToHouse(ctx));
 		tasks.add(new FillBuckets(ctx));
 		tasks.add(new TeleportToBank(ctx));
@@ -51,12 +48,23 @@ public class SandRunner extends PollingScript<ClientContext> implements MessageL
 
 	@Override
 	public void poll() {
-		for (Task t : tasks) {
-			if (t.activate()) {
-				t.execute();
-				this.status = t.status();
+		if (gui != null)
+		{
+			Options.getInstance().setUseEscape(gui.useEscape());
+			Options.getInstance().setMode(gui.getMode());
+			Options.getInstance().setUseCompass(gui.useCompass());
+			
+			if (gui.startScript())
+			{
+				for (Task t : tasks) {
+					if (t.activate()) {
+						t.execute();
+						this.status = t.status();
+					}
+				}
 			}
 		}
+		
 
 	}
 	public void drawArea(Area area, Graphics g)

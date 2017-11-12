@@ -1,5 +1,7 @@
 package m0tionl3ss.SandRunner.tasks;
 
+import java.util.Arrays;
+
 import org.powerbot.script.Area;
 import org.powerbot.script.Condition;
 import org.powerbot.script.Random;
@@ -51,13 +53,13 @@ public class FillBuckets extends Task {
 							else
 							ctx.camera.pitch(Random.nextInt(27, 49));
 						}
+						
 						bucket.interact("Use");
-						sandpit.interact("Use");
-						// What to do when oak tree is the the viewport
+						sandpit.interact("Use", "Sandpit");
 
 						Condition.wait(() -> localPlayer.animation() == 895, 370, 3);
 					}
-					System.out.println(timer1 - timer2);
+					
 
 				} else {
 					timer2 = System.currentTimeMillis();
