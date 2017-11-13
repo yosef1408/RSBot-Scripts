@@ -27,7 +27,6 @@ public class EnchantJewelery extends Task {
 
 	@Override
 	public void execute() {
-		System.out.println(getClass().getSimpleName());
 		Antiban.getInstance().execute(ctx);
 		
 		if (!ctx.inventory.select().id(item).isEmpty())
@@ -42,6 +41,11 @@ public class EnchantJewelery extends Task {
 		
 		
 		
+	}
+
+	@Override
+	public String status() {
+		return "Enchanting jewels..";
 	}
 
 }

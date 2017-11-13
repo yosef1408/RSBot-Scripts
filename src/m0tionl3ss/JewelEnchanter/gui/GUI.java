@@ -4,74 +4,134 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JButton;
 import javax.swing.JTextField;
-
-import org.powerbot.script.rt4.ClientContext;
-
-import m0tionl3ss.JewelEnchanter.util.Info;
-import m0tionl3ss.JewelEnchanter.util.Info.EnchantSpell;
-
+import m0tionl3ss.JewelEnchanter.util.Info.EnchantSpells;
 import javax.swing.JComboBox;
 import javax.swing.JCheckBox;
+import javax.swing.DefaultComboBoxModel;
+import m0tionl3ss.JewelEnchanter.util.Info.Mode;
+import m0tionl3ss.JewelEnchanter.util.BoltSpell;
 
 public class GUI {
 
 	private JFrame frame;
 	private JTextField textField;
-	private JComboBox<Info.EnchantSpell> comboBox;
-	private ClientContext ctx;
+	private JComboBox jewelComboBox;
+	private JComboBox modeComboBox;
+	private boolean startScript = false;
 	private JCheckBox chckbxCloseBankUsing;
-	public GUI(ClientContext ctx) {
+	private JComboBox boltComboBox;
+	private JCheckBox chckbxSimulateAfk;
+	public GUI() {
 		initialize();
-		this.ctx = ctx;
-		ctx.controller.suspend();
 	}
 
 	/**
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-		frame = new JFrame();
-		frame.setBounds(100, 100, 406, 137);
+		frame = new JFrame("M0tionl3ss Enchanter v2.0");
+		frame.setBounds(100, 100, 396, 224);
 		frame.setVisible(true);
 		frame.getContentPane().setLayout(null);
 		
 		JLabel lblItemIdTo = new JLabel("Item id to withdraw");
-		lblItemIdTo.setBounds(10, 11, 93, 25);
+		lblItemIdTo.setBounds(8, 47, 121, 25);
 		frame.getContentPane().add(lblItemIdTo);
 		
 		JButton btnStart = new JButton("Start");
-		btnStart.setBounds(291, 62, 89, 25);
-		btnStart.addActionListener(l -> {ctx.controller.resume(); frame.dispose();});
+		btnStart.setBounds(277, 143, 89, 25);
+		btnStart.addActionListener(l -> {this.startScript = true;frame.dispose();});
 		frame.getContentPane().add(btnStart);
 		
 		textField = new JTextField();
-		textField.setBounds(10, 35, 93, 20);
+		textField.setEnabled(false);
+		textField.setBounds(141, 49, 114, 20);
 		frame.getContentPane().add(textField);
 		textField.setColumns(10);
 		
 		JLabel lblEnchantSpellTo = new JLabel("Enchant spell to use");
-		lblEnchantSpellTo.setBounds(143, 16, 96, 14);
+		lblEnchantSpellTo.setBounds(8, 74, 130, 31);
 		frame.getContentPane().add(lblEnchantSpellTo);
-		
-		comboBox = new JComboBox<EnchantSpell>(Info.EnchantSpell.values());
-		//comboBox = new JComboBox<>();
-		comboBox.setBounds(143, 36, 96, 20);
-		frame.getContentPane().add(comboBox);
+
+		jewelComboBox = new JComboBox<>();
+		jewelComboBox.setModel(new DefaultComboBoxModel(EnchantSpells.values()));
+		jewelComboBox.setBounds(141, 82, 114, 23);
+		jewelComboBox.setVisible(false);
+		frame.getContentPane().add(jewelComboBox);
 		
 		chckbxCloseBankUsing = new JCheckBox("Close bank using escape");
-		chckbxCloseBankUsing.setBounds(10, 63, 153, 23);
+		chckbxCloseBankUsing.setBounds(8, 115, 180, 23);
 		frame.getContentPane().add(chckbxCloseBankUsing);
+		
+		modeComboBox = new JComboBox();
+		modeComboBox.setModel(new DefaultComboBoxModel(Mode.values()));
+		modeComboBox.addActionListener(l -> {
+			
+			switch((Mode)modeComboBox.getSelectedItem())
+			{
+			case BOLT: textField.setEnabled(false);
+						if (jewelComboBox.isVisible())
+						{
+							jewelComboBox.setVisible(false);
+						}
+						chckbxCloseBankUsing.setEnabled(false);
+						boltComboBox.setVisible(true);
+				break;	
+			case JEWEL: textField.setEnabled(true);
+						if(boltComboBox.isVisible())
+						{
+							boltComboBox.setVisible(false);
+						}
+						jewelComboBox.setVisible(true);
+						chckbxCloseBankUsing.setEnabled(true);
+			}
+		});
+		modeComboBox.setBounds(54, 14, 89, 22);
+		frame.getContentPane().add(modeComboBox);
+		
+		JLabel lblMode = new JLabel("Mode");
+		lblMode.setBounds(12, 13, 63, 25);
+		frame.getContentPane().add(lblMode);
+		
+		boltComboBox = new JComboBox();
+		boltComboBox.setVisible(false);
+		boltComboBox.setModel(new DefaultComboBoxModel(BoltSpell.values()));
+		boltComboBox.setBounds(141, 82, 114, 20);
+		frame.getContentPane().add(boltComboBox);
+		
+		chckbxSimulateAfk = new JCheckBox("Simulate AFK");
+		chckbxSimulateAfk.setBounds(8, 143, 113, 25);
+		frame.getContentPane().add(chckbxSimulateAfk);
+		
 	}
 	public int getId()
 	{
+		if (textField.getText().isEmpty())
+			return 0;
 		return Integer.parseInt(textField.getText());
 	}
-	public Info.EnchantSpell getSpell()
+	public EnchantSpells getSpell()
 	{
-		return (EnchantSpell)comboBox.getSelectedItem();
+		return (EnchantSpells)jewelComboBox.getSelectedItem();
 	}
 	public boolean closeBankUsingEscape()
 	{
 		return chckbxCloseBankUsing.isSelected();
+	}
+	public boolean startScript()
+	{
+		return startScript;
+	}
+	public Mode getMode()
+	{
+		return (Mode)modeComboBox.getSelectedItem();
+	}
+	public BoltSpell getBoltSpell()
+	{
+		return (BoltSpell) boltComboBox.getSelectedItem();
+	}
+	public boolean useAntiban()
+	{
+		return chckbxSimulateAfk.isSelected();
 	}
 }
