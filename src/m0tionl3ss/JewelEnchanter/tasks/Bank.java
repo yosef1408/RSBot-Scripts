@@ -1,5 +1,6 @@
 package m0tionl3ss.JewelEnchanter.tasks;
 
+import org.powerbot.script.Condition;
 import org.powerbot.script.rt4.ClientContext;
 import m0tionl3ss.JewelEnchanter.util.Info;
 import m0tionl3ss.JewelEnchanter.util.Tools;
@@ -15,6 +16,7 @@ public class Bank extends Task {
 
 	@Override
 	public boolean activate() {
+		System.out.println(item);
 		return ctx.inventory.select().id(item).isEmpty();
 	}
 
@@ -43,11 +45,17 @@ public class Bank extends Task {
 
 			} else {
 				ctx.bank.open();
+				Condition.wait(() -> ctx.bank.opened(), 200,5);
 			}
 		} else {
 			ctx.camera.turnTo(ctx.bank.nearest());
 		}
 
+	}
+
+	@Override
+	public String status() {
+		return "Banking..";
 	}
 
 }

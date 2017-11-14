@@ -11,6 +11,7 @@ public class Antiban
 {
 	private static Antiban antiban = new Antiban();
 	private long timeRunning;
+	private boolean useAntiban = false;
 	private Antiban() {}
 	public static Antiban getInstance()
 	{
@@ -18,6 +19,10 @@ public class Antiban
 			return new Antiban();
 		else
 			return antiban;
+	}
+	public void setUseAntiban(boolean flag)
+	{
+		this.useAntiban = flag;
 	}
 	public void setTimeRunning(long timeRunning) {
 		this.timeRunning = timeRunning;
@@ -49,16 +54,20 @@ public class Antiban
 	}
 	public void execute(ClientContext ctx)
 	{
-		int random = nextInt(0, 100);
-		int runtimeMinutes = Tools.getTimeRunningMinutes(timeRunning);
-		System.out.println(runtimeMinutes);
-		if (runtimeMinutes > 14)
+		if (useAntiban)
 		{
-			if (random < 10)
+			int random = nextInt(0, 100);
+			int runtimeMinutes = Tools.getTimeRunningMinutes(timeRunning);
+			System.out.println(runtimeMinutes);
+			if (runtimeMinutes > 60)
 			{
-				simulateAfk(ctx, 0, 250000, 3.17);
+				if (random < 5)
+				{
+					simulateAfk(ctx, 0, 200000, 2);
+				}
 			}
 		}
+		
 		
 	}
 	
