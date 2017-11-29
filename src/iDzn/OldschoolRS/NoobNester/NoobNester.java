@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-@Script.Manifest(name="NoobNester", description="Empties nets of seeds and jewellery.", properties="Client=4; author=iDzn; topic=999;")
+@Script.Manifest(name="NoobNester", description="Empties nets of seeds and jewellery.", properties="Client=4; author=iDzn; topic=1340464;")
 
 public class NoobNester extends PollingScript<ClientContext> implements PaintListener {
 
