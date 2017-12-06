@@ -18,7 +18,7 @@ public class ContainsFeathers extends BranchTask {
 
     @Override
     public boolean validate() {
-        return contains("Feathers");
+        return contains("Feather");
     }
 
     @Override
