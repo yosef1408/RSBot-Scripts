@@ -1,6 +1,6 @@
-package iDzn.OldschoolRS.OgreCannon.Tasks;
+package iDzn.OgreCannon.Tasks;
 
-import iDzn.OldschoolRS.OgreCannon.Task;
+import iDzn.OgreCannon.Task;
 import org.powerbot.script.Condition;
 import org.powerbot.script.rt4.ClientContext;
 import org.powerbot.script.rt4.GroundItem;

@@ -1,6 +1,6 @@
-package iDzn.OldschoolRS.OgreCannon;
+package iDzn.OgreCannon;
 
-import iDzn.OldschoolRS.OgreCannon.Tasks.*;
+import iDzn.OgreCannon.Tasks.*;
 import org.powerbot.script.*;
 import org.powerbot.script.rt4.ClientContext;
 import org.powerbot.script.rt4.Constants;
@@ -10,7 +10,8 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-@Script.Manifest(name="OgreCannon", description="Reloads cannon at the Combat Training Camp ogres, includes different looting types", properties="client=4;author=iDzn;topic=1340538;")
+
+@Script.Manifest(name= "OgreCannon", description="Reloads cannon at the Combat Training Camp ogres, includes different looting types", properties="client=4; author=iDzn; topic=1340538;")
 
 public class OgreCannon extends PollingScript<ClientContext> implements PaintListener {
 
@@ -18,7 +19,7 @@ public class OgreCannon extends PollingScript<ClientContext> implements PaintLis
     private GeItem ge;
     public int xpGained, xpStart, TorstolCount, TorstolGained, TorstolPrice, RanarrCount, RanarrGained, RanarrPrice, SnapdragonCount, SnapdragonGained, SnapdragonPrice, BallsCount, BallsUsed, BallsPrice;
 
-    List<Task> taskList = new ArrayList<Task>();
+    List<iDzn.OgreCannon.Task> taskList = new ArrayList<iDzn.OgreCannon.Task>();
 
     @Override
     public void start() {
@@ -36,7 +37,7 @@ public class OgreCannon extends PollingScript<ClientContext> implements PaintLis
 
         String userOptions[] = {"No Looting", "Regular Looting", "Tele Grab Looting"};
         String userChoice = "" + (String) JOptionPane.showInputDialog(null, "Choose Looting Type?", "Looting", JOptionPane.PLAIN_MESSAGE, null, userOptions, userOptions[0]);
-                if (userChoice.equals("No Looting")) {
+        if (userChoice.equals("No Looting")) {
             taskList.add(new deployCannon(ctx));
             taskList.add(new fireCannon(ctx));
             taskList.add(new repairCannon(ctx));
@@ -62,7 +63,7 @@ public class OgreCannon extends PollingScript<ClientContext> implements PaintLis
     @Override
     public void poll() {
 
-        for (Task task : taskList) {
+        for (iDzn.OgreCannon.Task task : taskList) {
             if (ctx.controller.isStopping()) {
                 break;
             }
@@ -118,26 +119,26 @@ public class OgreCannon extends PollingScript<ClientContext> implements PaintLis
     public void repaint(Graphics graphics) {
         xpGained= ctx.skills.experience(Constants.SKILLS_RANGE)-xpStart;
         long Milliseconds = this.getTotalRuntime() / 1000,
-        Seconds = Milliseconds % 60,
-        Minutes = (Milliseconds / 60) % 60,
-        Hours = (Milliseconds / (60 * 60)) % 24;
+                Seconds = Milliseconds % 60,
+                Minutes = (Milliseconds / 60) % 60,
+                Hours = (Milliseconds / (60 * 60)) % 24;
         int gpGained = (RanarrGained*RanarrPrice)+(SnapdragonGained*SnapdragonPrice)+(TorstolGained*TorstolPrice);
         int gpSpent = (BallsUsed*BallsPrice);
         int totalDiffGP = (gpSpent-gpGained);
         Graphics2D g = (Graphics2D) graphics;
 
-            g.drawImage(bg, 6, 269,null);
-            g.setFont(new Font("Impact", Font.PLAIN, 17));
-            g.setColor(new Color(255, 248, 241));
-            g.drawString("" + String.format("%02d:%02d:%02d", Hours, Minutes, Seconds), 355, 400);
-            g.setColor(new Color(255, 244, 231));
-            g.drawString(String.format(" "+xpGained), 130, 415);
-            g.setColor(new Color(239, 219, 196));
-            g.drawString(" " + ((xpGained/Milliseconds)*60)*60, 123, 446);
-            g.drawString("" + gpGained,370, 430);
-            g.setColor(new Color(255, 228, 231));
-            g.drawString("" + totalDiffGP/xpGained,390, 460);
+        g.drawImage(bg, 6, 269,null);
+        g.setFont(new Font("Impact", Font.PLAIN, 17));
+        g.setColor(new Color(255, 248, 241));
+        g.drawString("" + String.format("%02d:%02d:%02d", Hours, Minutes, Seconds), 355, 400);
+        g.setColor(new Color(255, 244, 231));
+        g.drawString(String.format(" "+xpGained), 130, 415);
+        g.setColor(new Color(239, 219, 196));
+        g.drawString(" " + ((xpGained/Milliseconds)*60)*60, 123, 446);
+        g.drawString("" + gpGained,370, 430);
+        g.setColor(new Color(255, 228, 231));
+        g.drawString("" + totalDiffGP/xpGained,390, 460);
 
 
-        }
     }
+}

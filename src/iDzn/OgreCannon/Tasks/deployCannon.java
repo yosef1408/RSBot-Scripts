@@ -1,38 +1,31 @@
-package iDzn.OldschoolRS.Tasks;
+package iDzn.OgreCannon.Tasks;
 
-import iDzn.OldschoolRS.Task;
+import iDzn.OgreCannon.Task;
 import org.powerbot.script.Condition;
 import org.powerbot.script.rt4.ClientContext;
 import org.powerbot.script.rt4.Item;
 
 import java.util.concurrent.Callable;
 
-
-public class OpenNests extends Task {
-    public OpenNests(ClientContext ctx) {
+public class deployCannon extends Task {
+    public deployCannon(ClientContext ctx) {
         super(ctx);
     }
 
     @Override
     public boolean activate() {
-        return !ctx.bank.opened() && ctx.inventory.select().id(13653).count()>0;
+        return ctx.inventory.select().id(6, 8, 10, 12).count() >0 && ctx.players.local().animation()==-1;
     }
 
     @Override
     public void execute() {
-        Item nestToOpen = ctx.inventory.select().id(13653).poll();
-        nestToOpen.interact("Search", "Bird nest");
+        Item cannonToDeploy = ctx.inventory.select().id(6).poll();
+        cannonToDeploy.interact("Set-up", "Cannon base");
         Condition.wait(new Callable<Boolean>(){
             @Override
             public Boolean call() throws Exception {
                 return ctx.players.local().inMotion();
             }
-        }, 30,20);
-
-
-
-        }
-
+        }, 300,20);
     }
-
-
+}
