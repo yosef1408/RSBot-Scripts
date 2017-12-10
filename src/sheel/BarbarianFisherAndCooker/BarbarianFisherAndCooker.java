@@ -1,6 +1,5 @@
 package src.sheel.BarbarianFisherAndCooker;
 
-import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
 import org.powerbot.script.PaintListener;
 import src.sheel.BarbarianFisherAndCooker.branches.IsInventoryFull;
 import src.sheel.BarbarianFisherAndCooker.TreeBot.*;
