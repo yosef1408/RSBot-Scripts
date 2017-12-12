@@ -27,63 +27,32 @@ public class KegBalancer extends PollingScript<ClientContext> implements PaintLi
 
     @Override
     public void start() {
+        bg = downloadImage("http://i.imgur.com/mKfDqST.png");
         xpStart = ctx.skills.experience(Constants.SKILLS_STRENGTH);
         lvlStart = ctx.skills.realLevel(Constants.SKILLS_STRENGTH);
-        bg = downloadImage("http://i.imgur.com/mKfDqST.png");
 
-        String userOptions[] = {"Cake", "Tuna", "Lobsters", "Swordfish", "Monkfish", "Shark"};
+        String userOptions[] = {"Cake", "Tuna", "Lobster", "Swordfish", "Monkfish", "Shark"};
         String userChoice = "" + (String) JOptionPane.showInputDialog(null, "Choose your food", "KegBalancer", JOptionPane.PLAIN_MESSAGE, null, userOptions, userOptions[0]);
 
+        taskList.add(new KegMe(ctx));
+        taskList.add(new Bank(ctx));
+        taskList.add(new Walk(ctx));
+        taskList.add(new Energy(ctx));
+        taskList.add(new Eat(ctx, KegBalancer.this));
+        taskList.add(new Anti(ctx));
 
         if (userChoice.equals("Cake")){
-            taskList.add(new Bank(ctx));
             taskList.add(new WithdrawCake(ctx));
-            taskList.add(new Walk(ctx));
-            taskList.add(new KegMe(ctx));
-            taskList.add(new Energy(ctx));
-            taskList.add(new Eat(ctx, KegBalancer.this));
-            taskList.add(new Anti(ctx));
-
         } else if (userChoice.equals("Tuna")) {
-            taskList.add(new Bank(ctx));
             taskList.add(new WithdrawTuna(ctx));
-            taskList.add(new Walk(ctx));
-            taskList.add(new KegMe(ctx));
-            taskList.add(new Energy(ctx));
-            taskList.add(new Eat(ctx, KegBalancer.this));
-            taskList.add(new Anti(ctx));
-        } else if (userChoice.equals("Lobsters")) {
-            taskList.add(new Bank(ctx));
+        } else if (userChoice.equals("Lobster")) {
             taskList.add(new WithdrawLobster(ctx));
-            taskList.add(new Walk(ctx));
-            taskList.add(new KegMe(ctx));
-            taskList.add(new Energy(ctx));
-            taskList.add(new Eat(ctx, KegBalancer.this));
-            taskList.add(new Anti(ctx));
         } else if (userChoice.equals("Monkfish")) {
-            taskList.add(new Bank(ctx));
             taskList.add(new WithdrawMonk(ctx));
-            taskList.add(new Walk(ctx));
-            taskList.add(new KegMe(ctx));
-            taskList.add(new Energy(ctx));
-            taskList.add(new Eat(ctx, KegBalancer.this));
-            taskList.add(new Anti(ctx));
         } else if (userChoice.equals("Swordfish")) {
-            taskList.add(new Bank(ctx));
             taskList.add(new WithdrawSword(ctx));
-            taskList.add(new Walk(ctx));
-            taskList.add(new KegMe(ctx));
-            taskList.add(new Energy(ctx));
-            taskList.add(new Eat(ctx, KegBalancer.this));
-            taskList.add(new Anti(ctx));
         } else if (userChoice.equals("Shark")) {
-            taskList.add(new Bank(ctx));
             taskList.add(new WithdrawShark(ctx));
-            taskList.add(new Walk(ctx));
-            taskList.add(new KegMe(ctx));
-            taskList.add(new Energy(ctx));
-            taskList.add(new Eat(ctx, KegBalancer.this));
-            taskList.add(new Anti(ctx));
         } else {
             ctx.controller.stop();
         }

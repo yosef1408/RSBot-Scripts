@@ -27,11 +27,9 @@ public class KegMe  extends Task<org.powerbot.script.ClientContext<org.powerbot.
 
     @Override
     public void execute() {
+        System.out.println("STUCK");
         Keg.bounds(kegBounds);
-        if (!Keg.inViewport()) {
-            ctx.camera.turnTo(Keg);
-
-        } else if ((ctx.equipment.itemAt(Equipment.Slot.HEAD).id() == -1)) {
+        if ((ctx.equipment.itemAt(Equipment.Slot.HEAD).id() == -1)) {
 
             Keg.interact("Pick-up", "Keg");
             System.out.println("Lifting Keg");
