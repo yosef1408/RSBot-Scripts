@@ -17,7 +17,7 @@ public class KegBalancer extends PollingScript<ClientContext> implements PaintLi
 
     private Image bg = null;
 
-    public int lvlStart, lvlGained, maxHealth, currentHealth, eatPercentage, xpGained, xpStart, xpCurrent, levelCurrent, PaintXpGained, time = 0, startTime = 0, time1 = 0, time2 = 0, time3 = 0, time4 = 0;
+    public int FOOD=0, lvlStart, lvlGained, maxHealth, currentHealth, eatPercentage, xpGained, xpStart, xpCurrent, levelCurrent, PaintXpGained, time = 0, startTime = 0, time1 = 0, time2 = 0, time3 = 0, time4 = 0;
 
     public long getRunTime() {
         return getRuntime();
@@ -40,21 +40,23 @@ public class KegBalancer extends PollingScript<ClientContext> implements PaintLi
         taskList.add(new Energy(ctx));
         taskList.add(new Eat(ctx, KegBalancer.this));
         taskList.add(new Anti(ctx));
+        taskList.add(new Withdraw(ctx, KegBalancer.this));
 
-        if (userChoice.equals("Cake")){
-            taskList.add(new WithdrawCake(ctx));
+        if (userChoice.equals("Cake")) {
+           FOOD = 1891;
         } else if (userChoice.equals("Tuna")) {
-            taskList.add(new WithdrawTuna(ctx));
+           FOOD = 361;
         } else if (userChoice.equals("Lobster")) {
-            taskList.add(new WithdrawLobster(ctx));
+            FOOD = 379;
         } else if (userChoice.equals("Monkfish")) {
-            taskList.add(new WithdrawMonk(ctx));
+            FOOD = 7946;
         } else if (userChoice.equals("Swordfish")) {
-            taskList.add(new WithdrawSword(ctx));
+            FOOD = 373;
         } else if (userChoice.equals("Shark")) {
-            taskList.add(new WithdrawShark(ctx));
+           FOOD = 385;
         } else {
             ctx.controller.stop();
+
         }
     }
 
