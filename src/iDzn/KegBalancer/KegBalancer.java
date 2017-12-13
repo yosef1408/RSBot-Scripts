@@ -1,6 +1,5 @@
 package iDzn.KegBalancer;
 
-
 import iDzn.KegBalancer.Tasks.*;
 import org.powerbot.script.*;
 import org.powerbot.script.rt4.ClientContext;
@@ -12,6 +11,7 @@ import java.util.ArrayList;
 
 
 @Script.Manifest(name= "KegBalancer", description="Trains with Kegs in Warriors Guild", properties="client=4; author=iDzn; topic=1340866;")
+
 public class KegBalancer extends PollingScript<ClientContext> implements PaintListener {
 
 

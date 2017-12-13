@@ -27,7 +27,6 @@ public class KegMe  extends Task<org.powerbot.script.ClientContext<org.powerbot.
 
     @Override
     public void execute() {
-        System.out.println("STUCK");
         Keg.bounds(kegBounds);
         if ((ctx.equipment.itemAt(Equipment.Slot.HEAD).id() == -1)) {
 
