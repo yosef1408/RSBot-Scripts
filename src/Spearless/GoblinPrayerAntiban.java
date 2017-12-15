@@ -97,6 +97,7 @@ public class GoblinAntiban extends PollingScript<ClientContext> {
             ctx.widgets.component(160, 1).click();
         }
     }
+    
 
     void checkPraySkill() {
         if (!ctx.widgets.component(320, 16).inViewport()) {
