@@ -10,7 +10,7 @@ import java.util.*;
 /**
  * Created by Gaston on 15/12/2017.
  */
-@Script.Manifest(name = "GoblinPrayer", properties = "author=Spearless; topic=1333332; client=4;", description = "Collects and prays bones from Goblins")
+@Script.Manifest(name = "ChickenPrayer", properties = "author=Spearless; topic=1333332; client=4;", description = "Collects and prays bones from chickens")
 public class GoblinPrayer extends PollingScript<ClientContext> implements MessageListener,PaintListener {
             int bonesId=526;
             int cantreach=0;
