@@ -14,7 +14,7 @@ import org.powerbot.script.PollingScript;
 /**
  * Created by Gaston on 15/12/2017.
  */
-@Script.Manifest(name = "WcFishMine", properties = "author=Spearless; topic=1333332; client=4;", description = "The objective of the script is for new accounts to level up Mining, Woodcutting. Start at Lumbridge with an axe, a pickaxe and a net, nothing else")
+@Script.Manifest(name = "ChickenPrayer", properties = "author=Spearless; topic=1340960; client=4;", description = "Grabs and prays chickens bones")
 public class GoblinAntiban extends PollingScript<ClientContext> {
 
     Random random = new Random();
