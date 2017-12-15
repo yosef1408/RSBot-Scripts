@@ -3,9 +3,6 @@ package sheel.scripts.OSRS.JugFiller;
 import org.powerbot.script.rt4.ClientContext;
 import org.powerbot.script.PollingScript;
 import org.powerbot.script.Script;
-import sheel.OSRSTreeBot.TreeBot;
-import sheel.OSRSTreeBot.TreeTask;
-import sheel.scripts.OSRS.JugFiller.branches.InventoryHasJug;
 import sheel.scripts.OSRS.JugFiller.tasks.Bank;
 import sheel.scripts.OSRS.JugFiller.tasks.Fill;
 
