@@ -1,7 +1,7 @@
-package src.sheel.BarbarianFisherAndCooker.TreeBot;
+package sheel.OSRSTreeBot;
 
 import org.powerbot.script.ClientAccessor;
-import org.powerbot.script.rt6.ClientContext;
+import org.powerbot.script.rt4.ClientContext;
 
 public abstract class TreeTask<C extends ClientContext> extends ClientAccessor<C> {
 
