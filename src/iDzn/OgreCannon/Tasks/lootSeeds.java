@@ -1,6 +1,7 @@
 package iDzn.OgreCannon.Tasks;
 
 import iDzn.OgreCannon.Task;
+import org.powerbot.bot.rt4.client.Client;
 import org.powerbot.script.Area;
 import org.powerbot.script.Condition;
 import org.powerbot.script.Tile;
@@ -9,7 +10,7 @@ import org.powerbot.script.rt4.*;
 import java.util.concurrent.Callable;
 
 
-public class lootSeeds  extends Task {
+public class lootSeeds  extends Task<org.powerbot.script.ClientContext<Client>> {
     private final Area lootArea = new Area(new Tile(2523, 3377, 0), new Tile(2533,3373, 0));
 
     public lootSeeds(ClientContext ctx) {
@@ -34,7 +35,6 @@ public class lootSeeds  extends Task {
         if (rSeed.valid())
             if (!rSeed.inViewport()) {
                 ctx.camera.turnTo(rSeed);
-                ctx.camera.pitch(0);
             }
         rSeed.interact("Take", "Ranarr seed");
 
