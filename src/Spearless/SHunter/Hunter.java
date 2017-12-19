@@ -8,7 +8,7 @@ import org.powerbot.script.rt4.ClientContext;
 import java.awt.*;
 
 
-@Script.Manifest(name = "Hunter", properties = "author=Spearless; topic=1333332; client=4;", description = "The objective of the script is for new accounts to level up Mining, Woodcutting. Start at Lumbridge with an axe, a pickaxe and a net, nothing else")
+@Script.Manifest(name = "Hunter", properties = "author=Spearless; topic=1341062; client=4;", description = "Hunts RedChins, normalChins, birds,butters, normal Kebbits,orange Salamanders, etc")
 public class Hunter extends PollingScript<ClientContext> implements MessageListener,PaintListener {
 
     private int butterfly[]={10018, 10016, 10014};
