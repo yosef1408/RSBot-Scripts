@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Created by Gaston on 31/05/2017.
  */
-@Script.Manifest(name = "Frame2", properties = "author=Spearless; topic=1333332; client=4;", description = "The objective of the script is for new accounts to level up Mining, Woodcutting. Start at Lumbridge with an axe, a pickaxe and a net, nothing else")
+
 public class Frame2 extends PollingScript<ClientContext> {
     final JCheckBox hoverObjects = new JCheckBox("Hover over objects");
     final JCheckBox checkdropp = new JCheckBox("Error while dropping");
