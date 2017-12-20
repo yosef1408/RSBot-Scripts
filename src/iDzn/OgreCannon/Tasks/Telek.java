@@ -1,6 +1,7 @@
 package iDzn.OgreCannon.Tasks;
 
 import iDzn.OgreCannon.Task;
+import org.powerbot.bot.rt4.client.Client;
 import org.powerbot.script.Condition;
 import org.powerbot.script.rt4.ClientContext;
 import org.powerbot.script.rt4.GroundItem;
@@ -9,7 +10,7 @@ import java.util.concurrent.Callable;
 
 import static org.powerbot.script.rt4.Magic.Spell.TELEKINETIC_GRAB;
 
-public class Telek  extends Task {
+public class Telek  extends Task<org.powerbot.script.ClientContext<Client>> {
     public Telek(ClientContext ctx) {
         super(ctx);
     }
@@ -33,21 +34,21 @@ public class Telek  extends Task {
             if (rSeed.valid() && Spell)
                 if(!rSeed.inViewport()){
                 ctx.camera.turnTo(rSeed);
-                ctx.camera.pitch(0);
+                    ctx.camera.pitch(67);
                 }
                 rSeed.interact("Cast", "Ranarr seed");
 
             if (sSeed.valid() && Spell)
                 if(!sSeed.inViewport()){
                     ctx.camera.turnTo(sSeed);
-                    ctx.camera.pitch(0);
+                    ctx.camera.pitch(67);
                 }
             sSeed.interact("Cast", "Snapdragon seed");
 
             if (tSeed.valid() && Spell)
                 if(!tSeed.inViewport()){
                     ctx.camera.turnTo(sSeed);
-                    ctx.camera.pitch(0);
+                    ctx.camera.pitch(67);
                 }
             tSeed.interact("Cast", "Torstol seed");
         }
