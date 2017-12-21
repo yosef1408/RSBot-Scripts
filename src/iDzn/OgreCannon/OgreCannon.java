@@ -21,9 +21,9 @@ public class OgreCannon extends PollingScript<ClientContext> implements PaintLis
 
     private Image bg = null;
     private GeItem ge;
-    public int AttackTrue = 0, idleTimer = 0, TorstolCount, TorstolGained, TorstolPrice, RanarrCount, RanarrGained, RanarrPrice, SnapdragonCount, SnapdragonGained, SnapdragonPrice,
-            BallsCount, BallsUsed, BallsPrice, startTime = 0, time = 0, time1 = 0, time2 = 0, time3 = 0, time4 = 0, xpGained, xpStart, xpCurrent, levelCurrent;
-
+    public int AttackTrue = 0, idleTimer = 0, SeedCount, TorstolCount, TorstolGained, TorstolPrice, RanarrCount, RanarrGained, RanarrPrice, SnapdragonCount, SnapdragonGained, SnapdragonPrice,
+            BallsCount, BallsUsed, BallsPrice, startTime = 0, time = 0, time1 = 0, time2 = 0, time3 = 0, time4 = 0, xpGained, xpStart, xpCurrent, levelCurrent, telek=0;
+    private int Seeds [] = {5295, 5300, 5304};
     public long getRunTime() {
         return getRuntime();
     }
@@ -36,9 +36,11 @@ public class OgreCannon extends PollingScript<ClientContext> implements PaintLis
         bg = downloadImage("http://i.imgur.com/a5l0UaK.png");
         BallsCount = ctx.inventory.select().id(2).poll().stackSize();
         xpStart = ctx.skills.experience(Constants.SKILLS_RANGE);
+        SeedCount = ctx.inventory.select().id(Seeds).poll().stackSize();
         RanarrCount = ctx.inventory.select().id(5295).poll().stackSize();
         TorstolCount = ctx.inventory.select().id(5304).poll().stackSize();
         SnapdragonCount = ctx.inventory.select().id(5300).poll().stackSize();
+
 
         ge = new org.powerbot.script.rt4.GeItem(5295);
         RanarrPrice = ge.price;
@@ -108,7 +110,7 @@ public class OgreCannon extends PollingScript<ClientContext> implements PaintLis
 
                 }
                else if (TeleLoot.isSelected()) {
-                    taskList.add(new Telek(ctx));
+                    taskList.add(new Telek(ctx, OgreCannon.this));
 
                 } else {
                     ctx.controller.stop();
@@ -137,9 +139,7 @@ public class OgreCannon extends PollingScript<ClientContext> implements PaintLis
             if (task.activate()) {
                 task.execute();
                 updateBalls();
-                updateRanarr();
-                updateTorstol();
-                updateSnapdragon();
+                updateSeeds();
             }
         }
 
@@ -166,32 +166,25 @@ public class OgreCannon extends PollingScript<ClientContext> implements PaintLis
             idleTimer = 0;
         }
     }
-    private void updateRanarr(){
-        int newRanarrCount = ctx.inventory.select().id(5295).poll().stackSize();
-        if(newRanarrCount > RanarrCount){
-            int difference = newRanarrCount - RanarrCount;
-            RanarrGained += difference;
+
+    private void updateSeeds(){
+        int newRanarrCount = ctx.inventory.select().id(5295).poll().stackSize(),
+            newTorstolCount = ctx.inventory.select().id(5304).poll().stackSize(),
+            newSnapdragonCount = ctx.inventory.select().id(5300).poll().stackSize(),
+            newSeedCount = ctx.inventory.select().id(Seeds).poll().stackSize();
+        if(newSeedCount > SeedCount){
+            int rDifference = newRanarrCount - RanarrCount,
+                sDifference = newSnapdragonCount - SnapdragonCount,
+                tDifference = newTorstolCount - TorstolCount;
+            RanarrGained += rDifference;
+            SnapdragonGained += sDifference;
+            TorstolGained += tDifference;
         }
         RanarrCount = newRanarrCount;
-    }
-
-    private void updateTorstol(){
-        int newTorstolCount = ctx.inventory.select().id(5304).poll().stackSize();
-        if(newTorstolCount > TorstolCount){
-            int difference = newTorstolCount - TorstolCount;
-            TorstolGained += difference;
-        }
+        SnapdragonCount = newSnapdragonCount;
         TorstolCount = newTorstolCount;
     }
 
-    private void updateSnapdragon(){
-        int newSnapdragonCount = ctx.inventory.select().id(5300).poll().stackSize();
-        if(newSnapdragonCount > SnapdragonCount){
-            int difference = newSnapdragonCount - SnapdragonCount;
-            SnapdragonGained += difference;
-        }
-        SnapdragonCount = newSnapdragonCount;
-    }
     private void updateBalls(){
         int newBallsCount = ctx.inventory.select().id(2).poll().stackSize();
         if(newBallsCount < BallsCount){
