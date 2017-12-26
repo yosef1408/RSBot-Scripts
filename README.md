@@ -18,14 +18,23 @@ Note:
 5. Pull
 	- `git pull upstream scripts`
     
-### Adding your Scripts
+### Making Changes
+1. Ensure everything is up-to-date
+	- `git checkout scripts`
+	- `git pull upstream scripts`
 1. Make a new branch
 	- `git checkout -b [your branch name]`
-2. Commit your changes
+	- All of your changes will be committed on this branch
+1. Commit your changes
 	- `git commit -a -m "Your update message"`
-3. Push the branch to your repository
-    - `git push origin [your branch name]`
-4. Make a Pull Request from your forked repository
+1. Push the branch to your repository
+    - `git push -u origin [your branch name]`
+1. Make a Pull Request from your forked repository
+1. After your Pull Request has been merged, update the base and delete your branch
+	- `git checkout scripts`
+	- `git pull upstream scripts`
+	- `git push -u origin scripts`
+	- `git branch -d [your branch name]`
 
 ### Guidelines for Scripts
 - Scripts **must** be packaged
