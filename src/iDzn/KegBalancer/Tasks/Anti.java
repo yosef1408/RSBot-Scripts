@@ -8,6 +8,7 @@ import org.powerbot.script.rt4.*;
 
 
 public class Anti extends Task<org.powerbot.script.ClientContext<org.powerbot.bot.rt4.client.Client>> {
+    private int TotalAntiMethodsRan = 0;
     public Anti(ClientContext ctx) {
         super(ctx);
     }
@@ -56,6 +57,7 @@ public class Anti extends Task<org.powerbot.script.ClientContext<org.powerbot.bo
                 ctx.game.tab(Game.Tab.STATS);
                 System.out.println("Anti-Stats");
                 ctx.input.move(h, v);
+
                 break;
             default:
                 ctx.camera.turnTo(obj);

@@ -13,7 +13,7 @@ public class Walk extends Task<org.powerbot.script.ClientContext<Client>> {
     public static final Tile pathToBank[] = {new Tile(2867, 3539, 1), new Tile(2864, 3541, 1), new Tile(2861, 3542, 1), new Tile(2858, 3542, 1),
             new Tile(2857, 3545, 1), new Tile(2857, 3548, 1), new Tile(2855, 3551, 1), new Tile(2852, 3552, 1),
             new Tile(2851, 3549, 1), new Tile(2849, 3546, 1), new Tile(2849, 3543, 1), new Tile(2846, 3540, 1),
-            new Tile(2843, 3539, 1), new Tile(2841, 3538, 0), new Tile(2843, 3541, 0)};
+            new Tile(2843, 3539, 1), new Tile(2841, 3538, 0), new Tile(2843, 3543, 0)};
 
     GameObject hDoor = ctx.objects.select().id(15658, 15660).poll();
     public static int ENERGY[] = {3008, 3010, 3012, 3014};
