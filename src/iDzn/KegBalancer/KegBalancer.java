@@ -10,7 +10,7 @@ import java.awt.*;
 import java.util.ArrayList;
 
 
-@Script.Manifest(name= "KegBalancer", description="Trains with Kegs in Warriors Guild", properties="client=4; author=iDzn; topic=1340866;")
+@Script.Manifest(name= "KegBalancer", description="Trains with kegs in Warriors Guild", properties="client=4; author=iDzn; topic=1340866;")
 
 public class KegBalancer extends PollingScript<ClientContext> implements PaintListener {
 
@@ -113,7 +113,7 @@ public class KegBalancer extends PollingScript<ClientContext> implements PaintLi
         g.setColor(new Color(0, 0, 0, 255));
         g.fillRect(381, 442, 100, 15);
         g.drawRect(381, 442, 100, 15);
-        g.setColor(new Color(0, 255, 3, 230));
+        g.setColor(new Color(0, 255, 3, 235));
         g.fillRect(381, 442, percentageDone, 15);
         g.drawRect(381, 442, percentageDone, 15);
 

@@ -27,7 +27,7 @@ public class Withdraw extends Task<ClientContext> {
 
     @Override
     public void execute() {
-        System.out.println("Withdrawing food && energy potions");
+        System.out.println("Withdrawing Food && Energy Potions");
 
         if (ctx.bank.select().id(main.FOOD).isEmpty()) {
             ctx.controller.stop();
@@ -41,7 +41,7 @@ public class Withdraw extends Task<ClientContext> {
                 public Boolean call() throws Exception {
                     return ctx.bank.opened();
                 }
-            }, 85, 20);
+            }, 80, 20);
         }    }
 
 }
