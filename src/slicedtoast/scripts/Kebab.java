@@ -1,4 +1,4 @@
-package scripts;
+package slicedtoast.scripts;
 
 import org.powerbot.script.Area;
 import org.powerbot.script.Condition;

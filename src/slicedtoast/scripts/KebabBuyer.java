@@ -1,13 +1,10 @@
-package scripts;
+package slicedtoast.scripts;
 
 import org.powerbot.script.PaintListener;
 import org.powerbot.script.PollingScript;
 import org.powerbot.script.Script;
 import org.powerbot.script.rt4.ClientContext;
 import org.powerbot.script.rt4.GeItem;
-import scripts.Bank;
-import scripts.Task;
-import scripts.Kebab;
 
 import java.awt.*;
 import java.util.ArrayList;
