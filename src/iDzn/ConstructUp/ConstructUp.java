@@ -789,13 +789,14 @@ public class ConstructUp extends PollingScript<ClientContext> implements PaintLi
             g.drawString(" " +(long) xpPerHour, 171, 423);
             g.setColor(new Color(169, 242, 255, 255));
             g.drawString(" " +xpNextLevel, 203, 456);
+                g.setFont(new Font("Impact", Font.PLAIN, 12));
                 if (levelCurrent!=0){
-                    g.setFont(new Font("Impact", Font.PLAIN, 12));
+
                     g.drawString(" " +levelCurrent, 377, 456);
                     g.drawString(" " +(levelCurrent+1), 496, 456);
                 } else {
-                    g.drawString(" 0" ,353, 457);
-                    g.drawString(" 0", 487, 457);
+                    g.drawString(" 0" ,377, 456);
+                    g.drawString(" 0", 496, 456);
                 }
                 g.setFont(new Font("Impact", Font.PLAIN, 17));
             g.setColor(new Color(255, 255, 255, 255));
