@@ -20,7 +20,7 @@ public class Dungeon extends Task<ClientContext> {
 
     }
     GameObject Dungeon = ctx.objects.select().id(4529).nearest().poll();
-    GameObject DungeonDoor = ctx.objects.select().id(15317, 15316, 15313, 15314, 15307, 15308, 15309, 15310, 15311, 15312, 15305, 13506).nearest().poll();
+    GameObject DungeonDoor = ctx.objects.select().id(15317).nearest().poll();
 
     @Override
     public boolean activate() {
