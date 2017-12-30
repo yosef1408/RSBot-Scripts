@@ -19,19 +19,19 @@ public class FailSafe extends Task<ClientContext> {
         this.main = main;
 
     }
-    GameObject Doors = ctx.objects.select().id(13119, 13118).nearest().poll();
+    GameObject DoorHotspot = ctx.objects.select().id(15316, 15313, 15314, 15307, 15308, 15309, 15310, 15311, 15312, 15305, 13506).nearest().poll();
     GameObject PortalInHouse = ctx.objects.select().id(4525).nearest().poll();
 
     @Override
     public boolean activate() {
-        return Doors.valid();
+        return !DoorHotspot.valid() && PortalInHouse.valid();
     }
 
     @Override
     public void execute() {
         ctx.game.tab(Game.Tab.OPTIONS);
         Random rando = new Random();
-        if (PortalInHouse.valid() && ctx.widgets.widget(261).component(75).visible()){
+        if (ctx.widgets.widget(261).component(75).visible()){
             System.out.println("Moving to house options");
             ctx.widgets.widget(261).component(75).click();
             Condition.sleep(rando.nextInt(500,1000));

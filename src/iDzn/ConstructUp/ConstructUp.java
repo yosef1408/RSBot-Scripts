@@ -28,6 +28,7 @@ public class ConstructUp extends PollingScript<ClientContext> implements PaintLi
                lvlStart, lvlGained, xMouse=0, yMouse=0, xpPerBuild, itemsMade, planksUsed;
     public Area PhialsArea = new Area(new Tile(2945, 3209, 0), new Tile(2955, 3228, 0));
     private Npc Butler;
+    GameObject DoorHotspot = ctx.objects.select().id(15316, 15313, 15314, 15307, 15308, 15309, 15310, 15311, 15312, 15305, 13506).nearest().poll();
     public Component BuildNameWidget, WrongWidget, BuildWidget;
     public String WidgetText, NotedWidgetText, BuildName;
     public int[] ObjBounds = {0, 0, 0, 0, 0, 0};
@@ -633,7 +634,6 @@ public class ConstructUp extends PollingScript<ClientContext> implements PaintLi
 
     private void timeToLeave() {
         Item P = ctx.inventory.select().id(Planks).poll();
-        GameObject DoorHotspot = ctx.objects.select().id(15316).nearest().poll();
         GameObject DungDoor = ctx.objects.select().id(15328, 13344).nearest().poll();
         GameObject Stairs = ctx.objects.select().id(13497).nearest().poll();
         GameObject Scarecrow = ctx.objects.select().id(9667).nearest().poll();
@@ -803,6 +803,7 @@ public class ConstructUp extends PollingScript<ClientContext> implements PaintLi
         int percentageDone = (int)(xpPart*Math.pow(10,2));
         time = (int) (getRuntime() - startTime);
         time1 = time;
+
         Graphics2D g = (Graphics2D) graphics;
 
         g.drawImage(bg3, 6, 269, null);

@@ -19,8 +19,6 @@ public class Butler extends Task<ClientContext> {
     }
 
     private Npc Butler;
-    GameObject DoorHotspot = ctx.objects.select().id(15316).nearest().poll();
-    GameObject DungDoor = ctx.objects.select().id(15328, 13344).nearest().poll();
 
     @Override
     public boolean activate() {
