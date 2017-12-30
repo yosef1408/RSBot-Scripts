@@ -17,22 +17,22 @@ public class Bank extends Task
     @Override
     public boolean activate()
     {
-        return ctx.inventory.select().count() == 28 || ctx.inventory.select().id(995).count() == 0; //activate if inventory is full, or out of coins
+        return ctx.inventory.select().count() == 28 || ctx.inventory.select().id(995).isEmpty(); //activate if inventory is full, or out of coins
     }
 
     @Override
     public void execute()
     {
-        ctx.camera.pitch(0); //make sure camera pitch is all the way down
+        rotateCamBank();
         GameObject bank = ctx.objects.select().id(6943).nearest().poll(); //select a bank booth that is viewable
-        bank.bounds(bankBounds);
-        ctx.camera.turnTo(bank);
+        bank.bounds(bankBounds); //set click boundary
         bank.interact("Bank");
         sleep(1000);
         while(!ctx.players.local().inMotion() && !ctx.widgets.widget(231).component(2).visible())
         {
-            ctx.camera.turnTo(bank); //turn towards it
+            checkDoor(); //open door if need be
             ctx.movement.step(bank); //walk towards it
+            ctx.camera.turnTo(bank); //turn towards it
             bank.interact("Bank");
         }
         Condition.wait(new Callable<Boolean>(){ //wait until bank is opened
@@ -42,8 +42,43 @@ public class Bank extends Task
                 return ctx.bank.opened();
             }
         }, 1000, 20); //check to see if bank is open once every second for 20 seconds
+        sleep(getRand(950, 3050));
         ctx.bank.depositAllExcept(995); //deposit everything except coins
-        sleep(getRand(400, 700));
+        sleep(getRand(300, 500));
         ctx.bank.close();
+    }
+
+    private void rotateCamBankMulti() throws InterruptedException
+    {
+        Thread thread1 = new Thread()
+        {
+            public void run()
+            {
+                ctx.camera.angle(getRand(132, 190));
+            }
+        };
+        Thread thread2 = new Thread()
+        {
+            public void run()
+            {
+                ctx.camera.pitch(getRand(0, 27));
+            }
+        };
+        thread1.start();
+        thread2.start();
+
+        thread1.join();
+        thread2.join();
+    }
+
+    private void rotateCamBank()
+    {
+        try
+        {
+            rotateCamBankMulti(); //rotate camera towards the thingy
+        } catch (InterruptedException e)
+        {
+            Thread.currentThread().interrupt();
+        }
     }
 }
