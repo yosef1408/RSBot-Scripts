@@ -7,7 +7,6 @@ import org.powerbot.script.Random;
 import org.powerbot.script.rt4.ClientContext;
 import org.powerbot.script.rt4.GameObject;
 
-import java.awt.*;
 import java.util.concurrent.Callable;
 
 
@@ -42,15 +41,18 @@ public class CCWidgets  extends Task<ClientContext> {
             Condition.sleep(rando.nextInt(main.SleepX, main.SleepY));
             System.out.println("All finished");
         }
-        if (main.WrongWidget.visible() || ctx.widgets.widget(212).component(1).component(1).text().contains("Room Creation")) {
-            Random rando = new Random();
-            int h = Random.nextInt(480, 490);
-            int v = Random.nextInt(32, 42);
-            ctx.input.click(new Point(h, v), true);
+        if (ctx.widgets.widget(212).component(1).component(1).text().contains("Room Creation")) {
+            ctx.widgets.widget(212).component(1).component(11).click();
             System.out.println("Wrong interface.");
-            Condition.sleep(rando.nextInt(500, 1000));
-            System.out.println("Trying again.");
             ctx.camera.pitch(80);
+        } else if (main.WrongWidget.visible()){
+            ctx.widgets.widget(458).component(1).component(11).click();
+            Condition.wait(new Callable<Boolean>() {
+                @Override
+                public Boolean call() throws Exception {
+                    return !ctx.widgets.widget(458).component(1).visible();
+                }
+            }, 85, 10);
         }
 
         if (ctx.widgets.widget(219).component(0).component(1).text().equalsIgnoreCase("Yes")) {

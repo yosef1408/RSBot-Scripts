@@ -1,11 +1,9 @@
 package iDzn.ConstructUp;
 
 import iDzn.ConstructUp.Tasks.*;
-import org.powerbot.script.Condition;
-import org.powerbot.script.PaintListener;
-import org.powerbot.script.PollingScript;
-import org.powerbot.script.Script;
+import org.powerbot.script.*;
 import org.powerbot.script.rt4.*;
+import org.powerbot.script.rt4.ClientContext;
 import org.powerbot.script.rt4.Component;
 
 import javax.swing.*;
@@ -28,9 +26,10 @@ public class ConstructUp extends PollingScript<ClientContext> implements PaintLi
     public int Obj = 0, ObjSpace = 0, Planks = 0, idleTimer = 0, nPlanks = 0, PlanksRequired = 0, SleepX = 0, SleepY = 0, Waiting, leaveTrue,
                time = 0, startTime = 0, time1 = 0, time2 = 0, time3 = 0, time4 = 0, xpGained, xpStart, xpCurrent, levelCurrent, PaintXpGained,
                lvlStart, lvlGained, xMouse=0, yMouse=0, xpPerBuild, itemsMade, planksUsed;
+    public Area PhialsArea = new Area(new Tile(2945, 3209, 0), new Tile(2955, 3228, 0));
     private Npc Butler;
     public Component BuildNameWidget, WrongWidget, BuildWidget;
-    public String WidgetText, NotedWidgetText;
+    public String WidgetText, NotedWidgetText, BuildName;
     public int[] ObjBounds = {0, 0, 0, 0, 0, 0};
     public final int[] ChairBounds = {-28, 22, -124, 0, -26, 18};
     public final int[] BookBounds = {-50, 58, -180, 0, -9, 50};
@@ -200,6 +199,7 @@ public class ConstructUp extends PollingScript<ClientContext> implements PaintLi
                  if (CrudeChair.isSelected()) {
                     Obj = 6752;
                     ObjSpace = 4515;
+                    BuildName = "Chair space";
                     Planks = 960;
                     nPlanks = 961;
                     PlanksRequired = 2;
@@ -216,6 +216,7 @@ public class ConstructUp extends PollingScript<ClientContext> implements PaintLi
                  else if (WoodenChair.isSelected()) {
                      Obj = 6753;
                      ObjSpace = 4515;
+                     BuildName = "Chair space";
                      Planks = 960;
                      nPlanks = 961;
                      PlanksRequired = 3;
@@ -233,6 +234,7 @@ public class ConstructUp extends PollingScript<ClientContext> implements PaintLi
                  else if (RockingChair.isSelected()) {
                      Obj = 6754;
                      ObjSpace = 4515;
+                     BuildName = "Chair space";
                      Planks = 960;
                      nPlanks = 961;
                      PlanksRequired = 3;
@@ -250,6 +252,7 @@ public class ConstructUp extends PollingScript<ClientContext> implements PaintLi
                  else if (OakChair.isSelected()) {
                      Obj = 6755;
                      ObjSpace = 4515;
+                     BuildName = "Chair space";
                      Planks = 8778;
                      nPlanks = 8779;
                      PlanksRequired = 2;
@@ -267,6 +270,7 @@ public class ConstructUp extends PollingScript<ClientContext> implements PaintLi
                  else if (OakArmChair.isSelected()) {
                      Obj = 6756;
                      ObjSpace = 4515;
+                     BuildName = "Chair space";
                      Planks = 8778;
                      nPlanks = 8779;
                      PlanksRequired = 3;
@@ -284,6 +288,7 @@ public class ConstructUp extends PollingScript<ClientContext> implements PaintLi
                  else if (TeakChair.isSelected()) {
                      Obj = 6757;
                      ObjSpace = 4515;
+                     BuildName = "Chair space";
                      Planks = 8780;
                      nPlanks = 8781;
                      PlanksRequired = 2;
@@ -301,6 +306,7 @@ public class ConstructUp extends PollingScript<ClientContext> implements PaintLi
                  else if (MahogChair.isSelected()) {
                      Obj = 6758;
                      ObjSpace = 4515;
+                     BuildName = "Chair space";
                      Planks = 8782;
                      nPlanks = 8783;
                      PlanksRequired = 2;
@@ -318,6 +324,7 @@ public class ConstructUp extends PollingScript<ClientContext> implements PaintLi
                else if (WoodenBook.isSelected()) {
                     Obj = 6768;
                     ObjSpace = 4521;
+                     BuildName = "Bookcase space";
                     Planks = 960;
                     nPlanks = 961;
                     PlanksRequired = 4;
@@ -335,6 +342,7 @@ public class ConstructUp extends PollingScript<ClientContext> implements PaintLi
                  else if (OakBook.isSelected()) {
                      Obj = 6769;
                      ObjSpace = 4521;
+                     BuildName = "Build Bookcase space";
                      Planks = 8778;
                      nPlanks = 8779;
                      PlanksRequired = 3;
@@ -352,6 +360,7 @@ public class ConstructUp extends PollingScript<ClientContext> implements PaintLi
                  else if (MahogBook.isSelected()) {
                      Obj = 6770;
                      ObjSpace = 4521;
+                     BuildName = "Bookcase space";
                      Planks = 8782;
                      nPlanks = 8783;
                      PlanksRequired = 3;
@@ -369,6 +378,7 @@ public class ConstructUp extends PollingScript<ClientContext> implements PaintLi
                 else if (WoodenLarder.isSelected()) {
                     Obj = 13565;
                     ObjSpace = 15403;
+                    BuildName = "Larder space";
                     Planks = 960;
                     nPlanks = 961;
                     PlanksRequired = 8;
@@ -386,6 +396,7 @@ public class ConstructUp extends PollingScript<ClientContext> implements PaintLi
                 else if (OakLarder.isSelected()) {
                     Obj = 13566;
                     ObjSpace = 15403;
+                    BuildName = "Larder space";
                     Planks = 8778;
                     nPlanks = 8779;
                     PlanksRequired = 8;
@@ -403,6 +414,7 @@ public class ConstructUp extends PollingScript<ClientContext> implements PaintLi
                  else if (WoodTable.isSelected()) {
                      Obj = 13293;
                      ObjSpace = 15298;
+                     BuildName = "Table space";
                      Planks = 960;
                      nPlanks = 961;
                      PlanksRequired = 4;
@@ -419,6 +431,7 @@ public class ConstructUp extends PollingScript<ClientContext> implements PaintLi
                 else if (OakTable.isSelected()) {
                     Obj = 13294;
                     ObjSpace = 15298;
+                     BuildName = "Table space";
                     Planks = 8778;
                     nPlanks = 8779;
                     PlanksRequired = 4;
@@ -435,6 +448,7 @@ public class ConstructUp extends PollingScript<ClientContext> implements PaintLi
                  else if (COakTable.isSelected()) {
                      Obj = 13295;
                      ObjSpace = 15298;
+                     BuildName = "Table space";
                      Planks = 8778;
                      nPlanks = 8779;
                      PlanksRequired = 6;
@@ -451,6 +465,7 @@ public class ConstructUp extends PollingScript<ClientContext> implements PaintLi
                  else if (TeakTable.isSelected()) {
                      Obj = 13296;
                      ObjSpace = 15298;
+                     BuildName = "Table space";
                      Planks = 8780;
                      nPlanks = 8781;
                      PlanksRequired = 4;
@@ -467,6 +482,7 @@ public class ConstructUp extends PollingScript<ClientContext> implements PaintLi
                  else if (MahogTable.isSelected()) {
                      Obj = 13298;
                      ObjSpace = 15298;
+                     BuildName = "Table space";
                      Planks = 8782;
                      nPlanks = 8783;
                      PlanksRequired = 6;
@@ -484,6 +500,7 @@ public class ConstructUp extends PollingScript<ClientContext> implements PaintLi
                      taskList.add(new Dungeon(ctx, ConstructUp.this));
                      Obj = 13344;
                      ObjSpace = 15328;
+                     BuildName = "Door space";
                      Planks = 8778;
                      nPlanks = 8779;
                      PlanksRequired = 10;
@@ -577,6 +594,17 @@ public class ConstructUp extends PollingScript<ClientContext> implements PaintLi
         GameObject ObjectSpace = ctx.objects.select().id(ObjSpace).nearest().poll();
         GameObject Object = ctx.objects.select().id(Obj).nearest().poll();
         Item P = ctx.inventory.select().id(Planks).poll();
+        if (ctx.widgets.widget(233).component(0).visible()
+                && ctx.widgets.widget(233).component(0).visible()) {
+            System.out.println("Gz");
+            ctx.widgets.widget(233).component(2).click();
+            Condition.wait(new Callable<Boolean>() {
+                @Override
+                public Boolean call() throws Exception {
+                    return !ctx.widgets.widget(233).component(0).visible();
+                }
+            }, 80, 15);
+        }
         if (!ctx.players.local().inMotion() && idleTimer > 1
                 && !Object.valid() && ObjectSpace.inViewport()
                 && (ctx.widgets.widget(162).component(43).visible()
@@ -591,7 +619,7 @@ public class ConstructUp extends PollingScript<ClientContext> implements PaintLi
                 ctx.camera.pitch(80);
             }
             System.out.println("Time to build.");
-            ObjectSpace.interact("Build");
+            ObjectSpace.interact("Build",BuildName);
             Condition.wait(new Callable<Boolean>() {
                 @Override
                 public Boolean call() throws Exception {
@@ -608,10 +636,13 @@ public class ConstructUp extends PollingScript<ClientContext> implements PaintLi
         GameObject DoorHotspot = ctx.objects.select().id(15316).nearest().poll();
         GameObject DungDoor = ctx.objects.select().id(15328, 13344).nearest().poll();
         GameObject Stairs = ctx.objects.select().id(13497).nearest().poll();
+        GameObject Scarecrow = ctx.objects.select().id(9667).nearest().poll();
         final GameObject Dungeon = ctx.objects.select().id(4529).nearest().poll();
         final GameObject PortalOutHouse = ctx.objects.select().id(15478).nearest().poll();
         final GameObject PortalInHouse = ctx.objects.select().id(4525).nearest().poll();
-        if (leaveTrue==1 && DungDoor.valid() && Stairs.inViewport() && !ctx.players.local().inMotion() && idleTimer > 2 && ctx.inventory.select().id(P).count() < PlanksRequired){
+
+        if (leaveTrue==1 && DungDoor.valid() && Stairs.inViewport() && !ctx.players.local().inMotion() && idleTimer > 2
+                && ctx.inventory.select().id(P).count() < PlanksRequired && !PhialsArea.contains(ctx.players.local())){
             System.out.println("Climbing up the stairs.");
             Stairs.interact("Climb-up");
             Condition.wait(new Callable<Boolean>() {
@@ -621,8 +652,19 @@ public class ConstructUp extends PollingScript<ClientContext> implements PaintLi
                 }
             }, 150, 5);
         }
+        if (leaveTrue==1 && !PhialsArea.contains(ctx.players.local()) && Scarecrow.valid()){
+            System.out.println("Wrong direction, doing a U-Turn.");
+            ctx.camera.turnTo(PortalOutHouse);
+            ctx.movement.step(PortalOutHouse);
+            Condition.wait(new Callable<Boolean>() {
+                @Override
+                public Boolean call() throws Exception {
+                    return PortalOutHouse.inViewport();
+                }
+            }, 150, 10);
+        }
         if (leaveTrue==1 && DoorHotspot.valid() && !ctx.players.local().inMotion() && idleTimer > 2 && ctx.inventory.select().id(P).count() < PlanksRequired
-                && ctx.widgets.widget(162).component(43).visible()) {
+                && ctx.widgets.widget(162).component(43).visible() && !PortalOutHouse.valid()) {
             System.out.println("Time to leave.");
             ctx.camera.turnTo(PortalInHouse);
             ctx.movement.step(PortalInHouse);

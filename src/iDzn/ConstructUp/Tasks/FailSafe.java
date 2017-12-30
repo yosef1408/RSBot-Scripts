@@ -8,8 +8,6 @@ import org.powerbot.script.rt4.ClientContext;
 import org.powerbot.script.rt4.Game;
 import org.powerbot.script.rt4.GameObject;
 
-import java.awt.*;
-
 public class FailSafe extends Task<ClientContext> {
 
     ConstructUp main;
@@ -35,9 +33,7 @@ public class FailSafe extends Task<ClientContext> {
         Random rando = new Random();
         if (PortalInHouse.valid() && ctx.widgets.widget(261).component(75).visible()){
             System.out.println("Moving to house options");
-            int h = Random.nextInt(645, 682);
-            int v = Random.nextInt(428, 462);
-            ctx.input.click(new Point(h, v), true);
+            ctx.widgets.widget(261).component(75).click();
             Condition.sleep(rando.nextInt(500,1000));
         }
         if (ctx.widgets.widget(370).component(5).visible() && ctx.widgets.widget(370).component(5).textureId()!=669){

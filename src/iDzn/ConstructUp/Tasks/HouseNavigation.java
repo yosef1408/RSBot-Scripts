@@ -21,6 +21,7 @@ public class HouseNavigation extends Task<ClientContext> {
 
     }
     private Npc Butler;
+
     @Override
     public boolean activate() {
         return  ctx.inventory.select().id(main.nPlanks).count()>0 && ctx.players.local().animation()==4074
