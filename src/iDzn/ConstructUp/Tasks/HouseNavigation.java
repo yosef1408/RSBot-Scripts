@@ -21,6 +21,8 @@ public class HouseNavigation extends Task<ClientContext> {
 
     }
     private Npc Butler;
+    GameObject DoorHotspot = ctx.objects.select().id(15316, 15313, 15314, 15307, 15308, 15309, 15310, 15311, 15312, 15305, 13506).nearest().poll();
+
     @Override
     public boolean activate() {
         return  ctx.inventory.select().id(main.nPlanks).count()>0 && ctx.players.local().animation()==4074
@@ -30,7 +32,6 @@ public class HouseNavigation extends Task<ClientContext> {
 
     @Override
     public void execute() {
-        GameObject DoorHotspot = ctx.objects.select().id(15316).nearest().poll();
         Butler = ctx.npcs.select().name("Demon butler", "Butler").nearest().poll();
        if ((!ctx.objects.select().id(main.ObjSpace, main.Obj).nearest().poll().inViewport() && (DoorHotspot.inViewport())
                && ctx.inventory.select().id(main.Planks).count()>main.PlanksRequired)) {

@@ -8,7 +8,6 @@ import org.powerbot.script.Random;
 import org.powerbot.script.Tile;
 import org.powerbot.script.rt4.*;
 
-import java.awt.*;
 import java.util.concurrent.Callable;
 
 public class Phials  extends Task<ClientContext> {
@@ -23,7 +22,6 @@ public class Phials  extends Task<ClientContext> {
 
     }
     GameObject PortalOutHouse = ctx.objects.select().id(15478).nearest().poll();
-    Area PhialsArea = new Area(new Tile(2945, 3209, 0), new Tile(2955, 3228, 0));
     Area ShopArea = new Area(new Tile(2950, 3219, 0), new Tile(2945, 3211, 0));
     Tile PhialsTiles = new Tile(2949, 3213, 0);
     Tile POHtile = new Tile(2953, 3223, 0);
@@ -33,7 +31,7 @@ public class Phials  extends Task<ClientContext> {
 
     @Override
     public boolean activate() {
-        return ShopArea.contains(ctx.players.local()) || PhialsArea.contains(ctx.players.local()) && ctx.inventory.select().count() < 28;
+        return ShopArea.contains(ctx.players.local()) || main.PhialsArea.contains(ctx.players.local()) && ctx.inventory.select().count() < 28;
     }
 
     @Override
@@ -71,10 +69,8 @@ public class Phials  extends Task<ClientContext> {
                 }
             }, 150, 10);
         }
-        if (ctx.widgets.component(219, 0).visible()) {
-            int h = Random.nextInt(185, 337);
-            int v = Random.nextInt(412, 421);
-            ctx.input.click(new Point(h, v), true);
+        if (ctx.widgets.widget(219).component(0).component(3).text().contains("Exchange All")) {
+            ctx.widgets.widget(219).component(0).component(3).click();
             System.out.println("Paying the gentleman");
             Condition.sleep(rando.nextInt(800, 1500));
             ctx.camera.turnTo(POHtile);

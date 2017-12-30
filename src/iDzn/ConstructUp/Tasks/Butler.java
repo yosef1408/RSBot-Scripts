@@ -19,15 +19,12 @@ public class Butler extends Task<ClientContext> {
     }
 
     private Npc Butler;
-    GameObject DoorHotspot = ctx.objects.select().id(15316).nearest().poll();
-    GameObject DungDoor = ctx.objects.select().id(15328, 13344).nearest().poll();
 
     @Override
     public boolean activate() {
         return ctx.inventory.select().id(main.Planks).count() < main.PlanksRequired
                 || ctx.widgets.widget(162).component(33).visible()
                 || ctx.widgets.widget(231).component(0).visible()
-                || ctx.widgets.widget(233).component(0).visible()
                 || ctx.widgets.widget(229).component(0).visible();
     }
 
@@ -152,17 +149,6 @@ public class Butler extends Task<ClientContext> {
             }, 80, 15);
         }
 
-        if (ctx.widgets.widget(233).component(0).visible()
-                && ctx.widgets.widget(233).component(0).text().contains("level")) {
-            System.out.println("Gz");
-            ctx.widgets.widget(233).component(2).click();
-            Condition.wait(new Callable<Boolean>() {
-                @Override
-                public Boolean call() throws Exception {
-                    return !ctx.widgets.widget(233).component(0).visible();
-                }
-            }, 80, 15);
-        }
         if (ctx.widgets.widget(193).component(1).visible()) {
             ctx.widgets.widget(193).component(2).click();
             Condition.wait(new Callable<Boolean>() {
