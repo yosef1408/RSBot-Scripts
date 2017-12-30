@@ -19,37 +19,37 @@ public class Kebab extends Task {
     @Override
     public boolean activate()
     {
-        return ctx.inventory.select().count() != 28 && ctx.inventory.select().id(995).count() != 0;
+        return ctx.inventory.select().count() != 28 && !ctx.inventory.select().id(995).isEmpty();
         //smith when inventory isn't full and you have coins
     }
 
     @Override
     public void execute()
     {
-        Npc karim = ctx.npcs.select().id(529).poll();
-        if(ctx.objects.select().id(1535).poll().inViewport()) //if door is closed
-        {
-            ctx.objects.select().id(1535).poll().interact("Open"); //open it
-        }
-        ctx.camera.turnTo(karim);
+        rotateKebabMan(); //rotate towards mr. k
+        Npc karim = ctx.npcs.select().id(529).poll(); //create npc object
+        checkDoor(); //if the door isn't opened, try and open it before moving in
         karim.interact(false, "Talk-to", "Karim"); //right-click talk to karim for the first time
-        ctx.camera.pitch(99); //make sure camera pitch is all the way up
+        sleep(getRand(50, 100));
+        rotateKebabManToBuy();
         sleep(1000); //wait 1 second, and if you haven't moved yet, try again
-        while(!ctx.players.local().inMotion() && !ctx.widgets.widget(231).component(2).visible())
+        while(!ctx.players.local().inMotion() && !ctx.chat.chatting())
         {
-            ctx.camera.turnTo(karim); //turn towards him
+            checkDoor();
             ctx.movement.step(karim); //walk towards him
+            ctx.camera.turnTo(karim); //turn towards him
             karim.interact("Talk-to");
         }
         Condition.wait(new Callable<Boolean>(){ //wait until bank is opened
             @Override
             public Boolean call() throws Exception
             {
-                return ctx.widgets.widget(231).component(2).visible();
+               // return ctx.widgets.widget(231).component(2).visible();
+                return ctx.chat.chatting();
             }
         }, 1000, 15); //check to see if chat log is open every second for 15 seconds for the first time
         buyKebab(); //run through the rest of the chat
-        while(ctx.inventory.select().count() < 27 && ctx.inventory.select().id(995).count() >= 1) //while your inventory is not full, or you're not out of coins
+        while(ctx.inventory.select().count() < 27 && !ctx.inventory.select().id(995).isEmpty()) //while your inventory is not full, or you're not out of coins
         {
             if(!kebabRoom.contains(ctx.players.local())) //if we're not in the kebab room, relocate the guy
             {
@@ -63,14 +63,16 @@ public class Kebab extends Task {
 
     private void buyKebab()
     {
+        sleep(getRand(27, 95));
         Condition.wait(new Callable<Boolean>(){ //wait until bank is opened
             @Override
             public Boolean call() throws Exception
             {
-                return ctx.widgets.widget(231).component(2).visible();
+                return ctx.chat.canContinue();
             }
         }, 100, 60); //check to see if chat log is open every 100 ms for 6 seconds
-        ctx.widgets.widget(231).component(2).interact("Continue");
+        ctx.chat.clickContinue();
+        sleep(getRand(27, 95));
         Condition.wait(new Callable<Boolean>(){ //wait until bank is opened
             @Override
             public Boolean call() throws Exception
@@ -79,13 +81,89 @@ public class Kebab extends Task {
             }
         }, 100, 30); //check to see if next chat log is open every 100 ms for 3 seconds
         ctx.widgets.widget(219).component(0).component(2).interact("Continue");
+        sleep(getRand(27, 95));
         Condition.wait(new Callable<Boolean>(){ //wait until bank is opened
             @Override
             public Boolean call() throws Exception
             {
-                return ctx.widgets.widget(217).component(2).visible();
+             //   return ctx.widgets.widget(217).component(2).visible();
+                return ctx.chat.canContinue();
             }
         }, 100, 30); //check to see if next chat log is open every 100 ms for 3 seconds
-        ctx.widgets.widget(217).component(2).interact("Continue");
+        ctx.chat.clickContinue();
+        sleep(getRand(27, 95));
+    }
+
+    private void rotateCamKebabManMulti() throws InterruptedException
+    {
+        Thread thread1 = new Thread()
+        {
+            public void run() {
+                if (getRand(0, 2) == 0) {
+                    ctx.camera.angle(getRand(318, 360));
+                }
+                else
+                {
+                    ctx.camera.angle(getRand(0, 21));
+                }
+            }
+        };
+        Thread thread2 = new Thread()
+        {
+            public void run()
+            {
+                ctx.camera.pitch(getRand(0, 23));
+            }
+        };
+        thread1.start();
+        thread2.start();
+
+        thread1.join();
+        thread2.join();
+    }
+
+    private void rotateCamKebabManToBuyMulti() throws InterruptedException
+    {
+        Thread thread1 = new Thread()
+        {
+            public void run()
+            {
+                ctx.camera.angle(getRand(0, 360));
+            }
+        };
+        Thread thread2 = new Thread()
+        {
+            public void run()
+            {
+                ctx.camera.pitch(99);
+            }
+        };
+        thread1.start();
+        thread2.start();
+
+        thread1.join();
+        thread2.join();
+    }
+
+    private void rotateKebabMan()
+    {
+        try
+        {
+            rotateCamKebabManMulti(); //rotate camera towards the thingy
+        } catch (InterruptedException e)
+        {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    private void rotateKebabManToBuy()
+    {
+        try
+        {
+            rotateCamKebabManToBuyMulti(); //rotate camera towards the thingy
+        } catch (InterruptedException e)
+        {
+            Thread.currentThread().interrupt();
+        }
     }
 }

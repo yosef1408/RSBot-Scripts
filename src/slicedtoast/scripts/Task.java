@@ -33,4 +33,12 @@ public abstract class Task extends ClientAccessor
         return rand.nextInt((max - min) + 1) + min;
     }
 
+    public void checkDoor()
+    {
+        if(ctx.objects.select().id(1535).poll().inViewport()) //if door is closed
+        {
+            ctx.objects.select().id(1535).poll().interact("Open"); //open it
+        }
+    }
+
 }
