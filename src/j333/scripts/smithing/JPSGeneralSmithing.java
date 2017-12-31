@@ -1,4 +1,4 @@
-package scripts.smithing;
+package j333.scripts.smithing;
 
 import java.awt.*;
 import java.util.*;
@@ -11,7 +11,7 @@ import org.powerbot.script.Condition;
 import org.powerbot.script.PollingScript;
 import org.powerbot.script.rt6.Component;
 
-@Script.Manifest(name="JPSGeneralSmithing", description="", properties="author=J333; client=6;")
+@Script.Manifest(name="JPSGeneralSmithing", description="", properties="author=J333; client=6; topic=1341312;")
 
 public class JPSGeneralSmithing extends PollingScript<ClientContext> implements JPSFormEventHandler
 {
@@ -21,7 +21,6 @@ public class JPSGeneralSmithing extends PollingScript<ClientContext> implements 
     private enum State { IDLE, WITHDRAW, DEPOSIT, SMELT }
 
     private static final boolean DEBUG = true;
-    private static final boolean DID_START = false;
 
     public static final int MIN_ANGLE = 20;
     public static final int MAX_ANGLE = 40;
