@@ -23,7 +23,7 @@ public class CCWidgets  extends Task<ClientContext> {
 
     @Override
     public boolean activate() {
-        return ctx.widgets.widget(219).component(0).visible()
+        return main.ButlerText1.visible()
                 || ctx.widgets.widget(458).component(0).visible() || ctx.widgets.widget(212).component(2).visible();
     }
 
@@ -55,8 +55,8 @@ public class CCWidgets  extends Task<ClientContext> {
             }, 85, 10);
         }
 
-        if (ctx.widgets.widget(219).component(0).component(1).text().equalsIgnoreCase("Yes")) {
-            ctx.widgets.widget(219).component(0).component(1).click();
+        if (main.ButlerText1.component(1).text().equalsIgnoreCase("Yes")) {
+            main.ButlerText1.component(1).click();
             Condition.wait(new Callable<Boolean>() {
                 @Override
                 public Boolean call() throws Exception {
