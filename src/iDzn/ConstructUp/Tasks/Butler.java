@@ -22,7 +22,7 @@ public class Butler extends Task<ClientContext> {
 
     @Override
     public boolean activate() {
-        return ctx.inventory.select().id(main.Planks).count() < main.PlanksRequired
+        return main.PlanksCount < main.PlanksRequired
                 || ctx.widgets.widget(162).component(33).visible()
                 || ctx.widgets.widget(231).component(0).visible()
                 || ctx.widgets.widget(229).component(0).visible();
@@ -32,7 +32,6 @@ public class Butler extends Task<ClientContext> {
     public void execute() {
         Random rando = new Random();
         Item nP = ctx.inventory.select().id(main.nPlanks).poll();
-        Item P = ctx.inventory.select().id(main.Planks).poll();
         Butler = ctx.npcs.select().name("Demon butler", "Butler").nearest().poll();
 
         if (!Butler.inViewport() && main.Waiting==0) {
@@ -51,18 +50,18 @@ public class Butler extends Task<ClientContext> {
             }, 50, 15);
         }
         if ((main.Waiting==0 && Butler.inViewport() && nP.stackSize() > main.PlanksRequired
-                && ctx.widgets.widget(162).component(43).visible())){
+                && main.Username.visible())){
             Butler.interact("Talk-to");
             Condition.wait(new Callable<Boolean>() {
                 @Override
                 public Boolean call() throws Exception {
-                    return ctx.widgets.widget(219).component(0).visible();
+                    return main.ButlerText1.visible();
                 }
             }, 50, 15);
         }
 
-        if (ctx.widgets.widget(219).component(0).component(1).text().contains(main.NotedWidgetText)) {
-            ctx.widgets.widget(219).component(0).component(1).click();
+        if (main.ButlerText1.component(1).text().contains(main.NotedWidgetText)) {
+            main.ButlerText1.component(1).click();
             Condition.wait(new Callable<Boolean>() {
                 @Override
                 public Boolean call() throws Exception {
@@ -71,10 +70,10 @@ public class Butler extends Task<ClientContext> {
             }, 150, 15);
         }
 
-        if (ctx.widgets.widget(219).component(0).component(1).visible()
-                && !ctx.widgets.widget(219).component(0).component(1).text().contains(main.NotedWidgetText)
-                && !ctx.widgets.widget(219).component(0).component(1).text().equalsIgnoreCase("Yes")
-                && ctx.inventory.select().id(P).count() < main.PlanksRequired){
+        if (main.ButlerText1.component(1).visible()
+                && !main.ButlerText1.component(1).text().contains(main.NotedWidgetText)
+                && !main.ButlerText1.component(1).text().equalsIgnoreCase("Yes")
+                && main.PlanksCount < main.PlanksRequired){
                 System.out.println("Using planks on butler");
                 ctx.camera.turnTo(Butler);
                 nP.interact("Use");
@@ -86,31 +85,31 @@ public class Butler extends Task<ClientContext> {
                     }
                 }, 150, 15);
             }
-        if (ctx.widgets.widget(231).component(3).visible()
-                && (ctx.widgets.widget(231).component(3).text().contains("certificate")
-                || ctx.widgets.widget(231).component(3).text().contains("Thank")
-                || ctx.widgets.widget(231).component(3).text().contains("command")
-                || ctx.widgets.widget(231).component(3).text().contains("bidding")
-                || ctx.widgets.widget(231).component(3).text().contains("Yes, sir")
-                || ctx.widgets.widget(231).component(3).text().contains("You rang"))) {
+        if (main.ButlerText3.visible()
+                && (main.ButlerText3.text().contains("certificate")
+                || main.ButlerText3.text().contains("Thank")
+                || main.ButlerText3.text().contains("command")
+                || main.ButlerText3.text().contains("bidding")
+                || main.ButlerText3.text().contains("Yes, sir")
+                || main.ButlerText3.text().contains("You rang"))) {
             System.out.println("Clicking to continue");
-            ctx.widgets.widget(231).component(2).click();
+            main.ButlerContinue2.click();
             Condition.wait(new Callable<Boolean>() {
                 @Override
                 public Boolean call() throws Exception {
-                    return ctx.widgets.widget(219).component(1).text().equalsIgnoreCase("Yes");
+                    return main.ButlerAgree1.text().equalsIgnoreCase("Yes");
                 }
             }, 150, 15);
         }
 
-        if (ctx.widgets.widget(219).component(1).visible()
-                && ctx.widgets.widget(219).component(1).text().equalsIgnoreCase("Yes")) {
+        if (main.ButlerAgree1.visible()
+                && main.ButlerAgree1.text().equalsIgnoreCase("Yes")) {
             System.out.println("Yes, please unnote my planks");
-            ctx.widgets.widget(219).component(1).click();
+            main.ButlerAgree1.click();
             Condition.wait(new Callable<Boolean>() {
                 @Override
                 public Boolean call() throws Exception {
-                    return !ctx.widgets.widget(219).component(1).visible();
+                    return !main.ButlerAgree1.visible();
                 }
             }, 150, 15);
 
@@ -121,30 +120,30 @@ public class Butler extends Task<ClientContext> {
             Condition.wait(new Callable<Boolean>() {
                 @Override
                 public Boolean call() throws Exception {
-                    return ctx.widgets.widget(231).component(2).visible();
+                    return main.ButlerContinue2.visible();
                 }
             }, 150, 15);
         }
 
-        if (ctx.widgets.widget(231).component(3).visible()
-                && ctx.widgets.widget(231).component(3).text().contains("coins")) {
+        if (main.ButlerText3.visible()
+                && main.ButlerText3.text().contains("coins")) {
             System.out.println("Asking for payment");
-            ctx.widgets.widget(231).component(2).click();
+            main.ButlerContinue2.click();
             Condition.wait(new Callable<Boolean>() {
                 @Override
                 public Boolean call() throws Exception {
-                    return ctx.widgets.widget(219).component(1).visible();
+                    return main.ButlerAgree1.visible();
                 }
             }, 80, 15);
         }
-        if (ctx.widgets.widget(219).component(0).component(1).visible()
-                && ctx.widgets.widget(219).component(0).component(1).text().contains("coins")) {
+        if (main.ButlerText1.component(1).visible()
+                && main.ButlerText1.component(1).text().contains("coins")) {
             System.out.println("Agreeing to payment");
-            ctx.widgets.widget(219).component(0).component(1).click();
+            main.ButlerText1.component(1).click();
             Condition.wait(new Callable<Boolean>() {
                 @Override
                 public Boolean call() throws Exception {
-                    return ctx.widgets.widget(219).component(1).visible();
+                    return main.ButlerAgree1.visible();
                 }
             }, 80, 15);
         }
@@ -158,18 +157,18 @@ public class Butler extends Task<ClientContext> {
                 }
             }, 80, 15);
         }
-        if (ctx.widgets.widget(219).component(0).component(2).text().equalsIgnoreCase("Thanks")) {
-            ctx.widgets.widget(219).component(0).component(2).click();
+        if (main.ButlerText1.component(2).text().equalsIgnoreCase("Thanks")) {
+            main.ButlerText1.component(2).click();
             Condition.wait(new Callable<Boolean>() {
                 @Override
                 public Boolean call() throws Exception {
-                    return ctx.widgets.widget(217).component(2).visible();
+                    return main.ButlerContinue1.visible();
                 }
             }, 80, 15);
         }
-        if (ctx.widgets.widget(217).component(2).visible()
-                && ctx.widgets.widget(217).component(3).text().equalsIgnoreCase("Thanks.")){
-            ctx.widgets.widget(217).component(2).click();
+        if (main.ButlerContinue1.visible()
+                && main.ButlerText2.text().equalsIgnoreCase("Thanks.")){
+            main.ButlerContinue1.click();
         }
         if (ctx.widgets.widget(229).component(0).visible()){
             ctx.widgets.widget(229).component(1).click();

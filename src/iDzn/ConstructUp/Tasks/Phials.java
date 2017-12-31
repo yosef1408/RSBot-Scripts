@@ -65,12 +65,12 @@ public class Phials  extends Task<ClientContext> {
             Condition.wait(new Callable<Boolean>() {
                 @Override
                 public Boolean call() throws Exception {
-                    return ctx.widgets.component(219, 0).visible();
+                    return main.ButlerText1.visible();
                 }
             }, 150, 10);
         }
-        if (ctx.widgets.widget(219).component(0).component(3).text().contains("Exchange All")) {
-            ctx.widgets.widget(219).component(0).component(3).click();
+        if (main.ButlerText1.component(3).text().contains("Exchange All")) {
+            main.ButlerText1.component(3).click();
             System.out.println("Paying the gentleman");
             Condition.sleep(rando.nextInt(800, 1500));
             ctx.camera.turnTo(POHtile);
