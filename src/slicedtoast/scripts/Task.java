@@ -41,4 +41,11 @@ public abstract class Task extends ClientAccessor
         }
     }
 
+    public void checkRun()
+    {
+        if(ctx.movement.energyLevel() >= getRand(80, 100))
+        {
+            ctx.movement.running(true);
+        }
+    }
 }
