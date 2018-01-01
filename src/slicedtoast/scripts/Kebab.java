@@ -26,8 +26,15 @@ public class Kebab extends Task {
     @Override
     public void execute()
     {
+        checkRun();
         rotateKebabMan(); //rotate towards mr. k
         Npc karim = ctx.npcs.select().id(529).poll(); //create npc object
+        if(!karim.valid())
+        {
+            ctx.movement.step(new Tile(getRand(3271, 3275), getRand(3179, 3183))); //click somewhere in the room
+            sleep(4000);
+            karim = ctx.npcs.select().id(529).poll();
+        }
         checkDoor(); //if the door isn't opened, try and open it before moving in
         karim.interact(false, "Talk-to", "Karim"); //right-click talk to karim for the first time
         sleep(getRand(50, 100));
@@ -44,7 +51,7 @@ public class Kebab extends Task {
             @Override
             public Boolean call() throws Exception
             {
-               // return ctx.widgets.widget(231).component(2).visible();
+                // return ctx.widgets.widget(231).component(2).visible();
                 return ctx.chat.chatting();
             }
         }, 1000, 15); //check to see if chat log is open every second for 15 seconds for the first time
@@ -86,7 +93,7 @@ public class Kebab extends Task {
             @Override
             public Boolean call() throws Exception
             {
-             //   return ctx.widgets.widget(217).component(2).visible();
+                //   return ctx.widgets.widget(217).component(2).visible();
                 return ctx.chat.canContinue();
             }
         }, 100, 30); //check to see if next chat log is open every 100 ms for 3 seconds
