@@ -11,7 +11,7 @@ import org.powerbot.script.Condition;
 import org.powerbot.script.PollingScript;
 import org.powerbot.script.rt6.Component;
 
-@Script.Manifest(name="JPSGeneralSmithing", description="", properties="author=J333; client=6; topic=1341312;")
+@Script.Manifest(name="JPSGeneralSmithing", description="A general smithing script for rs3.", properties="author=J333; client=6; topic=1341312;")
 
 public class JPSGeneralSmithing extends PollingScript<ClientContext> implements JPSFormEventHandler
 {
