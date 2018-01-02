@@ -489,7 +489,7 @@ public class ConstructUp extends PollingScript<ClientContext> implements PaintLi
                     WidgetText = "Mahogany table";
                     NotedWidgetText = "Mahogany plank";
                     SleepX = 2000;
-                    SleepY = 3500;
+                    SleepY = 2500;
                     xpPerBuild = 840;
                 } else if (OakDungDoor.isSelected()) {
                     taskList.add(new Dungeon(ctx, ConstructUp.this));
