@@ -9,15 +9,14 @@ import java.util.concurrent.Callable;
 
 
 public class KegMe  extends Task<org.powerbot.script.ClientContext<org.powerbot.bot.rt4.client.Client>> {
-    private final Area KegArea = new Area(new Tile(2861, 3543, 1), new Tile(2870, 3536, 1));
-    private final int[] kegBounds = {-29, 20, -57, 0, -14, 28};
-    final GameObject Keg = ctx.objects.select().id(15668).nearest().poll();
 
     public KegMe(ClientContext ctx) {
         super(ctx);
     }
 
     private int[] EnergyP = {3008, 3010, 3012, 3014};
+    private final Area KegArea = new Area(new Tile(2861, 3543, 1), new Tile(2870, 3536, 1));
+    private final int[] kegBounds = {-29, 20, -57, 0, -14, 28};
 
     @Override
     public boolean activate() {
@@ -27,6 +26,7 @@ public class KegMe  extends Task<org.powerbot.script.ClientContext<org.powerbot.
 
     @Override
     public void execute() {
+        GameObject Keg = ctx.objects.select().id(15668).nearest().poll();
         Keg.bounds(kegBounds);
         if ((ctx.equipment.itemAt(Equipment.Slot.HEAD).id() == -1)) {
 
