@@ -14,7 +14,8 @@ public class Kebab extends Task {
         super(ctx);
     }
 
-    Area kebabRoom = new Area(new Tile(3271, 3183), new Tile(3275, 3179));
+    Area bankNoGo = new Area(new Tile(3269, 3167), new Tile(3273, 3161));
+    Area kebabRoom = new Area(new Tile(3271, 3183), new Tile(3276, 3179));
 
     @Override
     public boolean activate()
@@ -28,6 +29,11 @@ public class Kebab extends Task {
     {
         checkRun();
         rotateKebabMan(); //rotate towards mr. k
+        if(bankNoGo.contains(ctx.players.local())) //if you're in an area kinda far away, click on the minimap first instead
+        {
+            ctx.movement.step(new Tile(getRand(3271, 3275), getRand(3179, 3183))); //click somewhere in the room
+            sleep(4000);
+        }
         Npc karim = ctx.npcs.select().id(529).poll(); //create npc object
         if(!karim.valid())
         {
