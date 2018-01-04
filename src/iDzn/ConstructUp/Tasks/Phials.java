@@ -21,7 +21,7 @@ public class Phials  extends Task<ClientContext> {
         this.main = main;
 
     }
-    GameObject PortalOutHouse = ctx.objects.select().id(15478).nearest().poll();
+
     Area ShopArea = new Area(new Tile(2950, 3219, 0), new Tile(2945, 3211, 0));
     Tile PhialsTiles = new Tile(2949, 3213, 0);
     Tile POHtile = new Tile(2953, 3223, 0);
@@ -36,6 +36,7 @@ public class Phials  extends Task<ClientContext> {
 
     @Override
     public void execute() {
+        final GameObject PortalOutHouse = ctx.objects.select().id(15478).nearest().poll();
         Random rando = new Random();
         Phials = ctx.npcs.select().name("Phials").nearest().poll();
         Item nPlank = ctx.inventory.select().id(main.nPlanks).poll();

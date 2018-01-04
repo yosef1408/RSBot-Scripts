@@ -29,10 +29,7 @@ public class ConstructUp extends PollingScript<ClientContext> implements PaintLi
             lvlStart, lvlGained, xMouse = 0, yMouse = 0, xpPerBuild, itemsMade, planksUsed, MaxHeight, PaintResize;
         public Area PhialsArea = new Area(new Tile(2945, 3209, 0), new Tile(2955, 3228, 0));
     private Npc Butler;
-    Item P = ctx.inventory.select().id(Planks).poll();
-    GameObject DoorHotspot = ctx.objects.select().id(15316, 15313, 15314, 15307, 15308, 15309, 15310, 15311, 15312, 15305, 13506).nearest().poll();
-
-    public int PlanksCount = ctx.inventory.select().id(P).count();
+    public int PlanksCount = ctx.inventory.select().id(Planks).count();
     public Component BuildNameWidget, WrongWidget, BuildWidget;
     public Component Username = ctx.widgets.widget(162).component(43),
                      ButlerText1= ctx.widgets.widget(219).component(0),
@@ -557,6 +554,8 @@ public class ConstructUp extends PollingScript<ClientContext> implements PaintLi
     }
 
     private void timeToRemove() {
+        Item P = ctx.inventory.select().id(Planks).poll();
+        int PlanksCount = ctx.inventory.select().id(P).count();
         GameObject Object = ctx.objects.select().id(Obj).nearest().poll();
 
         if (idleTimer > 1 && Object.inViewport()
@@ -584,6 +583,8 @@ public class ConstructUp extends PollingScript<ClientContext> implements PaintLi
     }
 
     private void timeToBuild() {
+        Item P = ctx.inventory.select().id(Planks).poll();
+        int PlanksCount = ctx.inventory.select().id(P).count();
         GameObject ObjectSpace = ctx.objects.select().id(ObjSpace).nearest().poll();
         GameObject Object = ctx.objects.select().id(Obj).nearest().poll();
         if (ctx.widgets.widget(233).component(0).visible()
@@ -624,6 +625,9 @@ public class ConstructUp extends PollingScript<ClientContext> implements PaintLi
     }
 
     private void timeToLeave() {
+        Item P = ctx.inventory.select().id(Planks).poll();
+        int PlanksCount = ctx.inventory.select().id(P).count();
+        GameObject DoorHotspot = ctx.objects.select().id(15316, 15313, 15314, 15307, 15308, 15309, 15310, 15311, 15312, 15305, 13506).nearest().poll();
         GameObject DungDoor = ctx.objects.select().id(15328, 13344).nearest().poll();
         GameObject Stairs = ctx.objects.select().id(13497).nearest().poll();
         GameObject Scarecrow = ctx.objects.select().id(9667).nearest().poll();
@@ -727,6 +731,7 @@ public class ConstructUp extends PollingScript<ClientContext> implements PaintLi
     }
 
     private void timeToWait() {
+
         Butler = ctx.npcs.select().name("Demon butler", "Butler").nearest().poll();
         if (ButlerText3.text().contains("unholy flame")
                 || ButlerText3.text().contains("can only carry")

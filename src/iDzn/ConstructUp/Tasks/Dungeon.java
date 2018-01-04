@@ -20,7 +20,7 @@ public class Dungeon extends Task<ClientContext> {
 
     }
     GameObject Dungeon = ctx.objects.select().id(4529).nearest().poll();
-    GameObject DungeonDoor = ctx.objects.select().id(15317).nearest().poll();
+
 
     @Override
     public boolean activate() {
@@ -29,7 +29,7 @@ public class Dungeon extends Task<ClientContext> {
 
     @Override
     public void execute() {
-
+        final GameObject DungeonDoor = ctx.objects.select().id(15317).nearest().poll();
         if (!Dungeon.inViewport()) {
             System.out.println("Locating Dungeon");
             ctx.camera.turnTo(Dungeon);

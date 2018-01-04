@@ -16,7 +16,7 @@ public class Bank extends Task<org.powerbot.script.ClientContext<Client>> {
     @Override
     public boolean activate() {
         return ctx.inventory.select().count()<28
-                && ctx.bank.nearest().tile().distanceTo(ctx.players.local()) <4;
+                && ctx.bank.nearest().tile().distanceTo(ctx.players.local()) <8;
     }
 
     @Override
