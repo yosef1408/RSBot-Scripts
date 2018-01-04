@@ -1,4 +1,4 @@
-package slicedtoast.scripts;
+package slicedtoast.KebabBuyer;
 
 import org.powerbot.script.Condition;
 import org.powerbot.script.rt4.ClientContext;

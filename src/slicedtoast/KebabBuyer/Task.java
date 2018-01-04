@@ -1,4 +1,4 @@
-package slicedtoast.scripts;
+package slicedtoast.KebabBuyer;
 
 import org.powerbot.script.rt4.ClientAccessor;
 import org.powerbot.script.rt4.ClientContext;
@@ -33,19 +33,4 @@ public abstract class Task extends ClientAccessor
         return rand.nextInt((max - min) + 1) + min;
     }
 
-    public void checkDoor()
-    {
-        if(ctx.objects.select().id(1535).poll().inViewport()) //if door is closed
-        {
-            ctx.objects.select().id(1535).poll().interact("Open"); //open it
-        }
-    }
-
-    public void checkRun()
-    {
-        if(ctx.movement.energyLevel() >= getRand(80, 100))
-        {
-            ctx.movement.running(true);
-        }
-    }
 }

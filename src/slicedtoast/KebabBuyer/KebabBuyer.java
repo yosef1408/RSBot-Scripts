@@ -1,4 +1,4 @@
-package slicedtoast.scripts;
+package slicedtoast.KebabBuyer;
 
 import org.powerbot.script.PaintListener;
 import org.powerbot.script.PollingScript;
@@ -10,7 +10,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-@Script.Manifest(name = "Kebab Buyer", description = "Buys kebabs from kebab man", properties= "author=slicedtoast; client=4; topic=1341248;")
+@Script.Manifest(name = "Kebab Buyer", description = "Buys kebabs from kebab man", properties= "author=slicedtoast; client=4; id=1341248;")
 
 public class KebabBuyer extends PollingScript<ClientContext> implements PaintListener
 {
