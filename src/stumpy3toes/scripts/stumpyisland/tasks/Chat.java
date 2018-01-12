@@ -31,9 +31,12 @@ public class Chat extends Task {
         setStatus("Skipping through chat");
         if (ctx.chat.canContinue()) {
             ctx.chat.clickContinue(true);
-        } else if(!ctx.chat.select().text(CHAT_OPTIONS).isEmpty()){
-            ChatOption experienceOption = ctx.chat.select().text(CHAT_OPTIONS[Random.nextInt(1, CHAT_OPTIONS.length -1)]).poll();
+        } else if(!ctx.chat.select().text(CHAT_OPTIONS).isEmpty()) {
+            ChatOption experienceOption = ctx.chat.select().text(CHAT_OPTIONS[Random.nextInt(1, CHAT_OPTIONS.length - 1)]).poll();
             experienceOption.select();
+        } else if(!ctx.chat.select().text("No, I'm not planning to do that.").isEmpty()){
+            ChatOption ironManOption = ctx.chat.select().text("No, I'm not planning to do that.").poll();
+            ironManOption.select();
         } else if (!ctx.chat.select().text("Yes.").isEmpty()) {
             ChatOption bankOption = ctx.chat.select().text("Yes").poll();
             bankOption.select();
