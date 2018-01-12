@@ -1,4 +1,4 @@
-package com.kthisiscvpv.garden.script;
+package stormneo7.sorceress.script;
 
 import java.util.Random;
 
@@ -6,9 +6,9 @@ import org.powerbot.script.Tile;
 import org.powerbot.script.rt4.Npc;
 import org.powerbot.script.rt4.Player;
 
-import com.kthisiscvpv.garden.SorceressGarden;
-import com.kthisiscvpv.garden.type.Guard;
-import com.kthisiscvpv.garden.type.Vector;
+import stormneo7.sorceress.SorceressGarden;
+import stormneo7.sorceress.type.Guard;
+import stormneo7.sorceress.type.Vector;
 
 public abstract class Season {
 

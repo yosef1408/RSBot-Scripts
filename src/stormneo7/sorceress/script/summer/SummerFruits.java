@@ -1,4 +1,4 @@
-package com.kthisiscvpv.garden.script.summer;
+package stormneo7.sorceress.script.summer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,12 +12,12 @@ import org.powerbot.script.rt4.Interactive;
 import org.powerbot.script.rt4.Player;
 import org.powerbot.script.rt4.TileMatrix;
 
-import com.kthisiscvpv.garden.misc.Cooldown;
-import com.kthisiscvpv.garden.script.Season;
-import com.kthisiscvpv.garden.script.SeasonScript;
-import com.kthisiscvpv.garden.type.ClientPhase;
-import com.kthisiscvpv.garden.type.Guard;
-import com.kthisiscvpv.garden.type.Vector;
+import stormneo7.sorceress.misc.Cooldown;
+import stormneo7.sorceress.script.Season;
+import stormneo7.sorceress.script.SeasonScript;
+import stormneo7.sorceress.type.ClientPhase;
+import stormneo7.sorceress.type.Guard;
+import stormneo7.sorceress.type.Vector;
 
 public class SummerFruits extends SeasonScript {
 

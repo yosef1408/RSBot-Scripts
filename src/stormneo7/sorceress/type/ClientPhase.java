@@ -1,4 +1,4 @@
-package com.kthisiscvpv.garden.type;
+package stormneo7.sorceress.type;
 
 public enum ClientPhase {
 

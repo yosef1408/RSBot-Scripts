@@ -1,4 +1,4 @@
-package com.kthisiscvpv.garden.misc;
+package stormneo7.sorceress.misc;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -15,8 +15,8 @@ import org.powerbot.script.rt4.ClientContext;
 import org.powerbot.script.rt4.Component;
 import org.powerbot.script.rt4.Widget;
 
-import com.kthisiscvpv.garden.SorceressGarden;
-import com.kthisiscvpv.garden.type.ClientPhase;
+import stormneo7.sorceress.SorceressGarden;
+import stormneo7.sorceress.type.ClientPhase;
 
 public class Statistics implements PaintListener, MessageListener {
 

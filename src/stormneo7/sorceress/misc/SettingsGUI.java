@@ -1,4 +1,4 @@
-package com.kthisiscvpv.garden.misc;
+package stormneo7.sorceress.misc;
 
 import java.awt.Dimension;
 import java.awt.GridLayout;
@@ -20,11 +20,11 @@ import javax.swing.border.Border;
 
 import org.powerbot.script.Tile;
 
-import com.kthisiscvpv.garden.SorceressGarden;
-import com.kthisiscvpv.garden.script.Season;
-import com.kthisiscvpv.garden.script.SeasonScript;
-import com.kthisiscvpv.garden.script.summer.Summer;
-import com.kthisiscvpv.garden.type.ClientPhase;
+import stormneo7.sorceress.SorceressGarden;
+import stormneo7.sorceress.script.Season;
+import stormneo7.sorceress.script.SeasonScript;
+import stormneo7.sorceress.script.summer.Summer;
+import stormneo7.sorceress.type.ClientPhase;
 
 @SuppressWarnings("serial")
 public class SettingsGUI extends JFrame {

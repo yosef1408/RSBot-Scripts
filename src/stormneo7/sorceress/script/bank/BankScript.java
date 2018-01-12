@@ -1,4 +1,4 @@
-package com.kthisiscvpv.garden.script.bank;
+package stormneo7.sorceress.script.bank;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,10 +14,10 @@ import org.powerbot.script.rt4.Interactive;
 import org.powerbot.script.rt4.Npc;
 import org.powerbot.script.rt4.TileMatrix;
 
-import com.kthisiscvpv.garden.SorceressGarden;
-import com.kthisiscvpv.garden.misc.Cooldown;
-import com.kthisiscvpv.garden.type.ClientPhase;
-import com.kthisiscvpv.garden.type.PsuedoTile;
+import stormneo7.sorceress.SorceressGarden;
+import stormneo7.sorceress.misc.Cooldown;
+import stormneo7.sorceress.type.ClientPhase;
+import stormneo7.sorceress.type.PsuedoTile;
 
 public class BankScript {
 

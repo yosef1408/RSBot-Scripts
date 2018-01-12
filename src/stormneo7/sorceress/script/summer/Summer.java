@@ -1,18 +1,18 @@
-package com.kthisiscvpv.garden.script.summer;
+package stormneo7.sorceress.script.summer;
 
 import java.util.Random;
 
 import org.powerbot.script.Tile;
 
-import com.kthisiscvpv.garden.SorceressGarden;
-import com.kthisiscvpv.garden.script.Season;
-import com.kthisiscvpv.garden.script.summer.guard.SummerGuardA;
-import com.kthisiscvpv.garden.script.summer.guard.SummerGuardB;
-import com.kthisiscvpv.garden.script.summer.guard.SummerGuardC;
-import com.kthisiscvpv.garden.script.summer.guard.SummerGuardD;
-import com.kthisiscvpv.garden.script.summer.guard.SummerGuardE;
-import com.kthisiscvpv.garden.script.summer.guard.SummerGuardF;
-import com.kthisiscvpv.garden.type.Guard;
+import stormneo7.sorceress.SorceressGarden;
+import stormneo7.sorceress.script.Season;
+import stormneo7.sorceress.script.summer.guard.SummerGuardA;
+import stormneo7.sorceress.script.summer.guard.SummerGuardB;
+import stormneo7.sorceress.script.summer.guard.SummerGuardC;
+import stormneo7.sorceress.script.summer.guard.SummerGuardD;
+import stormneo7.sorceress.script.summer.guard.SummerGuardE;
+import stormneo7.sorceress.script.summer.guard.SummerGuardF;
+import stormneo7.sorceress.type.Guard;
 
 public class Summer extends Season {
 

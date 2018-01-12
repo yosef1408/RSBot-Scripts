@@ -1,16 +1,16 @@
-package com.kthisiscvpv.garden;
+package stormneo7.sorceress;
 
 import org.powerbot.script.PollingScript;
 import org.powerbot.script.Script;
 import org.powerbot.script.Tile;
 import org.powerbot.script.rt4.ClientContext;
 
-import com.kthisiscvpv.garden.misc.Statistics;
-import com.kthisiscvpv.garden.script.Season;
-import com.kthisiscvpv.garden.script.SeasonScript;
-import com.kthisiscvpv.garden.script.bank.BankScript;
-import com.kthisiscvpv.garden.script.summer.Summer;
-import com.kthisiscvpv.garden.type.ClientPhase;
+import stormneo7.sorceress.misc.Statistics;
+import stormneo7.sorceress.script.Season;
+import stormneo7.sorceress.script.SeasonScript;
+import stormneo7.sorceress.script.bank.BankScript;
+import stormneo7.sorceress.script.summer.Summer;
+import stormneo7.sorceress.type.ClientPhase;
 
 @Script.Manifest(name = "Sorceress's Garden", description = "Picks herbs from Summer in the Sorceress's Garden. Banks at Shanty Pass.", properties = "client=4;topic=1338773;author=stormneo7")
 public class SorceressGarden extends PollingScript<ClientContext> {

@@ -1,4 +1,4 @@
-package com.kthisiscvpv.garden.misc;
+package stormneo7.sorceress.misc;
 
 import java.util.HashMap;
 import java.util.Map;

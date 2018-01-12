@@ -1,7 +1,7 @@
-package com.kthisiscvpv.garden.script.summer.guard;
+package stormneo7.sorceress.script.summer.guard;
 
-import com.kthisiscvpv.garden.type.Guard;
-import com.kthisiscvpv.garden.type.Vector;
+import stormneo7.sorceress.type.Guard;
+import stormneo7.sorceress.type.Vector;
 
 public class SummerGuardD extends Guard {
 
