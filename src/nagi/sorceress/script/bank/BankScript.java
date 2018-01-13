@@ -1,4 +1,4 @@
-package stormneo7.sorceress.script.bank;
+package nagi.sorceress.script.bank;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,10 +14,10 @@ import org.powerbot.script.rt4.Interactive;
 import org.powerbot.script.rt4.Npc;
 import org.powerbot.script.rt4.TileMatrix;
 
-import stormneo7.sorceress.SorceressGarden;
-import stormneo7.sorceress.misc.Cooldown;
-import stormneo7.sorceress.type.ClientPhase;
-import stormneo7.sorceress.type.PsuedoTile;
+import nagi.sorceress.SorceressGarden;
+import nagi.sorceress.misc.Cooldown;
+import nagi.sorceress.type.ClientPhase;
+import nagi.sorceress.type.PsuedoTile;
 
 public class BankScript {
 

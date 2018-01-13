@@ -1,16 +1,17 @@
-package stormneo7.sorceress;
+package nagi.sorceress;
 
 import org.powerbot.script.PollingScript;
 import org.powerbot.script.Script;
 import org.powerbot.script.Tile;
 import org.powerbot.script.rt4.ClientContext;
 
-import stormneo7.sorceress.misc.Statistics;
-import stormneo7.sorceress.script.Season;
-import stormneo7.sorceress.script.SeasonScript;
-import stormneo7.sorceress.script.bank.BankScript;
-import stormneo7.sorceress.script.summer.Summer;
-import stormneo7.sorceress.type.ClientPhase;
+import nagi.sorceress.misc.Statistics;
+import nagi.sorceress.script.Season;
+import nagi.sorceress.script.SeasonScript;
+import nagi.sorceress.script.bank.BankScript;
+import nagi.sorceress.script.summer.Summer;
+import nagi.sorceress.script.summer.SummerHerbs;
+import nagi.sorceress.type.ClientPhase;
 
 @Script.Manifest(name = "Sorceress's Garden", description = "Picks herbs from Summer in the Sorceress's Garden. Banks at Shanty Pass.", properties = "client=4;topic=1338773;author=stormneo7")
 public class SorceressGarden extends PollingScript<ClientContext> {
@@ -29,21 +30,17 @@ public class SorceressGarden extends PollingScript<ClientContext> {
 
         this.stats = new Statistics(this, this.ctx);
         this.ctx.dispatcher.add(this.stats);
-        
+
         // new SettingsGUI(this);
 
-        /*
-         * To be removed next update when GUI is added.
+        /**
+         * TODO: This is just a hard-coded version of the summer herbs script.
+         * Reflections doesn't appear to be usable on the SDN, although it works fine on local.
+         * For better future-proofed code, check out src/stormneo7/sorceress/misc/SettingsGUI.java
          */
 
         this.season = new Summer(this);
-        try {
-            this.seasonScript = this.season.getHerbsScript().getConstructor(Season.class).newInstance(season);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            this.ctx().controller.stop();
-            return;
-        }
+        this.seasonScript = new SummerHerbs(this.season);
 
         this.getStatistics().resetStartTime();
 

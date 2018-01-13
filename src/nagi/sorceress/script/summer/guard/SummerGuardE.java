@@ -1,7 +1,7 @@
-package stormneo7.sorceress.script.summer.guard;
+package nagi.sorceress.script.summer.guard;
 
-import stormneo7.sorceress.type.Guard;
-import stormneo7.sorceress.type.Vector;
+import nagi.sorceress.type.Guard;
+import nagi.sorceress.type.Vector;
 
 public class SummerGuardE extends Guard {
 

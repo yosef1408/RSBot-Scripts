@@ -1,4 +1,4 @@
-package stormneo7.sorceress.misc;
+package nagi.sorceress.misc;
 
 import java.util.HashMap;
 import java.util.Map;

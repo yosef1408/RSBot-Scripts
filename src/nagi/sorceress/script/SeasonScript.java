@@ -1,4 +1,4 @@
-package stormneo7.sorceress.script;
+package nagi.sorceress.script;
 
 import java.util.HashSet;
 import java.util.Random;
@@ -7,8 +7,8 @@ import org.powerbot.script.Tile;
 import org.powerbot.script.rt4.Camera;
 import org.powerbot.script.rt4.ClientContext;
 
-import stormneo7.sorceress.misc.Cooldown;
-import stormneo7.sorceress.type.Vector;
+import nagi.sorceress.misc.Cooldown;
+import nagi.sorceress.type.Vector;
 
 public abstract class SeasonScript {
 

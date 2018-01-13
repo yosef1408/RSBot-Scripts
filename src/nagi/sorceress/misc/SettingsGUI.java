@@ -1,4 +1,4 @@
-package stormneo7.sorceress.misc;
+package nagi.sorceress.misc;
 
 import java.awt.Dimension;
 import java.awt.GridLayout;
@@ -20,11 +20,11 @@ import javax.swing.border.Border;
 
 import org.powerbot.script.Tile;
 
-import stormneo7.sorceress.SorceressGarden;
-import stormneo7.sorceress.script.Season;
-import stormneo7.sorceress.script.SeasonScript;
-import stormneo7.sorceress.script.summer.Summer;
-import stormneo7.sorceress.type.ClientPhase;
+import nagi.sorceress.SorceressGarden;
+import nagi.sorceress.script.Season;
+import nagi.sorceress.script.SeasonScript;
+import nagi.sorceress.script.summer.Summer;
+import nagi.sorceress.type.ClientPhase;
 
 @SuppressWarnings("serial")
 public class SettingsGUI extends JFrame {
