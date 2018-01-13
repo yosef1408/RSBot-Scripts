@@ -1,4 +1,4 @@
-package stormneo7.sorceress.type;
+package nagi.sorceress.type;
 
 import org.powerbot.script.Tile;
 

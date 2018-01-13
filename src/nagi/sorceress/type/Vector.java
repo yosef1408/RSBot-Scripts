@@ -1,4 +1,4 @@
-package stormneo7.sorceress.type;
+package nagi.sorceress.type;
 
 public class Vector {
 
