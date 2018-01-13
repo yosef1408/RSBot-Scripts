@@ -19,8 +19,13 @@ public class Summer extends Season {
     public Summer(SorceressGarden instance) {
         super(instance);
 
-        this.scriptHerbs = SummerHerbs.class;
-        this.scriptFruit = SummerFruits.class;
+        // this.scriptHerbs = SummerHerbs.class;
+        // this.scriptFruit = SummerFruits.class;
+
+        /**
+         * Class referencing doesn't seem to work on SDN. Check out src/stormneo7/sorceress/SoreressGarden.java for better explaination.
+         */
+
         this.xp_rate = 3000;
         this.fruit_count = 2;
 
