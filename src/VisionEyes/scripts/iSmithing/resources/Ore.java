@@ -1,4 +1,4 @@
-package scripts.resources;
+package VisionEyes.scripts.iSmithing.resources;
 
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;

@@ -1,14 +1,14 @@
-package scripts;
+package VisionEyes.scripts.iSmithing;
 
+import VisionEyes.scripts.iSmithing.resources.Bar;
+import VisionEyes.scripts.iSmithing.resources.Util;
+import VisionEyes.scripts.iSmithing.tasks.Bank;
+import VisionEyes.scripts.iSmithing.tasks.Smith;
 import org.powerbot.script.PaintListener;
 import org.powerbot.script.PollingScript;
 import org.powerbot.script.Script;
 import org.powerbot.script.rt4.ClientContext;
 import org.powerbot.script.rt4.Constants;
-import scripts.resources.Bar;
-import scripts.resources.Util;
-import scripts.tasks.Bank;
-import scripts.tasks.Smith;
 
 import javax.swing.*;
 import java.awt.*;

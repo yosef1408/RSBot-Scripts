@@ -1,11 +1,11 @@
-package scripts.tasks;
+package VisionEyes.scripts.iSmithing.tasks;
 
+import VisionEyes.scripts.iSmithing.resources.Bar;
+import VisionEyes.scripts.iSmithing.resources.Ore;
+import VisionEyes.scripts.iSmithing.resources.Util;
 import org.powerbot.script.Condition;
 import org.powerbot.script.rt4.ClientContext;
-import scripts.Task;
-import scripts.resources.Bar;
-import scripts.resources.Ore;
-import scripts.resources.Util;
+import VisionEyes.scripts.iSmithing.Task;
 
 import java.util.HashMap;
 

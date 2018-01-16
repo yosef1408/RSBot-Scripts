@@ -1,4 +1,4 @@
-package scripts.resources;
+package VisionEyes.scripts.iSmithing.resources;
 
 
 public class Consts {
