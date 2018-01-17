@@ -1,4 +1,4 @@
-package Aff1x.choppenheimer.Tasks;
+package Aff1x.choppenheimer;
 
 import org.powerbot.script.ClientAccessor;
 import org.powerbot.script.ClientContext;
