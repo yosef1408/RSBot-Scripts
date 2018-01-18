@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-@Script.Manifest(name = "iSmithing", description = "F2P Bar Smithing", properties = "Author=VisionEyes;")
+@Script.Manifest(name = "iSmithing", description = "F2P Bar Smithing", properties = "Author=VisionEyes; topic=1341884;")
 
 public class iSmithing extends PollingScript<ClientContext> implements PaintListener {
     private int startExp;
