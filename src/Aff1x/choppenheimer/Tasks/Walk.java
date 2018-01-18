@@ -76,14 +76,18 @@ public class Walk extends Task<ClientContext> {
 
     @Override
     public boolean activate(){
-        return (ctx.backpack.select().isEmpty() || ctx.backpack.select().count() == 28)
-                &&!bankArea.contains(ctx.players.local())
-                &&bankArea.getClosestTo(ctx.players.local()).distanceTo(ctx.players.local())>5;
+        if(ctx.backpack.select().count() == 28){
+            return !bankArea.contains(ctx.players.local())
+                    &&bankArea.getClosestTo(ctx.players.local()).distanceTo(ctx.players.local())>5;
+        } else if(ctx.backpack.isEmpty() && ctx.movement.newTilePath(BuildPath(Config.getTreeType())).end().distanceTo(ctx.players.local()) > 15) {
+                return true;
+        } else {
+            return false;
+        }
     }
 
     @Override
     public void execute(){
-        System.out.println(Config.getTreeType());
         if(!ctx.players.local().inMotion())
             if(ctx.backpack.select().count() == 28) {
                 ctx.movement.newTilePath(BuildPath(Config.getTreeType())).reverse().randomize(1, 1).traverse();

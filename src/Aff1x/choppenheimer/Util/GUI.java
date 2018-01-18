@@ -61,7 +61,6 @@ public class GUI extends JFrame {
         start.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent a) {
-                System.out.println(treeBox.getSelectedItem().toString());
                 String selected = treeBox.getSelectedItem().toString();
 
                 if(selected.equals("REGULAR"))

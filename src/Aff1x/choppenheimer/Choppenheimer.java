@@ -28,7 +28,6 @@ public class Choppenheimer extends PollingScript<ClientContext> implements Messa
     public static List<Task> taskList = new ArrayList<Task>();
     private int numLogs = 0;
     public static long startTime;
-    private TreeEnum.TreeType treeType;
     private GUI gui = new GUI(ctx);
     public static Config config = new Config();
 
@@ -45,9 +44,7 @@ public class Choppenheimer extends PollingScript<ClientContext> implements Messa
                 return gui.guiDone;
             }
         }, 500, 500);
-
-        System.out.println(config.getTreeType().name[0]);
-
+        
         startTime = System.currentTimeMillis();
 
         exp = ctx.skills.experience(Constants.SKILLS_WOODCUTTING);
@@ -111,9 +108,6 @@ public class Choppenheimer extends PollingScript<ClientContext> implements Messa
 
     }
 
-    public TreeEnum.TreeType getTreeType() {
-        return treeType;
-    }
 
     public String runTime(long i) {
         DecimalFormat nf = new DecimalFormat("00");
