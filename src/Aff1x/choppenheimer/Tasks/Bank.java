@@ -22,7 +22,14 @@ public class Bank extends Task<ClientContext> {
     public void execute(){
         if(ctx.bank.inViewport())
         {
-            ctx.bank.open();
+            if (ctx.bank.inViewport() || ctx.bank.opened()) {
+                if (!ctx.backpack.select().isEmpty())
+                    ctx.bank.depositInventory();
+                else
+                    ctx.bank.close();
+            } else {
+                ctx.bank.open();
+            }
         } else {
             ctx.movement.step(ctx.bank.nearest());
             ctx.camera.turnTo(ctx.bank.nearest());
