@@ -10,6 +10,7 @@ import org.powerbot.script.PaintListener;
 import Aff1x.choppenheimer.Util.TreeEnum;
 
 import Aff1x.choppenheimer.Tasks.*;
+import org.powerbot.script.rt6.Constants;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -30,6 +31,8 @@ public class Choppenheimer extends PollingScript<ClientContext> implements Messa
     public static long startTime;
     private TreeEnum.TreeType treeType;
 
+    private int exp, level, expGained, lvsGained;
+
     @Override
     public void start() {
         treeType = TreeEnum.TreeType.MAPLE;
@@ -41,6 +44,9 @@ public class Choppenheimer extends PollingScript<ClientContext> implements Messa
         ));
 
         startTime = System.currentTimeMillis();
+
+        exp = ctx.skills.experience(Constants.SKILLS_WOODCUTTING);
+        level = ctx.skills.level(Constants.SKILLS_WOODCUTTING);
     }
 
     @Override
@@ -67,19 +73,24 @@ public class Choppenheimer extends PollingScript<ClientContext> implements Messa
 
         g.setColor(new Color(90, 12, 8,180));
         g.fillRect(9, 26, 150, 20);
-        g.fillRect(9, 27, 150, 93);
+        g.fillRect(9, 27, 150, 126);
         g.setColor(Color.BLACK);
         g.drawRect(8, 25, 151, 21);
-        g.drawRect(8, 25, 151, 93);
+        g.drawRect(8, 25, 151, 127);
 
         g.setColor(Color.WHITE);
         g.drawString("Choppenheimer!", 12, 41);
 
         g.setColor(Color.WHITE);
 
+        expGained = ctx.skills.experience(Constants.SKILLS_WOODCUTTING) - exp;
+        lvsGained = ctx.skills.level(Constants.SKILLS_WOODCUTTING) - level;
+
         g.drawString("Logs Chopped: " + numLogs, 12, 66);
         g.drawString("Logs/Hour: " + perHour(numLogs), 12, 82);
         g.drawString("Runtime: " + runTime(startTime), 12, 98);
+        g.drawString("XP Gained: " + expGained, 12, 114);
+        g.drawString("Levels Gained: " + lvsGained , 12, 128);
 
         int mX = ctx.input.getLocation().x;
         int mY = ctx.input.getLocation().y;

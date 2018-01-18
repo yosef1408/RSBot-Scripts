@@ -12,9 +12,8 @@ public class Bank extends Task<ClientContext> {
 
     @Override
     public boolean activate(){
-        return ctx.backpack.select().count()==28
-                && !ctx.objects.select().name("Bank Booth").isEmpty()
-                && !ctx.bank.opened();
+        return (ctx.backpack.select().count()==28
+                && !ctx.objects.select().name("Bank Booth").isEmpty()) || ctx.bank.opened();
     }
 
     @Override
@@ -22,8 +21,10 @@ public class Bank extends Task<ClientContext> {
         if (ctx.bank.inViewport() || ctx.bank.opened()) {
             System.out.println("Opening Bank!");
             if (ctx.bank.open()) {
-                if (!ctx.backpack.select().isEmpty())
+                if (ctx.backpack.select().count() == 28)
                     ctx.bank.depositInventory();
+                else
+                    ctx.bank.close();
             }
         } else {
             Locatable bank = ctx.bank.nearest();
