@@ -16,7 +16,6 @@ public class Walk extends Task<ClientContext> {
             new Tile(2719, 3488, 0)
     );
 
-    private TreeEnum.TreeType treeType;
 
     private final Tile[] BuildPath(TreeEnum.TreeType type){
         switch (type) {

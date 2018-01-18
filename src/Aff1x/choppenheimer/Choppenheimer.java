@@ -8,9 +8,8 @@ import org.powerbot.script.MessageListener;
 import org.powerbot.script.PaintListener;
 
 import Aff1x.choppenheimer.Util.TreeEnum;
-import Aff1x.choppenheimer.Tasks.Walk;
-import Aff1x.choppenheimer.Task;
 
+import Aff1x.choppenheimer.Tasks.*;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -19,7 +18,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-@Script.Manifest(name = "Choppenheimer", properties = "author=Affix; topic=1286161; client=6;",
+@Script.Manifest(
+        name = "Choppenheimer",
+        properties = "author=Affix; topic=1286161; client=6;",
         description = "Chopping logs at Seers Village")
 
 public class Choppenheimer extends PollingScript<ClientContext> implements MessageListener, PaintListener {
@@ -34,7 +35,8 @@ public class Choppenheimer extends PollingScript<ClientContext> implements Messa
         treeType = TreeEnum.TreeType.MAPLE;
         System.out.println(treeType.name[0]);
         taskList.addAll(Arrays.asList(
-                new Walk(ctx)
+                new Walk(ctx),
+                new Bank(ctx)
         ));
 
         startTime = System.currentTimeMillis();
