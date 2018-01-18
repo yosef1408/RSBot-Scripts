@@ -7,7 +7,7 @@ public class TreeEnum {
         OAK("Oak Tree"),
         REGULAR("Tree", "Dead Tree"),
         WILLOW("Willow Tree"),
-        MAGIC("Magic");
+        MAGIC("Magic Tree");
 
         public String[] name;
 

@@ -1,13 +1,11 @@
 package Aff1x.choppenheimer;
 
-import org.powerbot.script.PollingScript;
-import org.powerbot.script.Script;
+import Aff1x.choppenheimer.Util.Config;
+import org.powerbot.script.*;
 import org.powerbot.script.rt6.ClientContext;
-import org.powerbot.script.MessageEvent;
-import org.powerbot.script.MessageListener;
-import org.powerbot.script.PaintListener;
 
 import Aff1x.choppenheimer.Util.TreeEnum;
+import Aff1x.choppenheimer.Util.GUI;
 
 import Aff1x.choppenheimer.Tasks.*;
 import org.powerbot.script.rt6.Constants;
@@ -18,6 +16,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 @Script.Manifest(
         name = "Choppenheimer",
@@ -26,22 +25,28 @@ import java.util.List;
 
 public class Choppenheimer extends PollingScript<ClientContext> implements MessageListener, PaintListener {
 
-    private List<Task> taskList = new ArrayList<Task>();
+    public static List<Task> taskList = new ArrayList<Task>();
     private int numLogs = 0;
     public static long startTime;
     private TreeEnum.TreeType treeType;
+    private GUI gui = new GUI(ctx);
+    public static Config config = new Config();
+
 
     private int exp, level, expGained, lvsGained;
 
     @Override
     public void start() {
-        treeType = TreeEnum.TreeType.MAPLE;
-        System.out.println(treeType.name[0]);
-        taskList.addAll(Arrays.asList(
-                new Walk(ctx),
-                new Bank(ctx),
-                new Chop(ctx)
-        ));
+        gui.setVisible(true);
+
+        Condition.wait(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                return gui.guiDone;
+            }
+        }, 500, 500);
+
+        System.out.println(config.getTreeType().name[0]);
 
         startTime = System.currentTimeMillis();
 

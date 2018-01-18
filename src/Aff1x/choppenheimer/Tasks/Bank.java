@@ -19,7 +19,6 @@ public class Bank extends Task<ClientContext> {
     @Override
     public void execute() {
         if (ctx.bank.inViewport() || ctx.bank.opened()) {
-            System.out.println("Opening Bank!");
             if (ctx.bank.open()) {
                 if (ctx.backpack.select().count() == 28)
                     ctx.bank.depositInventory();
