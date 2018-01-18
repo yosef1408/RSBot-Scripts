@@ -20,7 +20,7 @@ import java.util.concurrent.Callable;
 
 @Script.Manifest(
         name = "Choppenheimer",
-        properties = "author=Affix; topic=1286161; client=6;",
+        properties = "author=Affix; topic=1341984; client=6;",
         description = "Chopping logs at Seers Village")
 
 public class Choppenheimer extends PollingScript<ClientContext> implements MessageListener, PaintListener {
@@ -44,7 +44,7 @@ public class Choppenheimer extends PollingScript<ClientContext> implements Messa
                 return gui.guiDone;
             }
         }, 500, 500);
-        
+
         startTime = System.currentTimeMillis();
 
         exp = ctx.skills.experience(Constants.SKILLS_WOODCUTTING);
