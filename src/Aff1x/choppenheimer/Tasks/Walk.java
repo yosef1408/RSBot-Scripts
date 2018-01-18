@@ -16,7 +16,6 @@ public class Walk extends Task<ClientContext> {
             new Tile(2719, 3488, 0)
     );
 
-
     private final Tile[] BuildPath(TreeEnum.TreeType type){
         switch (type) {
             case MAPLE:
@@ -31,6 +30,10 @@ public class Walk extends Task<ClientContext> {
                         new Tile(1,1)
                 };
             case REGULAR:
+                return new Tile[] {
+                        new Tile(1,1)
+                };
+            case WILLOW:
                 return new Tile[] {
                         new Tile(1,1)
                 };
@@ -52,17 +55,21 @@ public class Walk extends Task<ClientContext> {
 
     @Override
     public boolean activate(){
-        return (ctx.backpack.select().count()==28 || ctx.backpack.select().isEmpty())
+        return (ctx.backpack.select().isEmpty() || ctx.backpack.select().count() == 28)
                 &&!bankArea.contains(ctx.players.local())
-                &&bankArea.getClosestTo(ctx.players.local()).distanceTo(ctx.players.local())>12;
+                &&bankArea.getClosestTo(ctx.players.local()).distanceTo(ctx.players.local())>5;
     }
 
     @Override
     public void execute(){
         if(!ctx.players.local().inMotion())
-            if(!ctx.backpack.isEmpty())
+            if(ctx.backpack.select().count() == 28) {
+                System.out.println("Banking...");
                 ctx.movement.newTilePath(BuildPath(TreeEnum.TreeType.MAPLE)).reverse().randomize(1, 1).traverse();
-            else
+            }
+            else {
+                System.out.println("Walking to Tree...");
                 ctx.movement.newTilePath(BuildPath(TreeEnum.TreeType.MAPLE)).randomize(1, 1).traverse();
+            }
     }
 }

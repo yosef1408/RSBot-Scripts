@@ -36,7 +36,8 @@ public class Choppenheimer extends PollingScript<ClientContext> implements Messa
         System.out.println(treeType.name[0]);
         taskList.addAll(Arrays.asList(
                 new Walk(ctx),
-                new Bank(ctx)
+                new Bank(ctx),
+                new Chop(ctx)
         ));
 
         startTime = System.currentTimeMillis();
@@ -56,7 +57,7 @@ public class Choppenheimer extends PollingScript<ClientContext> implements Messa
     @Override
     public void messaged(MessageEvent e) {
         String msg = e.text().toLowerCase();
-        if (msg.contains("you manage to get some logs")) {
+        if (msg.contains("you get some")) {
             numLogs++;
         }
     }
