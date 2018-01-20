@@ -4,7 +4,7 @@ public class TreeEnum {
 
     public enum TreeType {
         MAPLE("Maple Tree"),
-        OAK("Oak Tree"),
+        OAK("Oak"),
         REGULAR("Tree", "Dead Tree"),
         WILLOW("Willow Tree"),
         MAGIC("Magic Tree");
