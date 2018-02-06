@@ -1,13 +1,14 @@
 package VisionEyes.scripts.iSmithing.resources;
 
-import java.util.HashMap;
+
+import java.util.LinkedHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Ore {
     /**
      * Passing Bar Name (key) will return Ores Required and its quantity to do that bar.
      */
-    private HashMap<String, int[][]> ores = new HashMap<>();
+    private LinkedHashMap<String, int[][]> ores = new LinkedHashMap<>();
     private Consts consts;
 
     public Ore() {
@@ -22,13 +23,11 @@ public class Ore {
         ores.put("Runite", new int[][]{{451, 1}, {453, 8}}); // 451 Runite Ore
     }
 
-    public HashMap<Integer, Integer> getQuantity(Bar bar) {
+    public LinkedHashMap<Integer, Integer> getQuantity(Bar bar) {
         int[][] OreRequired = ores.get(bar.getSelectedBar());
         int n = this.totalBars(OreRequired);
-        HashMap<Integer, Integer> hashMap = new HashMap<>();
-        for (int[] i : OreRequired) {
-            hashMap.put(i[0], this.computeQuantity(n, i[1]));
-        }
+        LinkedHashMap<Integer, Integer> hashMap = new LinkedHashMap<>();
+        for (int[] i : OreRequired) hashMap.put(i[0], this.computeQuantity(n, i[1]));
         return hashMap;
     }
 

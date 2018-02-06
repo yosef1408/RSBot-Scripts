@@ -68,16 +68,17 @@ public class iSmithing extends PollingScript<ClientContext> implements PaintList
         Graphics2D g = (Graphics2D) graphics;
 
         g.setColor(new Color(0, 0, 0, 180));
-        g.fillRect(0, 0, 150, 120);
+        g.fillRect(0, 0, 150, 160);
 
         g.setColor(new Color(255, 255, 255));
-        g.drawRect(0, 0, 150, 120);
+        g.drawRect(0, 0, 150, 160);
 
         g.drawString("iSmithing", 20, 20);
         g.drawString("Running: " + String.format("%02d:%02d:%02d", hours, minutes, seconds), 20, 40);
         g.drawString("Exp/Hour " + ((int) (expGained * (3600000D / milliseconds))), 20, 60);
         g.drawString("Lvl: " + (currentLvl) + "(+" + lvl + ")", 20, 80);
         g.drawString("Status: " + (status), 20, 100);
+        g.drawString("Bar: " + (this.bar.getSelectedBar() != null ? this.bar.getSelectedBar() : "None"), 20, 120);
 
     }
 }

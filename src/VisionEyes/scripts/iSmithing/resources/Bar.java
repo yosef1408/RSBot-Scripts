@@ -1,13 +1,13 @@
 package VisionEyes.scripts.iSmithing.resources;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 public class Bar {
     /**
      * Hashmap to get ID(value) by name (key)
      **/
-    private HashMap<String, Integer> bars = new HashMap<>();
-    private HashMap<String, Integer> barsComponent = new HashMap<>();
+    private LinkedHashMap<String, Integer> bars = new LinkedHashMap<>();
+    private LinkedHashMap<String, Integer> barsComponent = new LinkedHashMap<>();
     private String selectedBar;
 
     public Bar() {
@@ -32,7 +32,7 @@ public class Bar {
     }
 
 
-    public HashMap<String, Integer> getBars() {
+    public LinkedHashMap<String, Integer> getBars() {
         return bars;
     }
 
