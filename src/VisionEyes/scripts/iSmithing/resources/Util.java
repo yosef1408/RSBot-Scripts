@@ -7,7 +7,8 @@ import org.powerbot.script.rt4.ClientContext;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static java.util.concurrent.TimeUnit.*;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class Util {
     private ClientContext ctx;
@@ -39,7 +40,7 @@ public class Util {
         return ctx.inventory.select().id(itemID).count();
     }
 
-    public int getItemsCount(HashMap<Integer, Integer> hashMap){
+    public int getItemsCount(LinkedHashMap<Integer, Integer> hashMap){
         AtomicInteger n = new AtomicInteger();
         hashMap.forEach((key, value) -> n.addAndGet(this.getItemCount(key)));
         return Integer.valueOf(n.toString());
@@ -58,7 +59,7 @@ public class Util {
         }
     }
 
-    public String[] toOptions(HashMap<String, Integer> map) {
+    public String[] toOptions(LinkedHashMap<String, Integer> map) {
         Set<String> keys = map.keySet();
         String options[] = new String[keys.size()];
         int index = 0;

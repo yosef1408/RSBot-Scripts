@@ -1,13 +1,12 @@
 package VisionEyes.scripts.iSmithing.tasks;
 
+import VisionEyes.scripts.iSmithing.Task;
 import VisionEyes.scripts.iSmithing.resources.Bar;
 import VisionEyes.scripts.iSmithing.resources.Ore;
 import VisionEyes.scripts.iSmithing.resources.Util;
 import org.powerbot.script.Condition;
 import org.powerbot.script.rt4.ClientContext;
-import VisionEyes.scripts.iSmithing.Task;
-
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 
 public class Bank extends Task {
@@ -15,7 +14,7 @@ public class Bank extends Task {
     private Util util = new Util(ctx);
     private Bar bar;
     private Ore ore;
-    private HashMap<Integer, Integer> ores;
+    private LinkedHashMap<Integer, Integer> ores;
 
     public Bank(ClientContext ctx, Bar selectedBar) {
         super(ctx);
