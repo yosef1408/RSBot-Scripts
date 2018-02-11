@@ -18,6 +18,6 @@ public class WidgetManager {
     }
 
     public boolean tanHide() {
-        return ctx.widgets.widget(324).components()[AlKharidTanner.widgetID].interact("itzmyfancysauce.Tan All");
+        return ctx.widgets.widget(324).components()[AlKharidTanner.widgetID].interact("Tan All");
     }
 }
