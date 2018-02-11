@@ -16,7 +16,7 @@ import java.util.List;
         description = "Tans hides in Al-Kharid",
         properties = "author=itzmyfancysauce;topic=1342740;client=4;"
 )
-public class Main extends PollingScript<ClientContext> implements PaintListener{
+public class AlKharidTanner extends PollingScript<ClientContext> implements PaintListener{
     private List<Task> taskList = new ArrayList<>();
     Calendar endTime = Calendar.getInstance();
     static Calendar startTime;

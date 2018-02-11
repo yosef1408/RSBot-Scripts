@@ -17,8 +17,8 @@ public class Walk extends Task {
     private static TilePath tannerToBank;
     private static TilePath bankToTanner;
     private final int TANNER_DOOR_ID = 1535;
-    int hideID = Main.hideID;
-    int leatherID = Main.leatherID;
+    int hideID = AlKharidTanner.hideID;
+    int leatherID = AlKharidTanner.leatherID;
     final int ELLIS_ID = 3231;
     final int[] closedDoorBounds = {128, 96, -204, -20, 92, 16};
 
@@ -62,7 +62,7 @@ public class Walk extends Task {
     }
 
     public void tannerToBank() {
-        Main.totalTanned += ctx.inventory.select().id(leatherID).count();
+        AlKharidTanner.totalTanned += ctx.inventory.select().id(leatherID).count();
         handleDoor();
         tannerToBank.randomize(2, 2);
 
@@ -83,7 +83,7 @@ public class Walk extends Task {
         System.out.println("Door id: " + door.id());
         System.out.println("Door valid: " + door.valid());
         if (door.valid() && door.tile().x() == 3277 && door.tile().y() == 3191) {
-            Main.currentTask = "Opening Door";
+            AlKharidTanner.currentTask = "Opening Door";
             ctx.camera.turnTo(door);
 
             Condition.wait(new Callable<Boolean>() {
@@ -102,14 +102,14 @@ public class Walk extends Task {
             });
         }
 
-        Main.currentTask = "Walking";
+        AlKharidTanner.currentTask = "Walking";
     }
 
     public void randomAfk() {
-        if ((Calendar.getInstance().getTimeInMillis() - Main.startTime.getTimeInMillis()) / 1000 / 60 >= 10) {
+        if ((Calendar.getInstance().getTimeInMillis() - AlKharidTanner.startTime.getTimeInMillis()) / 1000 / 60 >= 10) {
             if (Random.nextInt(1, 100) >= 98) {
                 int sleepTime = Random.nextInt(20, 100);
-                Main.currentTask = "AFK for " + sleepTime + " seconds";
+                AlKharidTanner.currentTask = "AFK for " + sleepTime + " seconds";
                 Condition.sleep(sleepTime * 1000);
             }
         }

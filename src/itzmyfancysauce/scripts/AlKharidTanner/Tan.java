@@ -12,8 +12,8 @@ import java.util.concurrent.Callable;
 public class Tan extends Task {
     private WidgetManager widgetManager;
     private Area tannerArea = new Area(new Tile(3278, 3194), new Tile(3270, 3189));
-    int hideID = Main.hideID;
-    int leatherID = Main.leatherID;
+    int hideID = AlKharidTanner.hideID;
+    int leatherID = AlKharidTanner.leatherID;
     final int ELLIS_ID = 3231;
 
     public Tan(ClientContext ctx) {

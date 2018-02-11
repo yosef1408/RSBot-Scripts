@@ -11,8 +11,8 @@ import java.util.concurrent.Callable;
 public class Bank extends Task {
     private Npc banker;
     private int[] bankerIDs = new int[]{396, 397};
-    int tanningHide = Main.hideID;
-    int tanningLeather = Main.leatherID;
+    int tanningHide = AlKharidTanner.hideID;
+    int tanningLeather = AlKharidTanner.leatherID;
     private Area bankArea = new Area(new Tile(3272, 3170), new Tile(3269, 3163));
 
     public Bank(ClientContext ctx) {
