@@ -69,7 +69,7 @@ public class Tan extends Task {
             widgetManager.tanHide();
         } catch(ArrayIndexOutOfBoundsException e) {
             Condition.sleep(Random.nextInt(700, 1200));
-            widgetManager.tanHide();
+            //widgetManager.tanHide();
         }
         //Condition.sleep(Random.nextInt(700, 1200));
     }
