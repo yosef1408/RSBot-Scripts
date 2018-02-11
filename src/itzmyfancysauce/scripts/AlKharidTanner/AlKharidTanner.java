@@ -84,7 +84,7 @@ public class AlKharidTanner extends PollingScript<ClientContext> implements Pain
             if(task.activate(getStorageDirectory().getAbsolutePath())) {
                 currentTask = task.getClass().getSimpleName();
 
-                if(currentTask.equals("itzmyfancysauce.Tan")) {
+                if(currentTask.equals("Tan")) {
                     currentTask = "Tanning";
                 } else {
                     currentTask += "ing";
