@@ -1,3 +1,5 @@
+package itzmyfancysauce;
+
 import org.powerbot.script.Area;
 import org.powerbot.script.Condition;
 import org.powerbot.script.Random;
@@ -70,7 +72,7 @@ public class Walk extends Task {
             }
             tannerToBank.traverse();
         }
-        //ctx.movement.step(bankArea.getRandomTile());
+        ctx.movement.step(bankArea.getRandomTile());
 
         randomAfk();
     }

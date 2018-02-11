@@ -1,3 +1,5 @@
+package itzmyfancysauce;
+
 import org.powerbot.script.rt4.ClientAccessor;
 import org.powerbot.script.rt4.ClientContext;
 

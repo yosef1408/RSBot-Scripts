@@ -1,3 +1,5 @@
+package itzmyfancysauce;
+
 import org.powerbot.script.Area;
 import org.powerbot.script.Condition;
 import org.powerbot.script.Tile;
@@ -22,7 +24,7 @@ public class Bank extends Task {
         Tile playerTile = ctx.players.local().tile();
 
         //If player is within bank area
-        if(bankArea.getCentralTile().distanceTo(playerTile) <= 15 && (!ctx.inventory.select().id(tanningLeather).isEmpty() || ctx.inventory.count() != 28)) {
+        if(bankArea.getCentralTile().distanceTo(playerTile) <= 10 && (!ctx.inventory.select().id(tanningLeather).isEmpty() || ctx.inventory.count() != 28)) {
             return true;
         }
         return false;

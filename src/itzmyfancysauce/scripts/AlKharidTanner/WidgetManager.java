@@ -1,3 +1,5 @@
+package itzmyfancysauce;
+
 import org.powerbot.script.rt4.ClientContext;
 
 public class WidgetManager {
@@ -16,6 +18,6 @@ public class WidgetManager {
     }
 
     public boolean tanHide() {
-        return ctx.widgets.widget(324).components()[Main.widgetID].interact("Tan All");
+        return ctx.widgets.widget(324).components()[Main.widgetID].interact("itzmyfancysauce.Tan All");
     }
 }

@@ -1,3 +1,4 @@
+package itzmyfancysauce;
 
 import org.powerbot.script.*;
 import org.powerbot.script.rt4.ClientContext;
@@ -83,7 +84,7 @@ public class Main extends PollingScript<ClientContext> implements PaintListener{
             if(task.activate(getStorageDirectory().getAbsolutePath())) {
                 currentTask = task.getClass().getSimpleName();
 
-                if(currentTask.equals("Tan")) {
+                if(currentTask.equals("itzmyfancysauce.Tan")) {
                     currentTask = "Tanning";
                 } else {
                     currentTask += "ing";
