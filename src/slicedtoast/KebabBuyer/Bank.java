@@ -23,7 +23,7 @@ public class Bank extends Task
     @Override
     public void execute()
     {
-        checkRun();
+        //checkRun();
         rotateCamBank();
         GameObject bank = ctx.objects.select().id(6943).nearest().poll(); //select a bank booth that is viewable
         bank.bounds(bankBounds); //set click boundary
@@ -31,7 +31,7 @@ public class Bank extends Task
         sleep(1000);
         while(!ctx.players.local().inMotion() && !ctx.widgets.widget(231).component(2).visible())
         {
-            checkDoor(); //open door if need be
+            //checkDoor(); //open door if need be
             ctx.movement.step(bank); //walk towards it
             ctx.camera.turnTo(bank); //turn towards it
             bank.interact("Bank");
