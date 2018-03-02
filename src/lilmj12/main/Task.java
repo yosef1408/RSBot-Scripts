@@ -1,4 +1,4 @@
-package lilmj12.main;
+package lilmj12.STCannonballs.main;
 
 import org.powerbot.script.rt4.ClientAccessor;
 import org.powerbot.script.rt4.ClientContext;

@@ -1,4 +1,4 @@
-package lilmj12.misc;
+package lilmj12.STCannonballs.misc;
 
 import org.powerbot.script.Condition;
 import org.powerbot.script.Random;

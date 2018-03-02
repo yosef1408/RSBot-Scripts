@@ -1,4 +1,4 @@
-package lilmj12.misc;
+package lilmj12.STCannonballs.misc;
 
 public class Timer {
 

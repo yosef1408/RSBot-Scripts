@@ -1,42 +1,27 @@
-package lilmj12.tasks;
+package lilmj12.STCannonballs.tasks;
 
-import lilmj12.main.Task;
-import lilmj12.misc.Walker;
+import lilmj12.STCannonballs.main.Task;
+import lilmj12.STCannonballs.misc.Walker;
 import org.powerbot.script.Area;
 import org.powerbot.script.Tile;
 import org.powerbot.script.rt4.ClientContext;
 
 public class Walk extends Task {
 
-    public Walk(ClientContext ctx){
+    public Walk(ClientContext ctx, Area bankArea, Area smeltingArea, Tile[] pathFromFurnace){
         super(ctx);
+        this.bankArea = bankArea;
+        this.smeltingArea = smeltingArea;
+        this.pathFromFurnace = pathFromFurnace;
     }
 
     private final int STEEL_BAR_ID = 2353;
 
-    private final int lowerLeftX = 3269;
-    private final int lowerLeftY = 3161;
 
-    private final int upperRightX = 3272;
-    private final int upperRightY = 3173;
+    Area bankArea;
+    Area smeltingArea;
+    Tile[] pathFromFurnace;
 
-    Tile lowerLeftTile = new Tile(lowerLeftX, lowerLeftY);
-    Tile upperRightTile = new Tile(upperRightX, upperRightY);
-
-    Area bankArea = new Area(lowerLeftTile, upperRightTile);
-
-    private int rightUpperX = 3279;
-    private int rightUpperY = 3188;
-
-    private int leftLowerX = 3274;
-    private int leftLowerY = 3184;
-
-    Tile rightUpperTile = new Tile(rightUpperX, rightUpperY);
-    Tile leftLowerTile = new Tile(leftLowerX, leftLowerY);
-
-    Area smeltingArea = new Area(rightUpperTile, leftLowerTile);
-
-    public static final Tile[] pathFromFurnace = {new Tile(3276, 3186, 0), new Tile(3280, 3185, 0), new Tile(3280, 3181, 0), new Tile(3280, 3177, 0), new Tile(3277, 3173, 0), new Tile(3275, 3169, 0), new Tile(3271, 3167, 0)};
     private final Walker walker = new Walker(ctx);
 
     @Override

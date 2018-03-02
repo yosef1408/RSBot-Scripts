@@ -1,8 +1,8 @@
-package lilmj12.tasks;
+package lilmj12.STCannonballs.tasks;
 
-import lilmj12.main.Task;
+import lilmj12.STCannonballs.misc.Timer;
+import lilmj12.STCannonballs.main.Task;
 
-import lilmj12.misc.Timer;
 import org.powerbot.script.Area;
 import org.powerbot.script.Condition;
 import org.powerbot.script.rt4.ClientContext;
@@ -11,23 +11,17 @@ import org.powerbot.script.rt4.GameObject;
 
 public class Smelt extends Task {
 
-    private int rightUpperX = 3279;
-    private int rightUpperY = 3188;
-
-    private int leftLowerX = 3274;
-    private int leftLowerY = 3184;
-
-    Tile rightUpperTile = new Tile(rightUpperX, rightUpperY);
-    Tile leftLowerTile = new Tile(leftLowerX, leftLowerY);
-
-    Area smeltingArea = new Area(rightUpperTile, leftLowerTile);
+    Area smeltingArea;
 
     final int STEEL_BAR_ID = 2353;
+    final int FURNACE_ID;
 
 
 
-    public Smelt(ClientContext ctx){
+    public Smelt(ClientContext ctx, Area smeltingArea, int FURNACE_ID) {
         super(ctx);
+        this.smeltingArea = smeltingArea;
+        this.FURNACE_ID = FURNACE_ID;
     }
 
     @Override
@@ -50,13 +44,14 @@ public class Smelt extends Task {
         }
         int experience = ctx.skills.experience(13);
 
-        final int FURNACE_ID = 24009;
         GameObject furnace = ctx.objects.select().id(FURNACE_ID).poll();
+
 
         while(tracker.getRemaining() > 0 && ctx.inventory.select().id(STEEL_BAR_ID).count() > 0){
             if(ctx.skills.experience(13) != experience){
                 tracker.reset();
                 experience = ctx.skills.experience(13);
+
             }
         }
 
@@ -64,10 +59,14 @@ public class Smelt extends Task {
 
         if(ctx.players.local().animation() == -1 && smeltingArea.contains(ctx.players.local())){
             ctx.inventory.select().id(STEEL_BAR_ID).poll().interact("Use");
-            furnace.interact("Use");
-            Condition.wait(ctx.widgets.widget(270).component(14)::inViewport, 30, 45);
+            int startingExp = ctx.skills.experience(13);
+
+            if(!furnace.inViewport()) ctx.camera.turnTo(furnace);
+
+            ctx.objects.select().id(FURNACE_ID).poll().interact("Use", "Furnace");
+            Condition.wait(ctx.widgets.widget(270).component(14)::inViewport, 20, 45);
             ctx.widgets.widget(270).component(14).interact("Make sets:");
-            Condition.sleep(6000);
+            Condition.wait(() -> startingExp != ctx.skills.experience(13));
         }
 
     }
