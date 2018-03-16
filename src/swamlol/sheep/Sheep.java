@@ -11,7 +11,7 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 
-@Script.Manifest(name = "Shepherd", description = "Shears Sheeps for good money making!", properties = "author=samlol; topic=1343625; client = 6;")
+@Script.Manifest(name = "Shepherd", description = "Shears Sheeps at Taverly for good money making!", properties = "author=samlol; topic=1343625; client = 6;")
 
 public class Sheep extends PollingScript<ClientContext> implements PaintListener {
 
