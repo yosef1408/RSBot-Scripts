@@ -14,7 +14,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-@Script.Manifest(name="F2P WoodCutter", description = "chops wood at most f2p locations, check thread for more information", properties = ("author=samlol; client=6; topic=999;"))
+@Script.Manifest(name="F2P WoodCutter", description = "chops wood at most f2p locations, check thread for more information", properties = ("author=samlol; client=6; topic=1343705;"))
 
 public class F2PWoodcutter extends PollingScript<ClientContext> implements PaintListener{
     List<Task> taskList = new ArrayList<Task>();
