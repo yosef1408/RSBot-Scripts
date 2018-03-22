@@ -1,9 +1,13 @@
-package Trikkstr.GoblinKiller;
+package Trikkstr.Scripts.GoblinKiller;
 
+import Trikkstr.Scripts.Tasks.Bank;
+import Trikkstr.Scripts.Tasks.BuyKebabs;
+import Trikkstr.Scripts.Tasks.Fight;
 import org.powerbot.script.rt4.*;
 import org.powerbot.script.PollingScript;
 import org.powerbot.script.Script;
 
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,14 +20,18 @@ import java.util.List;
 
 public class GoblinKiller extends PollingScript<ClientContext>
 {
-    int pollCount = 0;
+    private static boolean bones;
+    private static boolean banked = false;
 
-    long startTime;
-    long endTime;
-    long runTime;
+    private int selection;
 
-    public static List<Task> taskList = new ArrayList<Task>();
+    private int pollCount = 0;
 
+    private long startTime;
+    private long endTime;
+    private long runTime;
+
+    private List<Task> taskList = new ArrayList<Task>();
 
     @Override
     public void start()
@@ -31,7 +39,12 @@ public class GoblinKiller extends PollingScript<ClientContext>
         startTime = System.currentTimeMillis();
         System.out.println("Starting.");
 
+        setBones();
+
+        taskList.add(new Bank(ctx));
+        taskList.add(new BuyKebabs(ctx));
         taskList.add(new Fight(ctx));
+
     }
 
     @Override
@@ -63,8 +76,36 @@ public class GoblinKiller extends PollingScript<ClientContext>
                 break;
             }
         }
-
         pollCount += 1;
-        System.out.printf("Poll Count: %d\n", pollCount);
+    }
+
+    private void setBones()
+    {
+        selection = JOptionPane.showConfirmDialog(null, "Would you like to pickup and bury bones?",
+                "Bury Bones?", JOptionPane.YES_NO_OPTION);
+
+        if(selection == 0)
+        {
+            bones = true;
+        }
+        else
+        {
+            bones = false;
+        }
+    }
+
+    public static boolean getBones()
+    {
+        return bones;
+    }
+
+    public static void setBanked(boolean bool)
+    {
+        banked = bool;
+    }
+
+    public static boolean getBanked()
+    {
+        return  banked;
     }
 }
