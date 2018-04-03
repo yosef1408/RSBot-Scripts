@@ -12,7 +12,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-@Script.Manifest(name = "Gathering", description = "Let the bot do anything anywhere.", properties = "client=4; author=TMKCodes; topic=999;")
+@Script.Manifest(name = "Gathering", description = "Let the bot do anything anywhere.", properties = "client=4; author=TMKCodes; topic=1344143;")
 
 public class Gathering extends PollingScript<ClientContext> implements PaintListener {
 
