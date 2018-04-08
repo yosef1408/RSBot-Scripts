@@ -1,19 +1,16 @@
-package Gathering.Tasks;
+package TMKCodes.Gathering.Tasks;
 
-import Gathering.Task;
+import TMKCodes.Gathering.Task;
 import org.powerbot.script.Condition;
 import org.powerbot.script.rt4.ClientContext;
 import org.powerbot.script.rt4.GameObject;
-
+import org.powerbot.script.Random;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
 import java.util.concurrent.Callable;
 
 public class Woodcut extends Task {
 
-    List<Integer> wood = new ArrayList<Integer>();
-    private Random rand;
+    private ArrayList<Integer> wood = new ArrayList<Integer>();
     private String tree;
 
     public Woodcut(ClientContext ctx, String wood) {
@@ -36,19 +33,24 @@ public class Woodcut extends Task {
             this.wood.add(1753);
             this.tree = "Yew";
         }
-        rand = new Random();
     }
 
     @Override
     public boolean activate() {
         System.out.println("Woodcutting");
-        return ctx.players.local().animation() == -1 && ctx.inventory.select().count() < 28;
+        return ctx.players.local().animation() == -1 && ctx.inventory.select().count() < 28 && ctx.players.local().inCombat() == false;
     }
 
     @Override
     public void execute() {
         for (int id : wood) {
             for(GameObject tree : ctx.objects.select().id(id).nearest()) {
+                System.out.println(tree.id());
+                try {
+                    Thread.sleep(Random.nextInt(4800, 2400));
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 if(tree.valid()) {
                     if(!tree.inViewport()) {
                         ctx.camera.turnTo(tree);
@@ -56,7 +58,7 @@ public class Woodcut extends Task {
                     }
                     tree.interact("Chop Down", this.tree);
                     try {
-                        Thread.sleep(rand.nextInt(2400) + 1200);
+                        Thread.sleep(Random.nextInt(4800, 2400));
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -65,7 +67,7 @@ public class Woodcut extends Task {
                         public Boolean call() throws Exception {
                             return ctx.players.local().animation() != -1;
                         }
-                    }, rand.nextInt(150) + 50, rand.nextInt(15) + 5);
+                    }, Random.nextInt(120, 60), Random.nextInt(20, 10));
                     if (ctx.players.local().animation() != -1) {
                         break;
                     }

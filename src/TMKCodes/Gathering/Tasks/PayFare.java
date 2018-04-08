@@ -1,23 +1,20 @@
-package Gathering.Tasks;
+package TMKCodes.Gathering.Tasks;
 
-import Gathering.Task;
+import TMKCodes.Gathering.Task;
 import org.powerbot.script.Tile;
 import org.powerbot.script.rt4.ClientContext;
 import org.powerbot.script.rt4.Npc;
+import org.powerbot.script.Random;
 
-import java.util.Random;
 
 public class PayFare extends Task {
 
-    final static int musaPointSeamen[] = {3644, 3645, 3646, 3648};
+    private int musaPointSeamen[] = {3644, 3645, 3646, 3648};
     private String location;
-
-    private Random rand;
 
     public PayFare(ClientContext ctx, String location) {
         super(ctx);
         this.location = location;
-        rand = new Random();
     }
 
     @Override
@@ -42,7 +39,7 @@ public class PayFare extends Task {
                 ctx.camera.turnTo(seamen);
                 seamen.interact("Pay-fare");
                 try {
-                    Thread.sleep(rand.nextInt(500) + 1);
+                    Thread.sleep(Random.nextInt(1200, 600));
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -56,7 +53,7 @@ public class PayFare extends Task {
                 ctx.camera.turnTo(seamen);
                 seamen.interact("Pay-fare");
                 try {
-                    Thread.sleep(rand.nextInt(500) + 1);
+                    Thread.sleep(Random.nextInt(1200, 600));
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

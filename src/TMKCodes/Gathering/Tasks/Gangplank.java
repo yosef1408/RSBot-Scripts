@@ -1,19 +1,16 @@
-package Gathering.Tasks;
+package TMKCodes.Gathering.Tasks;
 
-import Gathering.Task;
+import TMKCodes.Gathering.Task;
 import org.powerbot.script.rt4.ClientContext;
 import org.powerbot.script.rt4.GameObject;
-
-import java.util.Random;
+import org.powerbot.script.Random;
 
 public class Gangplank extends Task {
-    final static int gangplanks[] = {2082, 2084};
 
-    private Random rand;
+    private int gangplanks[] = {2082, 2084};
 
     public Gangplank(ClientContext ctx) {
         super(ctx);
-        rand = new Random();
     }
 
     @Override
@@ -36,7 +33,7 @@ public class Gangplank extends Task {
             ctx.camera.turnTo(gangplank);
             gangplank.interact("Cross");
             try {
-                Thread.sleep(rand.nextInt(200) + 100);
+                Thread.sleep(Random.nextInt(1200, 600));
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

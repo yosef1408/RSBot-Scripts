@@ -1,4 +1,4 @@
-package Gathering;
+package TMKCodes.Gathering;
 
 import org.powerbot.script.Condition;
 import org.powerbot.script.Random;

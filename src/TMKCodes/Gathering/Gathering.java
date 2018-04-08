@@ -1,6 +1,7 @@
-package Gathering;
+package TMKCodes.Gathering;
 
-import Gathering.Tasks.*;
+import TMKCodes.Gathering.Tasks.*;
+import TMKCodes.Tasks.*;
 import org.powerbot.script.PaintListener;
 import org.powerbot.script.PollingScript;
 import org.powerbot.script.Script;
@@ -10,48 +11,58 @@ import org.powerbot.script.rt4.Constants;
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.List;
 
-@Script.Manifest(name = "Gathering", description = "Let the bot do anything anywhere.", properties = "client=4; author=TMKCodes; topic=1344143;")
+@Script.Manifest(name = "TMKCodes/Gathering", description = "Let the bot do anything anywhere.", properties = "client=4; author=TMKCodes; topic=1344143;")
 
 public class Gathering extends PollingScript<ClientContext> implements PaintListener {
 
-    List<Task> taskList = new ArrayList<Task>();
+    private ArrayList<Task> taskList = new ArrayList<Task>();
 
-    int startExp = 0;
+    private int startExp = 0;
 
-    String skillChoice;
+    private String skillChoice;
 
     @Override
     public void start() {
         ctx.input.speed(25);
-        String skillUserOptions[] = { "Fishing", "Woodcutting", "Mining" };
-        this.skillChoice = (String) JOptionPane.showInputDialog(null, "What to do?", "Gathering", JOptionPane.PLAIN_MESSAGE, null, skillUserOptions, skillUserOptions[0]);
+        String skillUserOptions[] = {"Fishing", "Cooking", "Woodcutting", "Mining"};
+        this.skillChoice = (String) JOptionPane.showInputDialog(null, "What to do?", "TMKCodes/Gathering", JOptionPane.PLAIN_MESSAGE, null, skillUserOptions, skillUserOptions[0]);
         String antibanUserOptions[] = {"Yes", "No"};
-        String antibanUserChoice = (String) JOptionPane.showInputDialog(null, "Enable antiban?", "Gathering", JOptionPane.PLAIN_MESSAGE, null, antibanUserOptions, antibanUserOptions[0]);
-        if(this.skillChoice.equals("Fishing")) {
+        String antibanUserChoice = (String) JOptionPane.showInputDialog(null, "Enable antiban?", "TMKCodes/Gathering", JOptionPane.PLAIN_MESSAGE, null, antibanUserOptions, antibanUserOptions[0]);
+        if (this.skillChoice.equals("Fishing")) {
             String fishingUserOptions[] = {"Small Net", "Bait", "Cage", "Harpoon"};
-            String fishingUserChoice = (String) JOptionPane.showInputDialog(null, "What to fish?", "Gathering", JOptionPane.PLAIN_MESSAGE, null, fishingUserOptions, fishingUserOptions[0]);
+            String fishingUserChoice = (String) JOptionPane.showInputDialog(null, "What to fish?", "TMKCodes/Gathering", JOptionPane.PLAIN_MESSAGE, null, fishingUserOptions, fishingUserOptions[0]);
             String bankingUserOptions[] = {"Bank", "Drop"};
-            String bankingUserChoice = (String) JOptionPane.showInputDialog(null, "Bank or drop?", "Gathering", JOptionPane.PLAIN_MESSAGE, null, bankingUserOptions, bankingUserOptions[0]);
+            String bankingUserChoice = (String) JOptionPane.showInputDialog(null, "Bank or drop?", "TMKCodes/Gathering", JOptionPane.PLAIN_MESSAGE, null, bankingUserOptions, bankingUserOptions[0]);
             if (bankingUserChoice == "Drop") {
                 taskList.add(new Drop(ctx, "fish"));
                 taskList.add(new Fish(ctx, fishingUserChoice));
             } else if (bankingUserChoice == "Bank") {
-                String locationUserOptions[] = {"Musa point"};
-                String locationUserChoice = (String) JOptionPane.showInputDialog(null, "Where to fish?", "Gathering", JOptionPane.PLAIN_MESSAGE, null, locationUserOptions, locationUserOptions[0]);
-                taskList.add(new Deposit(ctx, skillChoice));
-                taskList.add(new PayFare(ctx, locationUserChoice));
-                taskList.add(new Gangplank(ctx));
+                String locationUserOptions[] = {"Musa point", "Lumbridge Swamp"};
+                String locationUserChoice = (String) JOptionPane.showInputDialog(null, "Where to fish?", "TMKCodes/Gathering", JOptionPane.PLAIN_MESSAGE, null, locationUserOptions, locationUserOptions[0]);
+                if (locationUserChoice.equals("Musa point")) {
+                    taskList.add(new Deposit(ctx, skillChoice));
+                    taskList.add(new PayFare(ctx, locationUserChoice));
+                    taskList.add(new Gangplank(ctx));
+                } else {
+                    taskList.add(new Bank(ctx, skillChoice));
+                }
                 taskList.add(new Walk(ctx, locationUserChoice));
                 taskList.add(new Fish(ctx, fishingUserChoice));
             }
             startExp = ctx.skills.experience(Constants.SKILLS_FISHING);
+        } else if(this.skillChoice.equals("Cooking")) {
+            String locationUserOptions[] = { "Al Kharid Range" };
+            String locationUserChoice = (String) JOptionPane.showInputDialog(null, "Where to cook?", "TMKCodes/Gathering", JOptionPane.PLAIN_MESSAGE, null, locationUserOptions, locationUserOptions[0]);
+            taskList.add(new Bank(ctx, skillChoice));
+            taskList.add(new Walk(ctx, locationUserChoice));
+            taskList.add(new Cook(ctx));
+            startExp = ctx.skills.experience(Constants.SKILLS_COOKING);
         } else if(this.skillChoice.equals("Woodcutting")) {
             String cuttingUserOptions[] = {"Normal", "Oak", "Willow", "Maple", "Yew"}; // 1278
-            String cuttingUserChoice = (String) JOptionPane.showInputDialog(null, "What to cut?", "Gathering", JOptionPane.PLAIN_MESSAGE, null, cuttingUserOptions, cuttingUserOptions[0]);
+            String cuttingUserChoice = (String) JOptionPane.showInputDialog(null, "What to cut?", "TMKCodes/Gathering", JOptionPane.PLAIN_MESSAGE, null, cuttingUserOptions, cuttingUserOptions[0]);
             String bankingUserOptions[] = {"Bank", "Drop"};
-            String bankingUserChoice = (String) JOptionPane.showInputDialog(null, "Bank or drop?", "Gathering", JOptionPane.PLAIN_MESSAGE, null, bankingUserOptions, bankingUserOptions[0]);
+            String bankingUserChoice = (String) JOptionPane.showInputDialog(null, "Bank or drop?", "TMKCodes/Gathering", JOptionPane.PLAIN_MESSAGE, null, bankingUserOptions, bankingUserOptions[0]);
             if(bankingUserChoice.equals("Drop")) {
                 taskList.add(new Drop(ctx, "wood"));
                 taskList.add(new Woodcut(ctx, cuttingUserChoice));
@@ -66,7 +77,7 @@ public class Gathering extends PollingScript<ClientContext> implements PaintList
                 } else {
                     ctx.controller.stop();
                 }
-                String locationUserChoice = (String) JOptionPane.showInputDialog(null, "Where to cut?", "Gathering", JOptionPane.PLAIN_MESSAGE, null, locationUserOptions.toArray(), locationUserOptions.get(0));
+                String locationUserChoice = (String) JOptionPane.showInputDialog(null, "Where to cut?", "TMKCodes/Gathering", JOptionPane.PLAIN_MESSAGE, null, locationUserOptions.toArray(), locationUserOptions.get(0));
                 taskList.add(new Bank(ctx, skillChoice));
                 taskList.add(new Walk(ctx, locationUserChoice + " " + cuttingUserChoice));
                 taskList.add(new Woodcut(ctx, cuttingUserChoice));
@@ -74,9 +85,9 @@ public class Gathering extends PollingScript<ClientContext> implements PaintList
             startExp = ctx.skills.experience(Constants.SKILLS_WOODCUTTING);
         } else if(this.skillChoice.equals("Mining")) {
             String miningUserOptions[] = {"Clay", "Copper", "Tin", "Iron", "Silver", "Coal", "Gold", "Mithril", "Adamantite", "Runite"}; // 1278
-            String miningUserChoice = (String) JOptionPane.showInputDialog(null, "What to mine?", "Gathering", JOptionPane.PLAIN_MESSAGE, null, miningUserOptions, miningUserOptions[0]);
+            String miningUserChoice = (String) JOptionPane.showInputDialog(null, "What to mine?", "TMKCodes/Gathering", JOptionPane.PLAIN_MESSAGE, null, miningUserOptions, miningUserOptions[0]);
             String bankingUserOptions[] = {"Bank", "Drop"};
-            String bankingUserChoice = (String) JOptionPane.showInputDialog(null, "Bank or drop?", "Gathering", JOptionPane.PLAIN_MESSAGE, null, bankingUserOptions, bankingUserOptions[0]);
+            String bankingUserChoice = (String) JOptionPane.showInputDialog(null, "Bank or drop?", "TMKCodes/Gathering", JOptionPane.PLAIN_MESSAGE, null, bankingUserOptions, bankingUserOptions[0]);
             if(bankingUserChoice.equals("Drop")) {
                 taskList.add(new Drop(ctx, "ore"));
                 taskList.add(new Mine(ctx, miningUserChoice));
@@ -96,7 +107,7 @@ public class Gathering extends PollingScript<ClientContext> implements PaintList
                 } else {
                     ctx.controller.stop();
                 }
-                String locationUserChoice = (String) JOptionPane.showInputDialog(null, "Where to mine?", "Gathering", JOptionPane.PLAIN_MESSAGE, null, locationUserOptions.toArray(), locationUserOptions.get(0));
+                String locationUserChoice = (String) JOptionPane.showInputDialog(null, "Where to mine?", "TMKCodes/Gathering", JOptionPane.PLAIN_MESSAGE, null, locationUserOptions.toArray(), locationUserOptions.get(0));
                 taskList.add(new Bank(ctx, skillChoice));
                 taskList.add(new Walk(ctx, locationUserChoice + " Mine"));
                 taskList.add(new Mine(ctx, miningUserChoice));
@@ -133,6 +144,8 @@ public class Gathering extends PollingScript<ClientContext> implements PaintList
         int expGained = 0;
         if(this.skillChoice.equals("Fishing")) {
             expGained = ctx.skills.experience(Constants.SKILLS_FISHING) - startExp;
+        } else if(this.skillChoice.equals("Cooking")) {
+            expGained = ctx.skills.experience(Constants.SKILLS_COOKING) - startExp;
         } else if(this.skillChoice.equals("Woodcutting")) {
             expGained = ctx.skills.experience(Constants.SKILLS_WOODCUTTING) - startExp;
         } else if(this.skillChoice.equals("Mining")) {
@@ -153,10 +166,14 @@ public class Gathering extends PollingScript<ClientContext> implements PaintList
         g.setColor(new Color(255, 255, 255));
         g.drawRect(0, 0, 150, 130);
 
-        g.drawString("Gathering", 20, 20);
+        g.drawString("TMKCodes/Gathering", 20, 20);
         g.drawString("Running: " + String.format("%02d:%02d:%02d", hours, minutes, seconds), 20, 40);
         if(this.skillChoice.equals("Fishing")) {
             g.drawString("Xp to next lvl: " + (ctx.skills.experienceAt(ctx.skills.level(Constants.SKILLS_FISHING) + 1) - ctx.skills.experience(Constants.SKILLS_FISHING)), 20, 60);
+            g.drawString("Exp/hour: " + (int) xphour, 20, 80);
+            g.drawString("ExpGained: " + expGained, 20, 100);
+        } else if(this.skillChoice.equals("Cooking")) {
+            g.drawString("Xp to next lvl: " + (ctx.skills.experienceAt(ctx.skills.level(Constants.SKILLS_COOKING) + 1) - ctx.skills.experience(Constants.SKILLS_COOKING)), 20, 60);
             g.drawString("Exp/hour: " + (int) xphour, 20, 80);
             g.drawString("ExpGained: " + expGained, 20, 100);
         } else if(this.skillChoice.equals("Woodcutting")) {

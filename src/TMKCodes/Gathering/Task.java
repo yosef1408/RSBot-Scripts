@@ -1,4 +1,4 @@
-package Gathering;
+package TMKCodes.Gathering;
 
 import org.powerbot.script.rt4.ClientAccessor;
 import org.powerbot.script.rt4.ClientContext;

@@ -1,26 +1,37 @@
-package Gathering.Tasks;
+package TMKCodes.Gathering.Tasks;
 
-import Gathering.Task;
-import Gathering.Walker;
+import TMKCodes.Gathering.Task;
+import TMKCodes.Gathering.Walker;
 import org.powerbot.script.Tile;
 import org.powerbot.script.rt4.ClientContext;
 
 public class Walk extends Task {
 
-    public final static Tile[] musaPoint = {new Tile(2925, 3179, 0), new Tile(2925, 3175, 0), new Tile(2925, 3171, 0), new Tile(2923, 3167, 0), new Tile(2923, 3163, 0), new Tile(2920, 3160, 0), new Tile(2917, 3157, 0), new Tile(2916, 3153, 0), new Tile(2920, 3153, 0), new Tile(2924, 3152, 0), new Tile(2928, 3152, 0), new Tile(2932, 3151, 0), new Tile(2937, 3147, 0), new Tile(2941, 3146, 0), new Tile(2945, 3146, 0), new Tile(2949, 3146, 0), new Tile(2953, 3146, 0), new Tile(6656, 6784, 0), new Tile(3032, 3217, 1), new Tile(3029, 3217, 0), new Tile(3027, 3221, 0), new Tile(3027, 3225, 0), new Tile(3027, 3229, 0), new Tile(3027, 3233, 0), new Tile(3030, 3236, 0), new Tile(3034, 3236, 0), new Tile(3038, 3236, 0), new Tile(3042, 3236, 0), new Tile(3046, 3235, 0)};
 
-    public static final Tile[] draynorWillow = {new Tile(3092, 3242, 0), new Tile(3092, 3246, 0), new Tile(3088, 3247, 0), new Tile(3087, 3243, 0), new Tile(3087, 3239, 0), new Tile(3087, 3235, 0)};
-    public static final Tile[] edgeVilleYew = {new Tile(3094, 3491, 0), new Tile(3090, 3490, 0), new Tile(3090, 3486, 0), new Tile(3093, 3483, 0), new Tile(3093, 3478, 0), new Tile(3094, 3474, 0), new Tile(3092, 3470, 0), new Tile(3089, 3473, 0), new Tile(3087, 3477, 0)};
-    public static final Tile[] lumbridgeOak = {new Tile(3209, 3220, 2), new Tile(3206, 3217, 2), new Tile(3206, 3213, 2), new Tile(3205, 3209, 2), new Tile(3206, 3208, 1), new Tile(3206, 3208, 0), new Tile(3210, 3209, 0), new Tile(3214, 3210, 0), new Tile(3215, 3214, 0), new Tile(3215, 3218, 0), new Tile(3219, 3218, 0), new Tile(3221, 3214, 0), new Tile(3220, 3210, 0), new Tile(3217, 3207, 0)};
-    public static final Tile[] lumbridgeNormal = {new Tile(3209, 3220, 2), new Tile(3206, 3217, 2), new Tile(3206, 3213, 2), new Tile(3205, 3209, 2), new Tile(3206, 3208, 1), new Tile(3206, 3208, 0), new Tile(3208, 3212, 0), new Tile(3204, 3214, 0), new Tile(3202, 3218, 0), new Tile(3198, 3218, 0), new Tile(3194, 3216, 0), new Tile(3190, 3216, 0), new Tile(3186, 3216, 0), new Tile(3182, 3216, 0), new Tile(3178, 3215, 0), new Tile(3174, 3215, 0), new Tile(3169, 3218, 0), new Tile(3165, 3218, 0), new Tile(3161, 3218, 0), new Tile(3159, 3222, 0), new Tile(3154, 3223, 0), new Tile(3150, 3222, 0)};
+    private int fishes[] = { 317, 327, 331, 345, 321, 335, 341, 349, 353, 359, 363, 371, 377, 383, 389, 5001, 3379, 7944, 10138, 11328, 11330 };
 
-    public static final Tile[] lumbridgeEastMine = {new Tile(3208, 3220, 2), new Tile(3206, 3216, 2), new Tile(3206, 3212, 2), new Tile(3206, 3208, 1), new Tile(3206, 3208, 0), new Tile(3210, 3209, 0), new Tile(3214, 3210, 0), new Tile(3215, 3215, 0), new Tile(3218, 3218, 0), new Tile(3222, 3218, 0), new Tile(3227, 3218, 0), new Tile(3231, 3218, 0), new Tile(3232, 3214, 0), new Tile(3234, 3210, 0), new Tile(3235, 3204, 0), new Tile(3239, 3202, 0), new Tile(3241, 3197, 0), new Tile(3243, 3193, 0), new Tile(3244, 3189, 0), new Tile(3242, 3185, 0), new Tile(3242, 3180, 0), new Tile(3241, 3176, 0), new Tile(3238, 3171, 0), new Tile(3238, 3167, 0), new Tile(3238, 3163, 0), new Tile(3238, 3159, 0), new Tile(3236, 3155, 0), new Tile(3233, 3151, 0), new Tile(3229, 3149, 0), new Tile(3226, 3146, 0)};
-    public static final Tile[] varrockMine = {new Tile(3285, 3365, 0), new Tile(3284, 3370, 0), new Tile(3287, 3374, 0), new Tile(3290, 3377, 0), new Tile(3290, 3381, 0), new Tile(3290, 3385, 0), new Tile(3290, 3389, 0), new Tile(3290, 3394, 0), new Tile(3290, 3398, 0), new Tile(3290, 3403, 0), new Tile(3288, 3409, 0), new Tile(3284, 3413, 0), new Tile(3281, 3417, 0), new Tile(3279, 3421, 0), new Tile(3276, 3424, 0), new Tile(3272, 3426, 0), new Tile(3267, 3427, 0), new Tile(3262, 3427, 0), new Tile(3258, 3428, 0), new Tile(3254, 3425, 0), new Tile(3252, 3421, 0)};
-    public static final Tile[] faladorMine = {new Tile(3012, 3355, 0), new Tile(3013, 3359, 0), new Tile(3017, 3359, 0), new Tile(3021, 3359, 0), new Tile(3025, 3359, 0), new Tile(3030, 3359, 0), new Tile(3034, 3360, 0), new Tile(3038, 3360, 0), new Tile(3042, 3360, 0), new Tile(3047, 3360, 0), new Tile(3052, 3361, 0), new Tile(3057, 3364, 0), new Tile(3060, 3367, 0), new Tile(3060, 3371, 0), new Tile(3061, 3376, 0), new Tile(3058, 9776, 0), new Tile(3054, 9776, 0), new Tile(3050, 9775, 0), new Tile(3046, 9776, 0)};
-    public static final Tile[] barbarianVillageMine = {new Tile(3185, 3436, 0), new Tile(3182, 3432, 0), new Tile(3178, 3432, 0), new Tile(3174, 3431, 0), new Tile(3169, 3429, 0), new Tile(3165, 3426, 0), new Tile(3161, 3424, 0), new Tile(3157, 3424, 0), new Tile(3154, 3421, 0), new Tile(3150, 3419, 0), new Tile(3146, 3418, 0), new Tile(3142, 3417, 0), new Tile(3138, 3417, 0), new Tile(3134, 3417, 0), new Tile(3130, 3417, 0), new Tile(3126, 3417, 0), new Tile(3122, 3418, 0), new Tile(3118, 3419, 0), new Tile(3114, 3420, 0), new Tile(3110, 3420, 0), new Tile(3105, 3420, 0), new Tile(3101, 3421, 0), new Tile(3096, 3421, 0), new Tile(3092, 3420, 0), new Tile(3088, 3420, 0), new Tile(3084, 3422, 0), new Tile(3080, 3423, 0)};
+    // Fishing
+    private Tile[] musaPoint = {new Tile(2925, 3179, 0), new Tile(2925, 3175, 0), new Tile(2925, 3171, 0), new Tile(2923, 3167, 0), new Tile(2923, 3163, 0), new Tile(2920, 3160, 0), new Tile(2917, 3157, 0), new Tile(2916, 3153, 0), new Tile(2920, 3153, 0), new Tile(2924, 3152, 0), new Tile(2928, 3152, 0), new Tile(2932, 3151, 0), new Tile(2937, 3147, 0), new Tile(2941, 3146, 0), new Tile(2945, 3146, 0), new Tile(2949, 3146, 0), new Tile(2953, 3146, 0), new Tile(6656, 6784, 0), new Tile(3032, 3217, 1), new Tile(3029, 3217, 0), new Tile(3027, 3221, 0), new Tile(3027, 3225, 0), new Tile(3027, 3229, 0), new Tile(3027, 3233, 0), new Tile(3030, 3236, 0), new Tile(3034, 3236, 0), new Tile(3038, 3236, 0), new Tile(3042, 3236, 0), new Tile(3046, 3235, 0)};
+    private Tile[] lumbridgeSwamp = {new Tile(3208, 3220, 2), new Tile(3206, 3216, 2), new Tile(3206, 3211, 2), new Tile(3206, 3208, 1), new Tile(3206, 3208, 0), new Tile(3210, 3209, 0), new Tile(3214, 3210, 0), new Tile(3215, 3214, 0), new Tile(3215, 3218, 0), new Tile(3219, 3219, 0), new Tile(3223, 3219, 0), new Tile(3227, 3219, 0), new Tile(3231, 3219, 0), new Tile(3232, 3215, 0), new Tile(3233, 3211, 0), new Tile(3234, 3206, 0), new Tile(3237, 3202, 0), new Tile(3239, 3198, 0), new Tile(3241, 3194, 0), new Tile(3244, 3191, 0), new Tile(3244, 3187, 0), new Tile(3244, 3183, 0), new Tile(3243, 3179, 0), new Tile(3243, 3175, 0), new Tile(3243, 3171, 0), new Tile(3240, 3168, 0), new Tile(3240, 3164, 0), new Tile(3241, 3160, 0), new Tile(3244, 3157, 0), new Tile(3244, 3153, 0)};
+
+    // Cooking
+    private Tile[] alKharidRange = {new Tile(3269, 3167, 0), new Tile(3273, 3167, 0), new Tile(3275, 3171, 0), new Tile(3275, 3175, 0), new Tile(3277, 3180, 0), new Tile(3273, 3180, 0)};
 
 
-    private final Walker walker = new Walker(ctx);
+    // Woodcutting
+    private Tile[] draynorWillow = {new Tile(3092, 3242, 0), new Tile(3092, 3246, 0), new Tile(3088, 3247, 0), new Tile(3087, 3243, 0), new Tile(3087, 3239, 0), new Tile(3087, 3235, 0)};
+    private Tile[] edgeVilleYew = {new Tile(3094, 3491, 0), new Tile(3090, 3490, 0), new Tile(3090, 3486, 0), new Tile(3093, 3483, 0), new Tile(3093, 3478, 0), new Tile(3094, 3474, 0), new Tile(3092, 3470, 0), new Tile(3089, 3473, 0), new Tile(3087, 3477, 0)};
+    private Tile[] lumbridgeOak = {new Tile(3209, 3220, 2), new Tile(3206, 3217, 2), new Tile(3206, 3213, 2), new Tile(3205, 3209, 2), new Tile(3206, 3208, 1), new Tile(3206, 3208, 0), new Tile(3210, 3209, 0), new Tile(3214, 3210, 0), new Tile(3215, 3214, 0), new Tile(3215, 3218, 0), new Tile(3219, 3218, 0), new Tile(3221, 3214, 0), new Tile(3220, 3210, 0), new Tile(3217, 3207, 0)};
+    private Tile[] lumbridgeNormal = {new Tile(3209, 3220, 2), new Tile(3206, 3217, 2), new Tile(3206, 3213, 2), new Tile(3205, 3209, 2), new Tile(3206, 3208, 1), new Tile(3206, 3208, 0), new Tile(3208, 3212, 0), new Tile(3204, 3214, 0), new Tile(3202, 3218, 0), new Tile(3198, 3218, 0), new Tile(3194, 3216, 0), new Tile(3190, 3216, 0), new Tile(3186, 3216, 0), new Tile(3182, 3216, 0), new Tile(3178, 3215, 0), new Tile(3174, 3215, 0), new Tile(3169, 3218, 0), new Tile(3165, 3218, 0), new Tile(3161, 3218, 0), new Tile(3159, 3222, 0), new Tile(3154, 3223, 0), new Tile(3150, 3222, 0)};
+
+    // Mining
+    private Tile[] lumbridgeEastMine = {new Tile(3208, 3220, 2), new Tile(3206, 3216, 2), new Tile(3206, 3212, 2), new Tile(3206, 3208, 1), new Tile(3206, 3208, 0), new Tile(3210, 3209, 0), new Tile(3214, 3210, 0), new Tile(3215, 3215, 0), new Tile(3218, 3218, 0), new Tile(3222, 3218, 0), new Tile(3227, 3218, 0), new Tile(3231, 3218, 0), new Tile(3232, 3214, 0), new Tile(3234, 3210, 0), new Tile(3235, 3204, 0), new Tile(3239, 3202, 0), new Tile(3241, 3197, 0), new Tile(3243, 3193, 0), new Tile(3244, 3189, 0), new Tile(3242, 3185, 0), new Tile(3242, 3180, 0), new Tile(3241, 3176, 0), new Tile(3238, 3171, 0), new Tile(3238, 3167, 0), new Tile(3238, 3163, 0), new Tile(3238, 3159, 0), new Tile(3236, 3155, 0), new Tile(3233, 3151, 0), new Tile(3229, 3149, 0), new Tile(3226, 3146, 0)};
+    private Tile[] varrockMine = {new Tile(3285, 3365, 0), new Tile(3284, 3370, 0), new Tile(3287, 3374, 0), new Tile(3290, 3377, 0), new Tile(3290, 3381, 0), new Tile(3290, 3385, 0), new Tile(3290, 3389, 0), new Tile(3290, 3394, 0), new Tile(3290, 3398, 0), new Tile(3290, 3403, 0), new Tile(3288, 3409, 0), new Tile(3284, 3413, 0), new Tile(3281, 3417, 0), new Tile(3279, 3421, 0), new Tile(3276, 3424, 0), new Tile(3272, 3426, 0), new Tile(3267, 3427, 0), new Tile(3262, 3427, 0), new Tile(3258, 3428, 0), new Tile(3254, 3425, 0), new Tile(3252, 3421, 0)};
+    private Tile[] faladorMine = {new Tile(3012, 3355, 0), new Tile(3013, 3359, 0), new Tile(3017, 3359, 0), new Tile(3021, 3359, 0), new Tile(3025, 3359, 0), new Tile(3030, 3359, 0), new Tile(3034, 3360, 0), new Tile(3038, 3360, 0), new Tile(3042, 3360, 0), new Tile(3047, 3360, 0), new Tile(3052, 3361, 0), new Tile(3057, 3364, 0), new Tile(3060, 3367, 0), new Tile(3060, 3371, 0), new Tile(3061, 3376, 0), new Tile(3058, 9776, 0), new Tile(3054, 9776, 0), new Tile(3050, 9775, 0), new Tile(3046, 9776, 0)};
+    private Tile[] barbarianVillageMine = {new Tile(3185, 3436, 0), new Tile(3182, 3432, 0), new Tile(3178, 3432, 0), new Tile(3174, 3431, 0), new Tile(3169, 3429, 0), new Tile(3165, 3426, 0), new Tile(3161, 3424, 0), new Tile(3157, 3424, 0), new Tile(3154, 3421, 0), new Tile(3150, 3419, 0), new Tile(3146, 3418, 0), new Tile(3142, 3417, 0), new Tile(3138, 3417, 0), new Tile(3134, 3417, 0), new Tile(3130, 3417, 0), new Tile(3126, 3417, 0), new Tile(3122, 3418, 0), new Tile(3118, 3419, 0), new Tile(3114, 3420, 0), new Tile(3110, 3420, 0), new Tile(3105, 3420, 0), new Tile(3101, 3421, 0), new Tile(3096, 3421, 0), new Tile(3092, 3420, 0), new Tile(3088, 3420, 0), new Tile(3084, 3422, 0), new Tile(3080, 3423, 0)};
+
+
+    private Walker walker = new Walker(ctx);
     private String location;
 
     public Walk(ClientContext ctx, String location) {
@@ -33,6 +44,10 @@ public class Walk extends Task {
         System.out.println("Walking");
         if(location.equals("Musa point")) {
             return ctx.inventory.select().count() == 28 || (ctx.inventory.select().count() <= 2 && musaPoint[0].distanceTo(ctx.players.local()) > 5);
+        } else if(location.equals("Lumbridge Swamp")) {
+            return ctx.inventory.select().count() == 28 || (ctx.inventory.select().count() <= 1 && lumbridgeSwamp[lumbridgeSwamp.length - 1].distanceTo(ctx.players.local()) > 5);
+        } else if(location.equals("Al Kharid Range")) {
+            return ctx.inventory.select().id(fishes).count() == 0 || (ctx.inventory.select().count() >= 1 && alKharidRange[alKharidRange.length - 1].distanceTo(ctx.players.local()) > 5);
         } else if(location.equals("Draynor")) {
             return ctx.inventory.select().count() == 28 || (ctx.inventory.select().count() < 1 && draynorWillow[draynorWillow.length - 1].distanceTo(ctx.players.local()) > 5);
         } else if(location.equals("Edgeville")) {
@@ -61,6 +76,21 @@ public class Walk extends Task {
                     walker.walkPath(musaPoint);
                 } else {
                     walker.walkPathReverse(musaPoint);
+                }
+            } else if(location.equals("Lumbridge Swamp")) {
+                if(ctx.inventory.select().count() == 28) {
+
+                    walker.walkPathReverse(lumbridgeSwamp);
+                } else {
+                    walker.walkPath(lumbridgeSwamp);
+                }
+            } else if(location.equals("Al Kharid Range")) {
+                if(ctx.inventory.select().id(fishes).count() == 28) {
+                    System.out.println("Walk to range");
+                    walker.walkPath(alKharidRange);
+                } else {
+                    System.out.println("Walk to bank");
+                    walker.walkPathReverse(alKharidRange);
                 }
             } else if(location.equals("Draynor Willow")) {
                 if(ctx.inventory.select().count() == 28) {

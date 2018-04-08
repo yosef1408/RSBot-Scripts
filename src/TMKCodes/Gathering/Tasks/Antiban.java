@@ -1,18 +1,16 @@
-package Gathering.Tasks;
+package TMKCodes.Gathering.Tasks;
 
-import Gathering.Task;
+import TMKCodes.Gathering.Task;
 import org.powerbot.script.rt4.ClientContext;
 import org.powerbot.script.rt4.Game;
 import org.powerbot.script.rt4.Player;
 import org.powerbot.script.rt4.PlayerQuery;
-
-import java.util.Random;
+import org.powerbot.script.Random;
 
 public class Antiban extends Task {
-    Random rand;
+
     public Antiban(ClientContext ctx) {
         super(ctx);
-        rand = new Random();
     }
 
     @Override
@@ -22,25 +20,26 @@ public class Antiban extends Task {
 
     @Override
     public void execute() {
-         int antiban = rand.nextInt(1000) + 1;
-         if(antiban > 0 && antiban <= 5) { // open skills and check fishing skill
+        System.out.println("Antiban");
+        int antiban = Random.nextInt(1000, 1);
+        if(antiban > 0 && antiban <= 5) { // open skills and check fishing skill
 
-         } else if(antiban > 5 && antiban <= 50) {
-             rotateScreen();
-         } else if(antiban > 50 && antiban <= 55) {
-             checkPlayer();
-         } else if(antiban > 65 && antiban <= 70) {
-             try {
-                 checkTab();
-             } catch (InterruptedException e) {
-                 e.printStackTrace();
-             }
-         }
+        } else if(antiban > 5 && antiban <= 50) {
+            rotateScreen();
+        } else if(antiban > 50 && antiban <= 55) {
+            checkPlayer();
+        } else if(antiban > 65 && antiban <= 70) {
+            try {
+             checkTab();
+            } catch (InterruptedException e) {
+             e.printStackTrace();
+            }
+        }
     }
 
     private void checkTab() throws InterruptedException {
         Game.Tab ctab = ctx.game.tab();
-        int itab = rand.nextInt(13) + 1;
+        int itab = Random.nextInt(13, 1);
         switch(itab) {
             case 1:
                 ctx.game.tab(Game.Tab.ATTACK);
@@ -82,21 +81,21 @@ public class Antiban extends Task {
                 //ctx.game.tab(Game.Tab.EMOTES);
                 break;
         }
-        Thread.sleep(rand.nextInt(2000) + 1000);
-        if(rand.nextInt(2) + 1 == 1) {
+        Thread.sleep(Random.nextInt(2400, 600));
+        if(Random.nextInt(2, 1) == 1) {
             ctx.game.tab(ctab);
         }
     }
 
     private void rotateScreen() {
-        ctx.camera.pitch(ctx.camera.pitch() + rand.nextInt(40) + 1);
-        ctx.camera.angle(ctx.camera.yaw() + rand.nextInt(83) + 1);
+        ctx.camera.pitch(ctx.camera.pitch() + Random.nextInt(40, 1));
+        ctx.camera.angle(ctx.camera.yaw() + Random.nextInt(83, 1));
     }
 
     private void checkPlayer() {
         if(ctx.players.local().interacting() != null) {
             PlayerQuery<Player> players = ctx.players.select().within(10);
-            int whatPlayer = rand.nextInt(players.size()) + 0;
+            int whatPlayer = Random.nextInt(players.size(), 0);
             int i = 0;
             for (Player player : players) {
                 if (i == whatPlayer) {

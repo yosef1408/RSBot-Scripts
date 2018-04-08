@@ -1,19 +1,17 @@
-package Gathering.Tasks;
+package TMKCodes.Gathering.Tasks;
 
-import Gathering.Task;
+import TMKCodes.Gathering.Task;
 import org.powerbot.script.Condition;
 import org.powerbot.script.Tile;
 import org.powerbot.script.rt4.ClientContext;
 import org.powerbot.script.rt4.GameObject;
-
+import org.powerbot.script.Random;
 import java.util.ArrayList;
-import java.util.Random;
 import java.util.concurrent.Callable;
 
 public class Mine extends Task {
 
-    ArrayList<Integer> ores = new ArrayList<Integer>();
-    private Random rand = new Random();
+    private ArrayList<Integer> ores = new ArrayList<Integer>();
     private Tile rockTile = Tile.NIL;
     private int rockId = 0;
 
@@ -51,7 +49,7 @@ public class Mine extends Task {
     @Override
     public boolean activate() {
         System.out.println("Mining");
-        return ctx.players.local().animation() == -1 && ctx.inventory.select().count() < 28;
+        return ctx.players.local().animation() == -1 && ctx.inventory.select().count() < 28 && ctx.players.local().inCombat() == false;
 
     }
 
@@ -64,7 +62,7 @@ public class Mine extends Task {
                     rockId = ore.id();
                     if(!ore.inViewport()) {
                         ctx.camera.turnTo(ore);
-                        ctx.camera.pitch(rand.nextInt(100) +  60);
+                        ctx.camera.pitch(Random.nextInt(100, 60));
                     }
                     ore.interact("Mine", "Rocks");
                     Condition.wait(new Callable<Boolean>() {
@@ -76,7 +74,7 @@ public class Mine extends Task {
                             }
                             return ctx.players.local().animation() != -1;
                         }
-                    }, rand.nextInt(350) + 250, rand.nextInt(25) + 15);
+                    }, Random.nextInt(120, 60), Random.nextInt(20, 10));
                     if (ctx.players.local().animation() != -1) {
                         break;
                     }
