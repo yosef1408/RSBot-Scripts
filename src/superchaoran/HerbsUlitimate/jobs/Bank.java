@@ -13,9 +13,6 @@ import superchaoran.HerbsUlitimate.utils.ImprovedBank;
 
 import java.util.ArrayList;
 import java.util.concurrent.Callable;
-
-import static com.sun.org.apache.xalan.internal.xsltc.compiler.util.Type.Int;
-
 public class Bank extends Job<HerbsUltimateMain, ClientContext> {
 
     private ImprovedBank improvedBank;

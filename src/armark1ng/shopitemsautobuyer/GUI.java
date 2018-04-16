@@ -55,7 +55,7 @@ public class GUI extends JFrame {
 	private JPanel generalPanel;
 	private JCheckBox hopWorldsCheckBox;
 	private JPanel instructionsPanel;
-	private JList<RegisteredItem> itemsList;
+	private JList itemsList;
 	private JPanel itemsPanel;
 	private JLabel jLabel1;
 	private JLabel jLabel2;
@@ -75,7 +75,7 @@ public class GUI extends JFrame {
 	private JLabel npcIdLable;
 	private JFormattedTextField npcIdText;
 	private JButton removeItemButton;
-	private JComboBox<String> shopsBox;
+	private JComboBox shopsBox;
 	private JPanel shopsPanel;
 	private JButton startButton;
 	private JButton DeselectAll;
@@ -83,7 +83,7 @@ public class GUI extends JFrame {
 	private JFormattedTextField worldHoppingDelay;
 	private JFormattedTextField worldHoppingFrequancy;
 	private JPanel worldHoppingSettings;
-	private JList<CheckboxListItem> worldsList;
+	private JList worldsList;
 	private JPanel worldsSelectPanel;
 	private CheckboxListItem[] worldListCheckBoxes;
 	private AddItemFrame addItemFrame;
@@ -98,7 +98,7 @@ public class GUI extends JFrame {
 		jTabbedPane1 = new JTabbedPane();
 		generalPanel = new JPanel();
 		shopsPanel = new JPanel();
-		shopsBox = new JComboBox<>();
+		shopsBox = new JComboBox();
 		jLabel1 = new JLabel();
 		npcIdLable = new JLabel();
 		itemsPanel = new JPanel();
@@ -151,7 +151,7 @@ public class GUI extends JFrame {
 		shopsPanel.setBorder(BorderFactory.createTitledBorder("Shop"));
 		shopsPanel.setPreferredSize(new Dimension(300, 120));
 
-		shopsBox.setModel(new DefaultComboBoxModel<>(
+		shopsBox.setModel(new DefaultComboBoxModel(
 				new String[] { "Baba Yaga's Store(Lunar)", "Magic Guild Store(Yanil)", "Custom" }));
 		shopsBox.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent evt) {
@@ -203,8 +203,8 @@ public class GUI extends JFrame {
 			}
 		});
 
-		itemsList = new JList<RegisteredItem>();
-		DefaultListModel<RegisteredItem> itemsListModel = new DefaultListModel<RegisteredItem>();
+		itemsList = new JList();
+		DefaultListModel itemsListModel = new DefaultListModel();
 		itemsList.setModel(itemsListModel);
 
 		jScrollPane1.setViewportView(itemsList);
@@ -379,7 +379,7 @@ public class GUI extends JFrame {
 										GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))));
 
 		worldsSelectPanel.setBorder(BorderFactory.createTitledBorder("Worlds Select"));
-		worldsList = new JList<CheckboxListItem>(worldListCheckBoxes);
+		worldsList = new JList(worldListCheckBoxes);
 
 		worldsList.setCellRenderer(new CheckboxListRenderer());
 		worldsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -502,7 +502,7 @@ public class GUI extends JFrame {
 		getContentPane().add(jTabbedPane1, BorderLayout.CENTER);
 
 		pack();
-		DefaultComboBoxModel<String> model = (DefaultComboBoxModel<String>) shopsBox.getModel();
+		DefaultComboBoxModel model = (DefaultComboBoxModel) shopsBox.getModel();
 		String selectedItem = (String) model.getElementAt(shopsBox.getSelectedIndex());
 		if (!selectedItem.equalsIgnoreCase("custom")) {
 			shopsPanel.remove(npcIdLable);
@@ -514,14 +514,14 @@ public class GUI extends JFrame {
 	}
 
 	private void startButtonActionPerformed(ActionEvent evt) {
-		DefaultComboBoxModel<String> shopsBoxModel = (DefaultComboBoxModel<String>) shopsBox.getModel();
-		DefaultListModel<RegisteredItem> itemsListModel = (DefaultListModel<RegisteredItem>) itemsList.getModel();
+		DefaultComboBoxModel shopsBoxModel = (DefaultComboBoxModel) shopsBox.getModel();
+		DefaultListModel itemsListModel = (DefaultListModel) itemsList.getModel();
 		List<RegisteredItem> itemsToBuy = new ArrayList<RegisteredItem>();
 		List<Integer> restrictedWorlds = new ArrayList<Integer>();
 		String selectedItem = (String) shopsBoxModel.getElementAt(shopsBox.getSelectedIndex());
-		int npcId = (int) npcIdText.getValue();
-		int worldHopDelay = (int) worldHoppingDelay.getValue();
-		int worldHopFrequancy = (int) worldHoppingFrequancy.getValue();
+		int npcId = (Integer) npcIdText.getValue();
+		int worldHopDelay = (Integer) worldHoppingDelay.getValue();
+		int worldHopFrequancy = (Integer) worldHoppingFrequancy.getValue();
 		if (npcId == 0 && selectedItem.equalsIgnoreCase("custom")) {
 			JOptionPane.showMessageDialog(getContentPane(), "You cant leave the npcId field 0 when using custom shop.",
 					"Error", JOptionPane.ERROR_MESSAGE);
@@ -548,8 +548,8 @@ public class GUI extends JFrame {
 					JOptionPane.ERROR_MESSAGE);
 			return;
 		}
-		for (RegisteredItem item : Collections.list(itemsListModel.elements())) {
-			itemsToBuy.add(item);
+		for (Object item : Collections.list(itemsListModel.elements())) {
+			itemsToBuy.add((RegisteredItem) item);
 		}
 		for (int always : ShopItemsAutoBuyer.ALWAYS_RESTRICTED)
 			restrictedWorlds.add(always);
@@ -582,7 +582,7 @@ public class GUI extends JFrame {
 	}
 
 	private void removeItemButtonActionPerformed(ActionEvent evt) {
-		DefaultListModel<RegisteredItem> model = (DefaultListModel<RegisteredItem>) itemsList.getModel();
+		DefaultListModel model = (DefaultListModel) itemsList.getModel();
 		if (model.isEmpty()) {
 			JOptionPane.showMessageDialog(getContentPane(), "Your items to buy list is empty.", "Error",
 					JOptionPane.ERROR_MESSAGE);
@@ -630,7 +630,7 @@ public class GUI extends JFrame {
 	}
 
 	private void shopsBoxItemStateChanged(ItemEvent evt) {
-		DefaultComboBoxModel<String> model = (DefaultComboBoxModel<String>) shopsBox.getModel();
+		DefaultComboBoxModel model = (DefaultComboBoxModel) shopsBox.getModel();
 		String selectedItem = (String) model.getElementAt(shopsBox.getSelectedIndex());
 		if (selectedItem.equalsIgnoreCase("custom")) {
 			shopsPanel.add(npcIdLable);
@@ -668,15 +668,15 @@ public class GUI extends JFrame {
 		}
 	}
 
-	public class CheckboxListRenderer extends JCheckBox implements ListCellRenderer<CheckboxListItem> {
+	public class CheckboxListRenderer extends JCheckBox implements ListCellRenderer {
 
 		private static final long serialVersionUID = 2610317938592506544L;
 
 		@Override
-		public Component getListCellRendererComponent(JList<? extends CheckboxListItem> list, CheckboxListItem value,
+		public Component getListCellRendererComponent(JList list, Object value,
 				int index, boolean isSelected, boolean cellHasFocus) {
 			setEnabled(list.isEnabled());
-			setSelected(value.isSelected());
+			setSelected(((JCheckBox) value).isSelected());
 			setFont(list.getFont());
 			setToolTipText(value.toString());
 			setBackground(list.getBackground());
@@ -698,7 +698,7 @@ public class GUI extends JFrame {
 		private static final long serialVersionUID = 1L;
 		private JButton ItemFrameAddItemButton;
 		private JButton ItemFrameCancelButton;
-		private JComboBox<String> ItemTypeComboBox;
+		private JComboBox ItemTypeComboBox;
 		private JLabel jLabel1;
 		private JLabel jLabel2;
 		private JLabel jLabel3;
@@ -737,7 +737,7 @@ public class GUI extends JFrame {
 			jLabel1 = new JLabel();
 			jLabel2 = new JLabel();
 			jLabel3 = new JLabel();
-			ItemTypeComboBox = new JComboBox<>();
+			ItemTypeComboBox = new JComboBox();
 			jLabel4 = new JLabel();
 			jLabel5 = new JLabel();
 			NumberFormatter formatter = new NumberFormatter(NumberFormat.getInstance());
@@ -775,7 +775,7 @@ public class GUI extends JFrame {
 			jLabel2.setToolTipText("The minimum amount you want to keep in shop.");
 			jLabel3.setText("Price At Min Amount:");
 			jLabel3.setToolTipText("Price of the item at the min amount.");
-			ItemTypeComboBox.setModel(new DefaultComboBoxModel<>(new String[] { "Stackable", "Unstackable", "Pack" }));
+			ItemTypeComboBox.setModel(new DefaultComboBoxModel(new String[] { "Stackable", "Unstackable", "Pack" }));
 			ItemTypeComboBox.setToolTipText("Select the type of the item you want to buy.");
 			ItemTypeComboBox.addItemListener(new ItemListener() {
 				public void itemStateChanged(ItemEvent evt) {
@@ -866,7 +866,7 @@ public class GUI extends JFrame {
 			setResizable(false);
 			getContentPane().add(jPanel1, BorderLayout.CENTER);
 			pack();
-			DefaultComboBoxModel<String> model = (DefaultComboBoxModel<String>) ItemTypeComboBox.getModel();
+			DefaultComboBoxModel model = (DefaultComboBoxModel) ItemTypeComboBox.getModel();
 			String selectedItem = (String) model.getElementAt(ItemTypeComboBox.getSelectedIndex());
 			if (!selectedItem.equalsIgnoreCase("pack")) {
 				jPanel1.remove(jLabel5);
@@ -877,12 +877,12 @@ public class GUI extends JFrame {
 		}
 
 		private void ItemFrameAddItemButtonActionPerformed(ActionEvent evt) {
-			DefaultComboBoxModel<String> modelItemType = (DefaultComboBoxModel<String>) ItemTypeComboBox.getModel();
+			DefaultComboBoxModel modelItemType = (DefaultComboBoxModel) ItemTypeComboBox.getModel();
 			String selectedItem = (String) modelItemType.getElementAt(ItemTypeComboBox.getSelectedIndex());
-			int itemId = ((int) ItemIdField.getValue());
-			int price = ((int) priceField.getValue());
-			int minamount = ((int) minAmountField.getValue());
-			int packId = ((int) packIdField.getValue());
+			int itemId = ((Integer) ItemIdField.getValue());
+			int price = ((Integer) priceField.getValue());
+			int minamount = ((Integer) minAmountField.getValue());
+			int packId = ((Integer) packIdField.getValue());
 			if (itemId == 0 || price == 0 || (packId == 0 && selectedItem.equalsIgnoreCase("pack"))) {
 				JOptionPane.showMessageDialog(getContentPane(), "You haven't set some of the values reqiured.", "Error",
 						JOptionPane.ERROR_MESSAGE);
@@ -893,9 +893,9 @@ public class GUI extends JFrame {
 						"Error", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
-			DefaultListModel<RegisteredItem> model = (DefaultListModel<RegisteredItem>) itemsList.getModel();
-			for (RegisteredItem item : Collections.list(model.elements())) {
-				if (item.getItemId() == itemId) {
+			DefaultListModel model = (DefaultListModel) itemsList.getModel();
+			for (Object item : Collections.list(model.elements())) {
+				if (((RegisteredItem) item).getItemId() == itemId) {
 					JOptionPane.showMessageDialog(getContentPane(), "You already have that item in your item list.",
 							"Error", JOptionPane.ERROR_MESSAGE);
 					return;
@@ -909,7 +909,7 @@ public class GUI extends JFrame {
 		}
 
 		private void ItemTypeComboBoxItemStateChanged(ItemEvent evt) {
-			DefaultComboBoxModel<String> model = (DefaultComboBoxModel<String>) ItemTypeComboBox.getModel();
+			DefaultComboBoxModel model = (DefaultComboBoxModel) ItemTypeComboBox.getModel();
 			String selectedItem = (String) model.getElementAt(ItemTypeComboBox.getSelectedIndex());
 			if (selectedItem.equalsIgnoreCase("pack")) {
 				jPanel1.add(jLabel5);
