@@ -14,7 +14,7 @@ import java.util.concurrent.Callable;
 
 @Script.Manifest(
         name = "Clay Softener",
-        properties = "author=drusepth; topic=0; client=4;",
+        properties = "author=drusepth; topic=1344654; client=4;",
         description = "Softens all banked clay in Edgeville."
 )
 
