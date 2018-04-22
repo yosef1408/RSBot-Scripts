@@ -1,4 +1,4 @@
-package scripts.tasks;
+package drusepth.scripts.tasks;
 
 import org.powerbot.script.Condition;
 import org.powerbot.script.Random;

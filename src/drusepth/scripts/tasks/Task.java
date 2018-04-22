@@ -1,4 +1,4 @@
-package scripts.tasks;
+package drusepth.scripts.tasks;
 
 import org.powerbot.script.rt4.ClientAccessor;
 import org.powerbot.script.rt4.ClientContext;

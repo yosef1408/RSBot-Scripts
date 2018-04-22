@@ -1,4 +1,4 @@
-package scripts;
+package drusepth.scripts;
 
 import org.powerbot.script.Condition;
 import org.powerbot.script.PollingScript;
@@ -6,9 +6,9 @@ import org.powerbot.script.Random;
 import org.powerbot.script.Script;
 import org.powerbot.script.rt4.ClientContext;
 import org.powerbot.script.rt4.GameObject;
-import scripts.tasks.DepositItemsTask;
-import scripts.tasks.SeekObjectTask;
-import scripts.tasks.WithdrawItemsTask;
+import drusepth.scripts.tasks.DepositItemsTask;
+import drusepth.scripts.tasks.SeekObjectTask;
+import drusepth.scripts.tasks.WithdrawItemsTask;
 
 import java.util.concurrent.Callable;
 
