@@ -7,6 +7,7 @@ import sscripts.sgaltar.SGAltar;
 import java.util.concurrent.Callable;
 
 public class CloseBank extends Task {
+
     public CloseBank(ClientContext ctx) {
         super(ctx);
     }
