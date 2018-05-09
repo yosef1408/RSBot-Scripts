@@ -22,7 +22,6 @@ public class Walking extends Task {
     public boolean activate() {
         final GameObject portalIn = ctx.objects.select().id(4525).nearest().poll();
         final GameObject altar = ctx.objects.select().name("Altar").nearest().poll();
-
         return ctx.inventory.select().isEmpty() && !ctx.bank.inViewport() && ctx.players.local().tile().distanceTo(bank) > 4 && !portalIn.inViewport() && !altar.inViewport() ;
     }
 

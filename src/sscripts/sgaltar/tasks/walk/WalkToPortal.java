@@ -10,7 +10,7 @@ import sscripts.sgaltar.tasks.Task;
 
 public class WalkToPortal extends Task {
 
-    private  Tile[] path = {new Tile(2545, 3096, 0), new Tile(2548, 3093, 0), new Tile(2552, 3093, 0), new Tile(2556, 3092, 0), new Tile(2560, 3090, 0), new Tile(2564, 3090, 0), new Tile(2568, 3090, 0), new Tile(2572, 3090, 0), new Tile(2576, 3090, 0), new Tile(2580, 3093, 0), new Tile(2583, 3096, 0), new Tile(2587, 3097, 0), new Tile(2591, 3097, 0), new Tile(2595, 3097, 0), new Tile(2599, 3097, 0), new Tile(2603, 3097, 0), new Tile(2606, 3093, 0), new Tile(2610, 3093, 0)};
+    private final  Tile[] path = {new Tile(2545, 3096, 0), new Tile(2548, 3093, 0), new Tile(2552, 3093, 0), new Tile(2556, 3092, 0), new Tile(2560, 3090, 0), new Tile(2564, 3090, 0), new Tile(2568, 3090, 0), new Tile(2572, 3090, 0), new Tile(2576, 3090, 0), new Tile(2580, 3093, 0), new Tile(2583, 3096, 0), new Tile(2587, 3097, 0), new Tile(2591, 3097, 0), new Tile(2595, 3097, 0), new Tile(2599, 3097, 0), new Tile(2603, 3097, 0), new Tile(2606, 3093, 0), new Tile(2610, 3093, 0)};
 
     private final Walker walker = new Walker(ctx);
 
@@ -23,9 +23,7 @@ public class WalkToPortal extends Task {
         final GameObject portal = ctx.objects.select().id(30172).poll();
         final GameObject portalIn = ctx.objects.select().id(4525).nearest().poll();
         final GameObject altar = ctx.objects.select().name("Altar").nearest().poll();
-        SGAltar.floor = ctx.client().getFloor();
-
-        return ctx.inventory.select().count() == 28 && !portal.inViewport() && !portalIn.inViewport() && !altar.inViewport() && SGAltar.floor == 0;
+        return ctx.inventory.select().count() == 28 && !portal.inViewport() && !portalIn.inViewport() && !altar.inViewport() && ctx.client().getFloor() == 0;
     }
 
     @Override
