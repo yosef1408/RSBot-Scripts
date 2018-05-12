@@ -25,7 +25,9 @@ public class ToPortal extends Task {
     @Override
     public boolean activate() {
         final GameObject portal = ctx.objects.select().id(15478).nearest().poll();
-        return ctx.inventory.select().count() == 28 && ctx.client().getFloor() == 0 && !portal.inViewport() && !inHouse();
+        final Tile tilePortal = new Tile(2954,3223,0);
+
+        return ctx.inventory.select().count() == 28 && ctx.client().getFloor() == 0 && !portal.inViewport() && !inHouse() && tilePortal.distanceTo(ctx.players.local()) > 3;
     }
 
     @Override
@@ -36,14 +38,24 @@ public class ToPortal extends Task {
         if (ctx.movement.energyLevel() > 50 && !ctx.movement.running()){
             ctx.movement.running(true);
         }
-
-        if (ctx.movement.step(tilePortal)){
+        if (!portal.inViewport()) {
+            ctx.camera.turnTo(tilePortal);
             Condition.wait(new Callable<Boolean>() {
                 @Override
                 public Boolean call() throws Exception {
                     return portal.inViewport();
                 }
-            },1000,3);
+            }, 1000, 3);
+            if (!portal.inViewport()) {
+                if (ctx.movement.step(tilePortal)) {
+                    Condition.wait(new Callable<Boolean>() {
+                        @Override
+                        public Boolean call() throws Exception {
+                            return portal.inViewport();
+                        }
+                    }, 1000, 3);
+                }
+            }
         }
 
     }

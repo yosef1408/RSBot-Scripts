@@ -1,6 +1,5 @@
 package sscripts.sgaltar.tasks;
 
-import org.powerbot.Con;
 import org.powerbot.script.Condition;
 import org.powerbot.script.rt4.ClientContext;
 import org.powerbot.script.rt4.GameObject;
@@ -18,7 +17,7 @@ public class LeaveHouse extends Task {
     public boolean activate() {
         final GameObject portal = ctx.objects.select().id(4525).nearest().poll();
         final GameObject altar = ctx.objects.select().name("Altar").nearest().poll();
-        return ctx.inventory.select().id(SGAltar.data.getBone_ID()).isEmpty() && !ctx.players.local().inMotion() && (altar.inViewport() || portal.inViewport());
+        return ctx.inventory.select().id(SGAltar.data.getBone_ID()).isEmpty() && !ctx.players.local().inMotion() && (altar.inViewport() || portal.inViewport()) && ctx.client().getFloor() != 0;
     }
 
     @Override
@@ -42,16 +41,17 @@ public class LeaveHouse extends Task {
                 public Boolean call() throws Exception {
                     return portal.inViewport();
                 }
-            },500,3);
-
-            ctx.movement.step(portal);
-            SGAltar.status="Stepping to Portal";
-            Condition.wait(new Callable<Boolean>() {
-                @Override
-                public Boolean call() throws Exception {
-                    return ctx.players.local().inMotion() && portal.inViewport();
-                }
             }, 500, 3);
+            if (!portal.inViewport()) {
+                ctx.movement.step(portal);
+                SGAltar.status = "Stepping to Portal";
+                Condition.wait(new Callable<Boolean>() {
+                    @Override
+                    public Boolean call() throws Exception {
+                        return ctx.players.local().inMotion() && portal.inViewport();
+                    }
+                }, 500, 3);
+            }
         }
     }
 }

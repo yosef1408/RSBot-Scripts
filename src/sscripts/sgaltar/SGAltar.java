@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-@Script.Manifest(name = "SGAltar", description = "[Rimmington] [Yanille] Gilded Altar Bot - Fast Prayer EXP - Supports all Bones - Refreshes your run energy - Up to 900 Bones/hr [200k+ exp/h] - Version:2.03 [05/08/2018]", properties = "author=sscripts; topic=1338021; client=4")
+@Script.Manifest(name = "SGAltar", description = "[Rimmington] [Yanille] Gilded Altar Bot - Fast Prayer EXP - Supports all Bones - Refreshes your run energy - Up to 900 Bones/hr [200k+ exp/h] - Version:2.04 [05/08/2018]", properties = "author=sscripts; topic=1338021; client=4")
 public class SGAltar extends PollingScript<ClientContext> implements PaintListener, MessageListener, MouseListener {
 
     public static int startEXP, startLVL, expGain, failSaves, prayerLvl, bone_ID, bonesUsed;
@@ -43,6 +43,7 @@ public class SGAltar extends PollingScript<ClientContext> implements PaintListen
                 new Gui(ctx, tasks);
             }
         });
+        ctx.input.speed(Random.nextInt(65,100));
     }
 
     @Override
@@ -69,6 +70,12 @@ public class SGAltar extends PollingScript<ClientContext> implements PaintListen
             stop = true;
         }
         if (msg.text().contains("They have locked")) {
+            stop = true;
+        }
+        if (msg.text().contains("They do not seem")) {
+            stop = true;
+        }
+        if (ctx.widgets.widget(229).component(0).visible()) {
             stop = true;
         }
     }
@@ -99,14 +106,13 @@ public class SGAltar extends PollingScript<ClientContext> implements PaintListen
         return (int) ((value) * 3600000D / (System.currentTimeMillis() - startTime));
     }
 
-    boolean hide = false;
-    Point p;
-    Rectangle close = new Rectangle(70,183,70,16);
-    Rectangle open = new Rectangle(10,10,60,16);
+    private boolean hide = false;
+    private Rectangle close = new Rectangle(70,183,70,16);
+    private Rectangle open = new Rectangle(10,10,60,16);
 
 
     public void mouseClicked(MouseEvent e) {
-        p = e.getPoint();
+        Point p = e.getPoint();
         if (close.contains(p) && !hide) {
             hide = true;
         } else if (open.contains(p) && hide) {
@@ -156,7 +162,7 @@ public class SGAltar extends PollingScript<ClientContext> implements PaintListen
 
 
         g.setColor(Color.BLUE);
-        g.drawString("SGAltar - v2.03",60,25);
+        g.drawString("SGAltar - v2.04",60,25);
         g.setColor(Color.BLACK);
         g.drawString("RunTime: " + formatTime(getTotalRuntime()),20,50);
         g.drawString("Status: " + status, 20, 70);

@@ -50,6 +50,13 @@ public class Altar extends Task {
             } else {
                 SGAltar.status = "Looking for Altar";
                 ctx.camera.turnTo(altar);
+                Condition.wait(new Callable<Boolean>() {
+                    @Override
+                    public Boolean call() throws Exception {
+                        return altar.inViewport();
+                    }
+                }, 500, 3);
+
                 ctx.movement.step(altar);
                 Condition.wait(new Callable<Boolean>() {
                     @Override
@@ -76,6 +83,13 @@ public class Altar extends Task {
             } else {
                 SGAltar.status = "Looking for Altar";
                 ctx.camera.turnTo(altar);
+                Condition.wait(new Callable<Boolean>() {
+                    @Override
+                    public Boolean call() throws Exception {
+                        return altar.inViewport();
+                    }
+                }, 500, 3);
+
                 ctx.movement.step(altar);
                 Condition.wait(new Callable<Boolean>() {
                     @Override
