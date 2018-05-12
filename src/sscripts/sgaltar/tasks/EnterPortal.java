@@ -16,11 +16,9 @@ public class EnterPortal extends Task {
     public boolean activate() {
         final GameObject portal = ctx.objects.select().id(30172).poll();
         final GameObject portalrim = ctx.objects.select().id(15478).poll();
-        return (portal.inViewport() || portalrim.inViewport()) && ctx.inventory.select().count() == 28 && !isWidgetOpend();
-    }
-
-    private boolean isWidgetOpend() {
-        return ctx.widgets.component(162,33).visible();
+        return  ctx.inventory.select().count() == 28
+                && (portalrim.tile().distanceTo(ctx.players.local()) < 3 || portal.tile().distanceTo(ctx.players.local()) <3 || portal.inViewport() || portalrim.inViewport())
+                && !ctx.widgets.component(162, 33).visible();
     }
 
     @Override
@@ -33,7 +31,7 @@ public class EnterPortal extends Task {
                     public Boolean call() throws Exception {
                         return !portal.inViewport() && ctx.widgets.component(162, 33).visible();
                     }
-                }, 750, 2);
+                }, 750, 5);
             }
         }
     }

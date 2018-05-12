@@ -47,7 +47,7 @@ public class Phials extends Task {
         }
 
         if (phials.inViewport()){
-            if (ctx.inventory.select().count() <= 25){
+            if (ctx.inventory.select().count() <= 21){
                if (notedBones.interact("Use")) {
                  SGAltar.status = "Using noted bones";
                     if (phials.interact("Use")) {
@@ -56,10 +56,9 @@ public class Phials extends Task {
                         public Boolean call() throws Exception {
                               return ctx.widgets.widget(219).component(0).component(3).visible();
                          }
-                    }, 500, 3);
+                    }, 750, 5);
                      if (ctx.widgets.widget(219).component(0).component(3).visible()) {
                            ctx.input.sendln("3");
-                           //ctx.widgets.component(219,3).click();
                              Condition.wait(new Callable<Boolean>() {
                             @Override
                             public Boolean call() throws Exception {
@@ -69,20 +68,23 @@ public class Phials extends Task {
                       }
                  }
                }
-            }
-            if (ctx.inventory.select().count() == 26 || ctx.inventory.select().count() == 27){
+            }else if (ctx.inventory.select().count() == 22
+                    || ctx.inventory.select().count() == 23
+                    || ctx.inventory.select().count() == 24
+                    || ctx.inventory.select().count() == 25
+                    || ctx.inventory.select().count() == 26
+                    || ctx.inventory.select().count() == 27){
                 if (notedBones.interact("Use")) {
                     SGAltar.status = "Using noted bones";
-                    if (phials.interact("Use")) {
+                        if (phials.interact("Use")) {
                         Condition.wait(new Callable<Boolean>() {
                             @Override
                             public Boolean call() throws Exception {
                                 return ctx.widgets.widget(219).component(0).component(3).visible();
                             }
-                        }, 500, 3);
+                        }, 750, 5);
                         if (ctx.widgets.widget(219).component(0).component(3).visible()) {
                             ctx.input.sendln("2");
-                            //ctx.widgets.component(219,3).click();
                             Condition.wait(new Callable<Boolean>() {
                                 @Override
                                 public Boolean call() throws Exception {
@@ -95,7 +97,7 @@ public class Phials extends Task {
             }
         } else {
             SGAltar.status = "Looking for Phials";
-            ctx.movement.step(tileNPC);
+
             ctx.camera.turnTo(tileNPC);
             Condition.wait(new Callable<Boolean>() {
                 @Override
@@ -103,6 +105,15 @@ public class Phials extends Task {
                     return phials.inViewport();
                 }
             },1000, 3);
+            if (!phials.inViewport() && tileNPC.distanceTo(ctx.players.local()) > 3) {
+                ctx.movement.step(tileNPC);
+                Condition.wait(new Callable<Boolean>() {
+                    @Override
+                    public Boolean call() throws Exception {
+                        return phials.inViewport();
+                    }
+                }, 1000, 3);
+            }
         }
     }
 }

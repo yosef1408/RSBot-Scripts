@@ -27,7 +27,7 @@ public class Antiban extends Task {
     public boolean activate() {
         Random r = new Random();
         int ra = r.nextInt(1,250);
-        return inHouse() &&  (ra == 25 || ra == 50);
+        return inHouse() &&  (ra == 25 || ra == 50 || ra == 75);
     }
 
 
@@ -145,6 +145,9 @@ public class Antiban extends Task {
 
                 break;
             case 9:
+                SGAltar.status = "Antiban#10";
+                System.out.println("Antipattern-Case9:Changing mouse speed");
+                ctx.input.speed(Random.nextInt(65,100));
 
                 break;
             case 10:
@@ -158,7 +161,10 @@ public class Antiban extends Task {
                 break;
 
                 default:
-                    break;
+                    SGAltar.status = "Antiban-fefault";
+                    System.out.println("Antipattern-Case-default:Changing mouse speed");
+                    ctx.input.speed(Random.nextInt(65,100));
+
         }
 
     }
