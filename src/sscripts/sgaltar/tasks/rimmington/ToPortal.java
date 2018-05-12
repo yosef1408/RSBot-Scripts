@@ -39,11 +39,6 @@ public class ToPortal extends Task {
             ctx.movement.running(true);
         }
         if (!portal.inViewport()) {
-            int x = tilePortal.x();
-            int y = tilePortal.y();
-
-            System.out.println("DEBUG INFORMATION:"+ x + "test debug x tile");
-            System.out.println("DEBUG INFORMATION:"+ y + "test debug y tile");
             ctx.camera.turnTo(tilePortal);
             Condition.wait(new Callable<Boolean>() {
                 @Override
