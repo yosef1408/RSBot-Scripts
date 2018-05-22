@@ -36,7 +36,7 @@ public class Cook extends Task {
 
     @Override
     public void execute() {
-        if (!ctx.objects.select().id(rangeId).isEmpty() && ctx.objects.select().id(rangeId).nearest().poll().tile().distanceTo(ctx.players.local()) < 3) {
+        if (!ctx.objects.select().id(rangeId).isEmpty() && ctx.objects.select().id(rangeId).nearest().poll().tile().distanceTo(ctx.players.local())<3 && ctx.players.local().animation()!=cookingAnimationId) {
             final GameObject range = ctx.objects.select().id(rangeId).nearest().poll();
             clickRawFish();
             range.click();
