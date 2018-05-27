@@ -1,8 +1,8 @@
 package scripts.Canifi;
 
 import org.powerbot.script.*;
+import org.powerbot.script.rt4.*;
 import org.powerbot.script.rt4.ClientContext;
-import org.powerbot.script.rt4.GroundItem;
 import scripts.Utilitys.Areas;
 
 import javax.swing.*;
@@ -16,7 +16,7 @@ import java.util.concurrent.Callable;
         name="CanifiAgi",
         description = "Train the agility from level 40 to 60, take the grace marks on the road and return to the starting point if something goes wrong.",
         properties = "autor: PanconMortadela;topic=1345429; client=4;")
-public class Canifi extends PollingScript<ClientContext> implements PaintListener {
+public class Canifi2 extends PollingScript<ClientContext> implements PaintListener {
     Tile[] inicio ={
             new Tile(3508,3489,0),//0
             new Tile(3505,3497,2),//1
@@ -27,15 +27,15 @@ public class Canifi extends PollingScript<ClientContext> implements PaintListene
             new Tile(3503,3476,3),//6
             new Tile(3510,3483,2)};//7 lengtth 8
     Tile[] llegada={
-            new Tile(3506,3492,0),//0
+            new Tile(3506,3492,2),//0
             new Tile(3502,3504,2),//1
             new Tile(3492,3504,2),//2
-            new Tile(3479,3499,2),//3
-            new Tile(3478,3486,3),//4
-            new Tile(3489,3476,2),//5
-            new Tile(3510,3476,3),//6
-            new Tile(3510,3485,2)};//7 length 8
-    int l,count=0,cama=0; boolean camara;
+            new Tile(3479,3499,3),//3
+            new Tile(3478,3486,2),//4
+            new Tile(3489,3476,3),//5
+            new Tile(3510,3476,2),//6
+            new Tile(3510,3485,0)};//7 length 8
+    int l,count=0,time=0; boolean camara;
     Area[] t={
             new Area(new Tile(inicio[0].x()-3,inicio[0].y()+3),new Tile(llegada[7].x()+3,llegada[7].y()-3)),     //0
             new Area(new Tile(inicio[1].x()-3,inicio[1].y()+3,2),new Tile(llegada[0].x()+3,llegada[0].y()-3,2)),//1
@@ -46,6 +46,7 @@ public class Canifi extends PollingScript<ClientContext> implements PaintListene
             new Area(new Tile(inicio[6].x()+3,inicio[6].y()-6,3),new Tile(llegada[5].x()-3,llegada[5].y()+3,3)),//6
             new Area(new Tile(inicio[7].x()+7,inicio[7].y()+3,2),new Tile(llegada[6].x()-3,llegada[6].y()-3,2)),//7
     };
+    Tile centro=new Tile(3507,3486,0);
     int[] id={10819,10820,10821,10828,10822,10831,10823,10832};
     String[] accion={"Climb","Jump","Jump","Jump","Jump","Vault","Jump","Jump"};
     Areas areas=new Areas();
@@ -54,18 +55,23 @@ public class Canifi extends PollingScript<ClientContext> implements PaintListene
             new Area(new Tile(3503,3472,0),new Tile(3479,3502,0)),
             new Area(new Tile(3508,3471,0),new Tile(3504,3480,0))
     };
-
-    int h, m, s;
+    Item coal= ctx.inventory.select().id(12019).poll();
     private long initialTime;
     double runTime;
     private final Color color1 = new Color(255, 255, 255,100);
     private final Color color2 = new Color(0, 0, 0);
     private final BasicStroke stroke1 = new BasicStroke(1);
     private final Font font1 = new Font("Segoe Print", 1, 12);
-    int markCount=0,Marks;
-
+    int markcount=0;
+    int vueltas=0;
+    boolean vuelta=false;
+    org.powerbot.script.rt4.GeItem barr= new org.powerbot.script.rt4.GeItem(2353);
+    org.powerbot.script.rt4.GeItem ore= new org.powerbot.script.rt4.GeItem(440);
+    org.powerbot.script.rt4.GeItem coal1= new org.powerbot.script.rt4.GeItem(453);
+    int value;
+    int h, m, s;
     @Override
-    public void repaint(Graphics g1) {
+    public void repaint(Graphics g1){
 
         Graphics2D g= (Graphics2D)g1;
         int x= (int) ctx.input.getLocation().getX();
@@ -86,10 +92,11 @@ public class Canifi extends PollingScript<ClientContext> implements PaintListene
         g.drawRect(7, 54, 220, 58);
         g.setFont(font1);
         g.drawString("Time: "+ h + ":"+ m +":"+s, 10, 67);
-        g.drawString("Marks:" + markCount, 11, 87);
-        g.drawString("Exp/h: " + "Coming soon", 12, 106);
+        g.drawString("#Lap:" + vueltas, 11, 87);
+        value=barr.price-ore.price-coal1.price;
+        g.drawString("Marks: " + markcount, 12, 106);
     }
-    @Override
+
     public void start(){
         initialTime=System.currentTimeMillis();
     }
@@ -101,116 +108,91 @@ public class Canifi extends PollingScript<ClientContext> implements PaintListene
         detener();
     }
     public void estados(){
-        for(int i=0;i<t.length;i++){
-            if(t[i].contains(ctx.players.local().tile())){
-                if(t[i].contains(ctx.groundItems.select(10).id(11849).poll().tile()))marks();
-                if(i==6)l=ctx.players.local().tile().floor();//         por si me caigo salir
 
-                if(i==4)l=ctx.players.local().tile().floor();  //por si me caigo salir
-                final int x=i;
+        count = estoy();
+        cuadro=areas.area3(llegada[count]);
 
-                //hacer click
+        if(count==0) {
+            time = Random.nextInt(2, 4);
+            vuelta=false;
+        }else {
+            time = Random.nextInt(7, 10);
+            vuelta=true;
+        }
 
-                while (!ctx.objects.select().id(id[i]).poll().interact(accion[i])){    //Si no puedo hacer el click hare lo que esta adentro
-                    final Tile medio=areas.mitad(ctx.players.local().tile(),inicio[i],ctx.players.local().tile().floor()); //Tile a la mitad del camino
-                    cuadro =areas.area1(medio);
-                    if(medio.matrix(ctx).click()){  //Si puedo hacer click a la mitaddel camino entonces espero
-                        System.out.println("voy a mitad");
-                        Condition.wait(new Callable<Boolean>() {
-                            @Override
-                            public Boolean call() throws Exception {
-                                return cuadro.contains(ctx.players.local().tile());  //espero hasta que el area tenga al personaje
-                            }
-                        }, 200, 50);
 
-                    }else if(ctx.movement.step(inicio[i])) {   // en caso que no haga click en mitad hare step
-                        cuadro =areas.area3(inicio[i]);
-                        ctx.camera.turnTo(inicio[i]);
-                        ctx.camera.pitch(99);
-                        Condition.wait(new Callable<Boolean>() {
-                            @Override
-                            public Boolean call() throws Exception {
-                                System.out.println("Espero llegar al punto de cuadro");
-                                return cuadro.contains(ctx.players.local().tile());
-                            }
-                        }, 500, 20);
-                    }
-                }//Fin de click
-                cuadro =areas.area3(inicio[i]);
+        if(count==4||count==6){
+            l=ctx.players.local().tile().floor();
+        }
+
+        if(t[count].contains(ctx.groundItems.select(10).id(11849).poll().tile()))marks();
+        if(ctx.objects.select().id(id[count]).poll().valid()){
+            if(ctx.objects.select().id(id[count]).poll().interact(accion[count])){
                 Condition.wait(new Callable<Boolean>() {
                     @Override
                     public Boolean call() throws Exception {
-                        if(x==6||x==4){
-                            if(ctx.players.local().tile().floor()==l){
-                                return true;
-                            }
+                        System.out.println("Voy a esperar 2");
+                        if(count==4||count==6){
+                            return l!=ctx.players.local().tile().floor();
                         }
-                        return cuadro.contains(ctx.players.local().tile())||(t[x+1].contains(ctx.players.local().tile())&&ctx.players.local().animation()==-1);
+                        return cuadro.contains(ctx.players.local().tile());
                     }
-                }, 200, 40);
-                camara=Random.nextBoolean();
+                }, 1000, time);
+            }else if(inicio[count].matrix(ctx).click()) {
                 Condition.wait(new Callable<Boolean>() {
                     @Override
                     public Boolean call() throws Exception {
-                        if(ctx.players.local().tile().floor()==0&&x!=0){
-                            return true;
+                        System.out.println("Voy a esperar 3");
+                        if(count==4||count==6){
+                            return l!=ctx.players.local().tile().floor();
                         }
-                        if(cuadro.contains(ctx.players.local().tile())){
-                            count++;
-                        }
-                        if(camara&&cama==0){
-                            cama=1;
-                            System.out.println("Movere camara");
-                            ctx.camera.turnTo(new Tile(Random.nextInt(inicio[x+1].x()-2,inicio[x+1].x()+2),Random.nextInt(inicio[x+1].y()-2,inicio[x+1].y()+2),inicio[x+1].floor()));
-                            if(Random.nextBoolean()){
-                                ctx.camera.pitch(99);
-                            }else{
-                                ctx.camera.pitch(Random.nextInt(60,90));
-                            }
-                        }
-                        if(ctx.players.local().animation()!=-1){
-                            count--;
-                        }
-                        if(count==2){
-                            System.out.println("Toy parado como pendejo en vez de saltar e.e");
-                            count=0;
-                            return true;
-                        }
-                        if(x==7){
-                            return t[0].contains(ctx.players.local().tile())&&ctx.players.local().animation()==-1;
-                        }
-                        System.out.println("Espero El cuadro");
-                        if(x==6||x==4){
-                            if(ctx.players.local().tile().floor()==l){
-                                return true;
-                            }
-                        }
-                        return t[x+1].contains(ctx.players.local().tile())&&ctx.players.local().animation()==-1;
+                        return cuadro.contains(ctx.players.local().tile());
                     }
-                }, 1000, 10);
-
-                break;
+                }, 1000, time);
+            }else{
+                cuadro=areas.area2(inicio[count]);
+                ctx.movement.step(inicio[count]);
+                ctx.camera.turnTo(inicio[count]);
+                Condition.wait(new Callable<Boolean>() {
+                    @Override
+                    public Boolean call() throws Exception {
+                        System.out.println("Voy a esperar 4");
+                        return cuadro.contains(ctx.players.local().tile());
+                    }
+                }, 1000, time);
             }
         }
-        count=0;cama=0;
+        if(count==7&&vuelta==true){
+            vuelta=false;
+            vueltas++;
+        }
+
     }
 
+    public int estoy(){
+        for(int i=0;i<t.length;i++){
+            if(t[i].contains(ctx.players.local().tile())){
+                return i;
+            }
+        }
+        return 99;
+    }
 
     public void regreso(){
 
-        if(regreso[1].contains(ctx.players.local().tile())){//Este regreso es si estoy en la caida de 6 cerca del punto de inicio
-            cuadro =areas.area3(t[0].getCentralTile());
-            Tile x= cuadro.getRandomTile();
-            ctx.movement.step(x);
+        while(regreso[1].contains(ctx.players.local().tile())){//Este regreso es si estoy en la caida de 6 cerca del punto de inicio
+if(detener())break;
+            ctx.movement.step(centro);
             Condition.wait(new Callable<Boolean>() {
                 @Override
                 public Boolean call() throws Exception {
-                    System.out.println("Espero llegar1");
+                    System.out.println("Espero llegar 1");
                     return t[0].contains(ctx.players.local().tile());
                 }
             }, 1000, 10);
         }
-        else if(regreso[0].contains(ctx.players.local().tile())){
+        while(regreso[0].contains(ctx.players.local().tile())){
+            if(detener())break;
             Area x=new Area(new Tile(3497,3492,0),new Tile(3491,3486,0));
             cuadro =areas.area2(x.getCentralTile());
             Tile y= cuadro.getRandomTile();
@@ -219,25 +201,26 @@ public class Canifi extends PollingScript<ClientContext> implements PaintListene
             Condition.wait(new Callable<Boolean>() {
                 @Override
                 public Boolean call() throws Exception {
-                    System.out.println("Espero llegar2");
+                    System.out.println("Espero llegar 2");
                     return cuadro.contains(ctx.players.local().tile());
                 }
             }, 1000, 30);
-            cuadro =areas.area3(t[0].getCentralTile());
-            ctx.movement.step(t[0].getCentralTile());
+            ctx.movement.step(centro);
+            cuadro =areas.area2(centro);
             Condition.wait(new Callable<Boolean>() {
                 @Override
                 public Boolean call() throws Exception {
-                    System.out.println("Espero llegar1");
-                    return cuadro.contains(ctx.players.local().tile());
+                    System.out.println("Espero llegar 3");
+                    return cuadro.contains(ctx.players.local().tile())&&ctx.players.local().speed()==0;
                 }
-            }, 1000, 10);
-        }else if(estare()){
-
+            }, 1000, 30);
+        }
+        if(estare()) {
         }else{
-            JOptionPane.showInputDialog("No esta en una zona permitida");
-            ctx.controller.stop();
-            detener();
+
+                JOptionPane.showInputDialog("No esta en una zona permitida");
+                ctx.controller.stop();
+                detener();
         }
 
     }
@@ -255,9 +238,9 @@ public class Canifi extends PollingScript<ClientContext> implements PaintListene
     public void marks(){
         System.out.println("Hay markitas??");
         GroundItem mark=ctx.groundItems.select(10).id(11849).poll();
-        Marks=ctx.inventory.select().id(11849).count(true);
+        final int markCount=ctx.inventory.select().id(11849).count(true);
         while(mark.valid()){
-            final int markcount=markCount;
+            if(detener())break;
             if(!mark.tile().matrix(ctx).click()){
                 Tile medio=new Tile((ctx.players.local().tile().x()+mark.tile().x())/2,(ctx.players.local().tile().y()+mark.tile().y())/2);
                 medio.matrix(ctx).click();
@@ -266,12 +249,12 @@ public class Canifi extends PollingScript<ClientContext> implements PaintListene
                 @Override
                 public Boolean call() throws Exception {
                     System.out.println("Espero mark");
-                    return ctx.inventory.select().id(11849).count(true)>Marks;
+                    return ctx.inventory.select().id(11849).count(true)>markCount;
                 }
             }, 1000, 1);
-            if(ctx.inventory.select().id(11849).count(true)>Marks)
-            markCount++;
         }
+        if(ctx.inventory.select().id(11849).count(true)>markCount)
+            markcount++;
 
     }
 
