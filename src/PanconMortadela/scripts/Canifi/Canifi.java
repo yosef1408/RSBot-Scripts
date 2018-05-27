@@ -12,7 +12,10 @@ import java.util.concurrent.Callable;
 /**
  * Created by Putito on 13/05/2018.
  */
-@Script.Manifest(name="CanifiAgi", description = "Run run",properties = "autor: PanconMortadela;topic=1345429; client=4;")
+@Script.Manifest(
+    name="CanifiAgi",
+    description = "Train the agility from level 40 to 60, take the grace marks on the road and return to the starting point if something goes wrong.",
+    properties = "autor: PanconMortadela;topic=1345429; client=4;")
 public class Canifi extends PollingScript<ClientContext> implements PaintListener {
     Tile[] inicio ={
             new Tile(3508,3489,0),//0
