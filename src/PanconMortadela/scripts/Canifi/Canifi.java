@@ -1,4 +1,4 @@
-package PanconMortadela.scripts.Canifi;
+package scripts.Canifi;
 
 import org.powerbot.script.*;
 import org.powerbot.script.rt4.ClientContext;
@@ -13,9 +13,9 @@ import java.util.concurrent.Callable;
  * Created by Putito on 13/05/2018.
  */
 @Script.Manifest(
-    name="CanifiAgi",
-    description = "Train the agility from level 40 to 60, take the grace marks on the road and return to the starting point if something goes wrong.",
-    properties = "autor: PanconMortadela;topic=1345429; client=4;")
+        name="CanifiAgi",
+        description = "Train the agility from level 40 to 60, take the grace marks on the road and return to the starting point if something goes wrong.",
+        properties = "autor: PanconMortadela;topic=1345429; client=4;")
 public class Canifi extends PollingScript<ClientContext> implements PaintListener {
     Tile[] inicio ={
             new Tile(3508,3489,0),//0
@@ -54,9 +54,44 @@ public class Canifi extends PollingScript<ClientContext> implements PaintListene
             new Area(new Tile(3503,3472,0),new Tile(3479,3502,0)),
             new Area(new Tile(3508,3471,0),new Tile(3504,3480,0))
     };
-    @Override
-    public void repaint(Graphics graphics) {
 
+    int h, m, s;
+    private long initialTime;
+    double runTime;
+    private final Color color1 = new Color(255, 255, 255,100);
+    private final Color color2 = new Color(0, 0, 0);
+    private final BasicStroke stroke1 = new BasicStroke(1);
+    private final Font font1 = new Font("Segoe Print", 1, 12);
+    int markCount=0,Marks;
+
+    @Override
+    public void repaint(Graphics g1) {
+
+        Graphics2D g= (Graphics2D)g1;
+        int x= (int) ctx.input.getLocation().getX();
+        int y= (int) ctx.input.getLocation().getY();
+
+        g.drawLine(x,y - 10,x,y+10);
+        g.drawLine(x-10,y,x+10,y);
+
+        h= (int)((System.currentTimeMillis()- initialTime)/3600000);
+        m= (int)((System.currentTimeMillis()- initialTime)/60000%60);
+        s= (int)((System.currentTimeMillis()- initialTime)/1000)%60;
+        runTime=(double)(System.currentTimeMillis()-initialTime)/3600000;
+        Color text=new Color(0,0,0);
+        g.setColor(color1);
+        g.fillRect(7, 54, 220, 58);
+        g.setColor(color2);
+        g.setStroke(stroke1);
+        g.drawRect(7, 54, 220, 58);
+        g.setFont(font1);
+        g.drawString("Time: "+ h + ":"+ m +":"+s, 10, 67);
+        g.drawString("Marks:" + markCount, 11, 87);
+        g.drawString("Exp/h: " + "Coming soon", 12, 106);
+    }
+    @Override
+    public void start(){
+        initialTime=System.currentTimeMillis();
     }
 
     @Override
@@ -160,15 +195,6 @@ public class Canifi extends PollingScript<ClientContext> implements PaintListene
         count=0;cama=0;
     }
 
-    public int estoy(){
-        for(int i=0;i<t.length;i++){
-            if(t[i].contains(ctx.players.local().tile())){
-                return i;
-            }
-        }
-        return 99;
-    }
-
 
     public void regreso(){
 
@@ -229,7 +255,7 @@ public class Canifi extends PollingScript<ClientContext> implements PaintListene
     public void marks(){
         System.out.println("Hay markitas??");
         GroundItem mark=ctx.groundItems.select(10).id(11849).poll();
-        int markCount=ctx.inventory.select().id(11849).count(true);
+        Marks=ctx.inventory.select().id(11849).count(true);
         while(mark.valid()){
             final int markcount=markCount;
             if(!mark.tile().matrix(ctx).click()){
@@ -240,16 +266,14 @@ public class Canifi extends PollingScript<ClientContext> implements PaintListene
                 @Override
                 public Boolean call() throws Exception {
                     System.out.println("Espero mark");
-                    return ctx.inventory.select().id(11849).count(true)>markcount;
+                    return ctx.inventory.select().id(11849).count(true)>Marks;
                 }
             }, 1000, 1);
+            if(ctx.inventory.select().id(11849).count(true)>Marks)
             markCount++;
         }
 
     }
-
-
-
 
     public boolean detener(){
         if(ctx.controller.isStopping()){
@@ -268,89 +292,3 @@ public class Canifi extends PollingScript<ClientContext> implements PaintListene
         }
     }
 }
-
-
-/*
-*     public void estados(){
-        for(int i=0;i<t.length;i++){
-            if(t[i].contains(ctx.players.local().tile())){
-                if(i==6){
-                    l=Integer.parseInt(ctx.widgets.widget(160).component(5).text());//         por si me caigo salir
-                    final Tile x=inicio[6];
-                    ctx.movement.step(x);
-                    Condition.wait(new Callable<Boolean>() {
-                        @Override
-                        public Boolean call() throws Exception {
-                            return ctx.movement.distance(x)<=4;
-                        }
-                    }, 1000, 10);
-                }
-                if(i==4)l=Integer.parseInt(ctx.widgets.widget(160).component(5).text());  //por si me caigo salir
-                final int x=i;
-                //if(i==0)t[0].getRandomTile().matrix(ctx).click();
-
-                //hacer click
-                Area cuadro=areas.area3(inicio[i]);
-                do{
-                    if (detener()) break;
-
-                    while (!inicio[i].matrix(ctx).click()) {
-                        if (detener()) break;
-                        final Tile medio=new Tile((ctx.players.local().tile().x()+inicio[i].tile().x())/2,(ctx.players.local().tile().y()+inicio[i].tile().y())/2);
-                        if(medio.matrix(ctx).click()){
-                            System.out.println("voy a mitad");
-                            Condition.wait(new Callable<Boolean>() {
-                                @Override
-                                public Boolean call() throws Exception {
-                                    return medio.tile().equals(ctx.players.local().tile());
-                                }
-                            }, 200, 50);
-
-                        }else if(ctx.movement.step(inicio[i])) {
-                            ctx.camera.turnTo(inicio[i]);
-                            ctx.camera.pitch(99);
-                        }
-                    }
-                    Condition.wait(new Callable<Boolean>() {
-                        @Override
-                        public Boolean call() throws Exception {
-
-                            return ctx.players.local().animation() !=-1;
-                        }
-                    }, 100, Random.nextInt(30, 80));
-                    if(l>Integer.parseInt(ctx.widgets.widget(160).component(5).text()))break;
-                }while(ctx.players.local().animation()==-1);
-
-                //esperar que estoy pasando el obstaculo
-                if(ctx.players.local().animation()!=-1) {
-                    Condition.wait(new Callable<Boolean>() {
-                        @Override
-                        public Boolean call() throws Exception {
-                            return ctx.players.local().animation() == -1;
-                        }
-                    }, 500, 10);
-                }
-
-                //Comprobar que estoy en la otra area
-                if(i==t.length-1) {
-                    Condition.wait(new Callable<Boolean>() {
-                        @Override
-                        public Boolean call() throws Exception {
-                            System.out.println("Espero para final");
-                            return t[0].contains(ctx.players.local().tile());
-                        }
-                    }, 1000, 10);
-                }else{
-                    Condition.wait(new Callable<Boolean>() {
-                        @Override
-                        public Boolean call() throws Exception {
-                            System.out.println("Estoy pasando el obstaculo: "+x);
-                            return t[x+1].contains(ctx.players.local().tile());
-                        }
-                    }, 500, 10);
-                }
-                break;
-            }
-        }
-    }
-* */
