@@ -1,4 +1,4 @@
-package scripts.Canifi;
+package PanconMortadela.scripts.Canifi;;
 
 import org.powerbot.script.*;
 import org.powerbot.script.rt4.*;
