@@ -20,7 +20,7 @@ import org.powerbot.script.rt4.Npc;
 import org.powerbot.script.rt4.Player;
 import armark1ng.shopitemsautobuyer.WorldSwitcher.World;
 
-@Script.Manifest(name = "Shop Items Auto Buyer", description = "Buys items from any shop supports World Hopping/Opening Packs/Banking For both f2p/p2p players.", properties = "author=armark1ng;topic=1323639;client=4;")
+@Script.Manifest(name = "Shop Items Auto Buyer", description = "Buys items from any shop supports World Hopping/Opening Packs/Banking For both f2p/p2p players.", properties = "author=armark1ng;topic=1323639;client=4;hidden=true;")
 public class ShopItemsAutoBuyer extends PollingScript<ClientContext> implements PaintListener {
 
 	public static int[] RESTRICTED_WORLDS = { 73, 66, 61, 53, 49, 25, 37 };
