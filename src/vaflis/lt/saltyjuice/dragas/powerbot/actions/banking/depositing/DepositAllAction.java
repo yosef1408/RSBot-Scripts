@@ -20,7 +20,7 @@ public class DepositAllAction extends DepositingAction {
 
 	@Override
 	public boolean isUsable(ClientContext ctx) {
-		return ctx.inventory.select().count() != 0;
+		return ctx.inventory.select().count() > 0;
 	}
 
 	@Override

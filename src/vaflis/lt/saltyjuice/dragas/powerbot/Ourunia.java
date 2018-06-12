@@ -3,9 +3,12 @@ package vaflis.lt.saltyjuice.dragas.powerbot;
 import vaflis.lt.saltyjuice.dragas.powerbot.actions.Action;
 import vaflis.lt.saltyjuice.dragas.powerbot.actions.banking.BankClosingAction;
 import vaflis.lt.saltyjuice.dragas.powerbot.actions.banking.BankOpeningAction;
+import vaflis.lt.saltyjuice.dragas.powerbot.actions.banking.ParticularBankOpeningAction;
 import vaflis.lt.saltyjuice.dragas.powerbot.actions.banking.depositing.DepositAllAction;
 import vaflis.lt.saltyjuice.dragas.powerbot.actions.banking.withdrawing.ParticularWithdrawingAction;
+import vaflis.lt.saltyjuice.dragas.powerbot.actions.banking.withdrawing.WithdrawingAction;
 import vaflis.lt.saltyjuice.dragas.powerbot.actions.camera.CameraTurningAction;
+import vaflis.lt.saltyjuice.dragas.powerbot.actions.interacting.FoodEatingAction;
 import vaflis.lt.saltyjuice.dragas.powerbot.actions.interacting.OuraniaAltarInteractingAction;
 import vaflis.lt.saltyjuice.dragas.powerbot.actions.interacting.ParticularObjectInteractingAction;
 import vaflis.lt.saltyjuice.dragas.powerbot.actions.interacting.TeleportingAction;
@@ -33,6 +36,7 @@ public class Ourunia extends AbstractPollingScript
     private Tile trapdoorDestination;
     private Tile midpoint;
     private Tile ladderUndergroundLocation;
+    private Tile bankTile;
 
     @Override
     void onPoll()
@@ -59,6 +63,7 @@ public class Ourunia extends AbstractPollingScript
     {
         log.setLevel(Level.ALL);
         queue = new LinkedList<>();
+        final boolean jackIsThere = ctx.npcs.select().name("'Bird's-Eye' Jack").first().peek().valid();
         this.ouraniaTeleportDestination =  new Tile(2467, 3245, 0);
         this.moonClanTeleportDestination = new Tile(2112, 3914, 0);
         this.ouraniaAltarDestination = new Tile(3058, 5579, 0);
@@ -66,7 +71,17 @@ public class Ourunia extends AbstractPollingScript
         this.trapdoorDestination = new Tile(2455, 3233, 0);
         this.midpoint = new Tile(3017, 5593, 0);
         this.ladderUndergroundLocation = new Tile(3015, 5629, 0);
-        queue.add(new BankOpeningAction());
+        this.bankTile =  new Tile(2097, 3919, 0);
+        if(jackIsThere)
+            queue.add(new BankOpeningAction());
+        else
+            queue.add(new ParticularBankOpeningAction(16700, bankTile));
+        /*queue.add(new DepositAllAction());
+        queue.add(new ParticularWithdrawingAction(Constant.Item.COOKED_LOBSTER, 8));
+        queue.add(new BankClosingAction());
+        queue.add(new TabOpeningAction(Game.Tab.INVENTORY));
+        queue.add(new FoodEatingAction(Constant.Item.COOKED_LOBSTER, 12));
+        queue.add(new ParticularBankOpeningAction(16700, bankTile));*/
         queue.add(new DepositAllAction());
         queue.add(new CameraTurningAction());
         queue.add(new ParticularWithdrawingAction(Constant.Item.LAW_RUNE, 2));
@@ -98,5 +113,12 @@ public class Ourunia extends AbstractPollingScript
     {
         Action lastAction = queue.removeLast();
         queue.addFirst(lastAction);
+    }
+
+    @Override
+    public void stop()
+    {
+        super.stop();
+        log.fine("Stopping.");
     }
 }
