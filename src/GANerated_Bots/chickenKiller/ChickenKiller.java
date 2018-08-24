@@ -1,4 +1,4 @@
-package scripts.chickenKiller;
+package GANerated_Bots.chickenKiller;
 
 import org.powerbot.script.Condition;
 import org.powerbot.script.Filter;
