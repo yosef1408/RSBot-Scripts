@@ -35,7 +35,7 @@ public class Kebab extends Task {
         karim.interact(false, "Talk-to", "Karim"); //right-click talk to karim for the first time
         ctx.camera.pitch(99); //make sure camera pitch is all the way up
         sleep(1000); //wait 1 second, and if you haven't moved yet, try again
-        while(!ctx.players.local().inMotion() && !ctx.widgets.widget(231).component(2).visible())
+        while(!ctx.players.local().inMotion() && !ctx.widgets.widget(231).component(3).visible())
         {
             ctx.camera.turnTo(karim); //turn towards him
             ctx.movement.step(karim); //walk towards him
@@ -45,7 +45,7 @@ public class Kebab extends Task {
             @Override
             public Boolean call() throws Exception
             {
-                return ctx.widgets.widget(231).component(2).visible();
+                return ctx.widgets.widget(231).component(3).visible();
             }
         }, 1000, 15); //check to see if chat log is open every second for 15 seconds for the first time
         buyKebab(); //run through the rest of the chat
@@ -67,25 +67,25 @@ public class Kebab extends Task {
             @Override
             public Boolean call() throws Exception
             {
-                return ctx.widgets.widget(231).component(2).visible();
+                return ctx.widgets.widget(231).component(3).visible();
             }
         }, 100, 60); //check to see if chat log is open every 100 ms for 6 seconds
-        ctx.widgets.widget(231).component(2).interact("Continue");
+        ctx.widgets.widget(231).component(3).interact("continue");
         Condition.wait(new Callable<Boolean>(){ //wait until bank is opened
             @Override
             public Boolean call() throws Exception
             {
-                return ctx.widgets.widget(219).component(0).component(2).visible();
+                return ctx.widgets.widget(219).component(1).component(2).visible();
             }
         }, 100, 30); //check to see if next chat log is open every 100 ms for 3 seconds
-        ctx.widgets.widget(219).component(0).component(2).interact("Continue");
+        ctx.widgets.widget(219).component(1).component(2).interact("yes");
         Condition.wait(new Callable<Boolean>(){ //wait until bank is opened
             @Override
             public Boolean call() throws Exception
             {
-                return ctx.widgets.widget(217).component(2).visible();
+                return ctx.widgets.widget(217).component(3).visible();
             }
         }, 100, 30); //check to see if next chat log is open every 100 ms for 3 seconds
-        ctx.widgets.widget(217).component(2).interact("Continue");
+        ctx.widgets.widget(217).component(3).interact("continue");
     }
 }
