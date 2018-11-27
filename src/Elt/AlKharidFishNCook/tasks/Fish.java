@@ -43,8 +43,9 @@ public class Fish extends Task {
             if (fishSpot.inViewport()) {
                 String fishingMode = getFishingMode();
                 if (fishingMode != null) {
+                    Condition.sleep(Random.nextInt(100, 1500));
                     fishSpot.interact(fishingMode);
-                    Condition.sleep(Random.nextInt(2500, 3500));
+                    Condition.sleep(Random.nextInt(5000, 10000));
                 } else {
                     System.out.println("Fishing supplies not in inventory. Stopping script.");
                     ctx.controller.stop();
@@ -58,5 +59,4 @@ public class Fish extends Task {
             ctx.movement.newTilePath(bankToSpotPath).traverse();
         }
     }
-
 }
