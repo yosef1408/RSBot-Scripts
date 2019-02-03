@@ -54,6 +54,7 @@ public class Helper extends ClientAccessor {
 
     public Item grabFromInventory(String item) {
         ctx.inventory.select(i -> i.name().contains(item));
+        boolean valid = ctx.inventory.peek().valid();
         return ctx.inventory.peek().valid() ? ctx.inventory.peek() : ctx.inventory.nil();
     }
 
@@ -72,7 +73,7 @@ public class Helper extends ClientAccessor {
     }
 
     public boolean inventoryContains(String itemName) {
-        return grabFromInventory(itemName).valid();
+        return !ctx.inventory.select(i->i.name().contains(itemName)).isEmpty();
     }
 
     public List<Item> getInventory() {
