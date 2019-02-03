@@ -1,4 +1,6 @@
-package scriptHelper;
+package LoftySoM.scriptHelper;
+
+import LoftySoM.scriptHelper.Helper;
 
 import java.util.Date;
 import java.util.HashMap;

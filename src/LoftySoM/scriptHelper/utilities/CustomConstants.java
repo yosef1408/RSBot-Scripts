@@ -1,7 +1,7 @@
-package scriptHelper.utilities;
+package LoftySoM.scriptHelper.utilities;
 
+import LoftySoM.scriptHelper.HelperSingleton;
 import org.powerbot.script.rt4.Component;
-import scriptHelper.HelperSingleton;
 
 public class CustomConstants {
     private static final int LEVEL_UP_WIDGET_ID = 233, LEVEL_UP_CONTINUE_TEXT_ID = 3, LEVEL_UP_EXTRAS_WIDGET_ID = 193,

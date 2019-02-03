@@ -1,4 +1,4 @@
-package scriptHelper;
+package LoftySoM.scriptHelper;
 
 import org.powerbot.script.rt4.ClientContext;
 

@@ -1,14 +1,13 @@
-package scriptHelper;
+package LoftySoM.scriptHelper;
 
+import LoftySoM.scriptHelper.utilities.CustomConstants;
 import org.powerbot.script.Random;
 import org.powerbot.script.*;
 import org.powerbot.script.rt4.ClientAccessor;
 import org.powerbot.script.rt4.ClientContext;
-import org.powerbot.script.rt4.Component;
 import org.powerbot.script.rt4.GeItem;
 import org.powerbot.script.rt4.Interactive;
 import org.powerbot.script.rt4.*;
-import scriptHelper.utilities.CustomConstants;
 
 import javax.swing.*;
 import java.awt.*;

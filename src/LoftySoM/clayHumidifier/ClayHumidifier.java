@@ -1,17 +1,20 @@
-package clayHumidifier;
+package LoftySoM.clayHumidifier;
 
+import LoftySoM.scriptHelper.Helper;
+import LoftySoM.scriptHelper.HelperSingleton;
+import LoftySoM.scriptHelper.PaintSingleton;
+import LoftySoM.scriptHelper.SkillTracker;
 import org.powerbot.script.Condition;
 import org.powerbot.script.PaintListener;
 import org.powerbot.script.PollingScript;
 import org.powerbot.script.Script;
 import org.powerbot.script.rt4.*;
-import scriptHelper.Helper;
-import scriptHelper.HelperSingleton;
-import scriptHelper.PaintSingleton;
-import scriptHelper.SkillTracker;
+
 
 import java.awt.*;
-
+/**
+ * Created by Raphael on 2-3-2019.
+ */
 @Script.Manifest(name = "Clay Humidifier Beta", description = "Simple clay humidifier.",
         properties = "author=LoftySoM; topic=999; client=4;")
 public class ClayHumidifier extends PollingScript<ClientContext> implements PaintListener {
