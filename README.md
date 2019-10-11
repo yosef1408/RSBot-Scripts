@@ -10,18 +10,15 @@ Note:
 ### Setting Up
 1. Fork this repository
 2. Add the remote
-    - `git remote add origin https://github.com/[your github name]/powerbot.git`
+    - `git remote add origin https://github.com/[your github name]/RSBot-Scripts.git`
 3. Add the upstream source
-    - `git remote add upstream https://github.com/powerbot/powerbot.git`
-4. Change your working branch to the 'scripts' branch
-    - `git checkout scripts`
-5. Pull
-	- `git pull upstream scripts`
+    - `git remote add upstream https://github.com/powerbot/RSBot-Scripts.git`
+3. Pull
+	- `git pull upstream master`
     
 ### Making Changes
 1. Ensure everything is up-to-date
-	- `git checkout scripts`
-	- `git pull upstream scripts`
+	- `git pull upstream RSBot-Scripts`
 1. Make a new branch
 	- `git checkout -b [your branch name]`
 	- All of your changes will be committed on this branch
@@ -31,9 +28,9 @@ Note:
     - `git push -u origin [your branch name]`
 1. Make a Pull Request from your forked repository
 1. After your Pull Request has been merged, update the base and delete your branch
-	- `git checkout scripts`
-	- `git pull upstream scripts`
-	- `git push -u origin scripts`
+	- `git checkout master`
+	- `git pull upstream master`
+	- `git push -u origin master`
 	- `git branch -d [your branch name]`
 
 ### Guidelines for Scripts
