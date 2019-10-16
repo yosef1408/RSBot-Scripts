@@ -1,0 +1,109 @@
+package scripts;
+
+import org.powerbot.script.Condition;
+import org.powerbot.script.PollingScript;
+import org.powerbot.script.Script;
+import org.powerbot.script.rt4.ClientContext;
+import org.powerbot.script.rt4.Item;
+import org.powerbot.script.rt4.Npc;
+
+import java.util.concurrent.Callable;
+
+import static org.powerbot.script.Condition.sleep;
+
+@Script.Manifest(name="Goblin",description = "seeking!",properties = "something,topic:999,client=4")
+public class Goblin extends PollingScript<ClientContext> {
+
+    final static  int goblin []= {2790,2801,2793,2791};
+    final static int shrimps=315 , trout=333;
+
+    @Override
+    public void start()
+    {
+
+    }
+    @Override
+    public void poll(){
+
+            if(HaveFood())
+            {
+                if (NeedtoHeal())
+                {
+                    Heal();
+                }
+                else if (!InAttack())
+                    Attack();
+            }
+
+    }
+    @Override
+    public void stop()
+    {
+
+    }
+    public boolean NeedtoHeal (){
+        return ctx.combat.health() <6;
+    }
+    public boolean HaveFood(){
+        if(ctx.inventory.select().id(trout).count() == 0)
+            return false;
+        return true;
+    }
+
+    public boolean InAttack()
+    {
+        return  (ctx.players.local().animation()!=-1||ctx.players.local().healthBarVisible());
+    }
+    public void Attack()
+
+    {
+
+        final Npc goblintoattack= ctx.npcs.select().id(goblin).nearest().poll();
+        /** nearest selecting the nearest goblin to attack ;*/
+        goblintoattack.interact("Attack");
+        /** we have to use condition else we are gonna eat more than 1 food */
+
+        Condition.sleep(1500);
+/**
+        Condition.wait(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                return !(ctx.players.local().inMotion());
+            }
+        },400,20);
+
+
+        Condition.wait(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                return !(ctx.players.local().animation()==-1);
+            }
+        },400,20);
+
+*/
+
+    }
+
+    public void Heal() {
+
+        Item itemtoeat= ctx.inventory.select().id(trout).poll();
+        /** notes: ctx.inventory.id(monk) return all of the items id that i have
+         * adding poll mean selecting the first one
+         */
+        itemtoeat.interact("Eat");
+        /** the option to select . in case there's more than one we have to make the boolean flag = true;*/
+
+        final int startinghealth= ctx.combat.health();
+        /** we have to use condition else we are gonna eat more than 1 food */
+        Condition.wait(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                final int currentrhealth= ctx.combat.health();
+                return startinghealth!= currentrhealth;
+            }
+        },150,20);
+
+
+
+    }
+}
